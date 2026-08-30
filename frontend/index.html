@@ -124,7 +124,7 @@ header p{
     color:#00ff66;
 }
 
-/* SYSTEM */
+/* BOX */
 
 .box{
     width:92%;
@@ -143,9 +143,13 @@ header p{
     letter-spacing:5px;
 }
 
+/* STATUS */
+
 .status{
     display:flex;
     justify-content:space-between;
+    align-items:center;
+    width:100%;
     padding:20px 10px;
     border-bottom:1px solid #12343d;
     font-size:21px;
@@ -158,6 +162,11 @@ header p{
 
 .locked{
     color:#ff4040;
+    font-weight:bold;
+}
+
+.voice-ready{
+    color:#00ff66;
     font-weight:bold;
 }
 
@@ -191,6 +200,7 @@ header p{
     margin:0 auto 30px;
     display:flex;
     gap:12px;
+    align-items:stretch;
 }
 
 #msg{
@@ -209,335 +219,20 @@ header p{
     color:#777;
 }
 
-#send{
-    width:120px;
+#send,
+#voiceButton{
+    min-width:110px;
     border:0;
     border-radius:15px;
     background:#08c8ef;
     color:#001018;
-    font-size:18px;
+    font-size:16px;
     font-weight:bold;
     cursor:pointer;
 }
 
-#send:active{
-    transform:scale(.95);
+#voiceButton{
+    background:#00d9ff;
 }
 
-/* MOBILE */
-
-@media(max-width:500px){
-
-    .core{
-        width:300px;
-        height:300px;
-    }
-
-    .r1{
-        width:300px;
-        height:300px;
-    }
-
-    .box{
-        padding:20px;
-    }
-
-    .box h2{
-        font-size:28px;
-    }
-
-    .status{
-        font-size:19px;
-    }
-
-    #send{
-        width:110px;
-    }
-}
-
-</style>
-</head>
-
-
-<body>
-
-<header>
-
-<h1>J.A.R.V.I.S</h1>
-
-<p>MOBILE EDITION</p>
-
-</header>
-
-
-<!-- CORE -->
-
-<div class="core">
-
-<div class="ring r1"></div>
-
-<div class="ring r2"></div>
-
-<div class="ring r3"></div>
-
-<div class="ring r4"></div>
-
-<div class="core-center"></div>
-
-</div>
-
-
-<div class="core-status">
-
-CORE ACTIVE <span>●</span>
-
-</div>
-
-
-<!-- SYSTEM STATUS -->
-
-<div class="box">
-
-<h2>SYSTEM STATUS</h2>
-
-<div class="status">
-
-<span>AI CORE</span>
-
-<span class="online">ONLINE</span>
-
-</div>
-
-
-<div class="status">
-
-<span>NETWORK</span>
-
-<span class="online">ONLINE</span>
-
-</div>
-    
-<div class="status-row">
-    
-    <span>VOICE</span>
-    
-    <b id="voiceStatus">READY</b>
-    
-</div>
-
-
-<div class="status">
-
-<span>MEMORY</span>
-
-<span class="locked">LOCKED</span>
-
-</div>
-
-
-<!-- CHAT -->
-
-<div class="box">
-
-<div id="chat">
-
-<p class="ai">
-J.A.R.V.I.S: Systems online. How may I assist you?
-</p>
-
-</div>
-
-</div>
-
-
-<!-- INPUT -->
-
-<div class="input-area">
-
-<input
-id="msg"
-type="text"
-placeholder="Ask J.A.R.V.I.S..."
-autocomplete="off"
->
-
-<button id="send" type="button">
-SEND
-</button>
-
-</div>
-
-
-<script>
-
-/* =========================
-   J.A.R.V.I.S ENGINE
-========================= */
-
-const input = document.getElementById("msg");
-const send = document.getElementById("send");
-const chat = document.getElementById("chat");
-
-
-function addMessage(text, className){
-
-    const message = document.createElement("p");
-
-    message.className = className;
-
-    message.textContent = text;
-
-    chat.appendChild(message);
-
-    chat.scrollTop = chat.scrollHeight;
-}
-
-
-function getReply(text){
-
-    const command = text.toLowerCase().trim();
-
-
-    if(command.includes("hello") ||
-       command.includes("hi") ||
-       command.includes("hey")){
-
-        return "Hello. I am J.A.R.V.I.S. How may I assist you?";
-
-    }
-
-
-    if(command.includes("who are you")){
-
-        return "I am J.A.R.V.I.S., your personal AI assistant.";
-
-    }
-
-
-    if(command.includes("status")){
-
-        return "All primary systems are operational. AI Core and Network are online.";
-
-    }
-
-
-    if(command.includes("time")){
-
-        return "Current time is " +
-        new Date().toLocaleTimeString();
-
-    }
-
-
-    if(command.includes("date")){
-
-        return "Today's date is " +
-        new Date().toLocaleDateString();
-
-    }
-
-
-    if(command.includes("thank")){
-
-        return "You're welcome. Always at your service.";
-
-    }
-
-
-    if(command.includes("bye")){
-
-        return "Goodbye. J.A.R.V.I.S systems remain on standby.";
-
-    }
-
-
-    return "Command received. I am ready to assist you.";
-
-}
-
-
-/* SEND FUNCTION */
-
-function sendMessage(){
-
-    const text = input.value.trim();
-
-
-    if(text === ""){
-
-        return;
-
-    }
-
-
-    addMessage(
-        "YOU: " + text,
-        "user"
-    );
-
-
-    input.value = "";
-
-
-    const processing =
-        document.createElement("p");
-
-
-    processing.className = "ai";
-
-
-    processing.textContent =
-        "J.A.R.V.I.S: Processing...";
-
-
-    chat.appendChild(processing);
-
-
-    chat.scrollTop =
-        chat.scrollHeight;
-
-
-    setTimeout(function(){
-
-        processing.textContent =
-            "J.A.R.V.I.S: " +
-            getReply(text);
-
-
-        chat.scrollTop =
-            chat.scrollHeight;
-
-    },700);
-
-}
-
-
-/* BUTTON */
-
-send.addEventListener(
-    "click",
-    sendMessage
-);
-
-
-/* ENTER KEY */
-
-input.addEventListener(
-    "keydown",
-    function(event){
-
-        if(event.key === "Enter"){
-
-            event.preventDefault();
-
-            sendMessage();
-
-        }
-
-    }
-);
-
-</script>
-
-</body>
-</html>
+#voiceButton
