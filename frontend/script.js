@@ -95,24 +95,21 @@ if (input) {
     });
 }
 
-// VOICE BUTTON
+// 🎤 VOICE BUTTON
 if (voiceBtn) {
     voiceBtn.addEventListener("click", function () {
-
-        if (!("webkitSpeechRecognition" in window) &&
-            !("SpeechRecognition" in window)) {
-
-            addMessage(
-                "J.A.R.V.I.S: Voice recognition is not supported in this browser.",
-                "ai"
-            );
-
-            return;
-        }
 
         const SpeechRecognition =
             window.SpeechRecognition ||
             window.webkitSpeechRecognition;
+
+        if (!SpeechRecognition) {
+            addMessage(
+                "J.A.R.V.I.S: Speech recognition is not supported. Please use Google Chrome.",
+                "ai"
+            );
+            return;
+        }
 
         const recognition = new SpeechRecognition();
 
@@ -120,24 +117,36 @@ if (voiceBtn) {
         recognition.continuous = false;
         recognition.interimResults = false;
 
-        addMessage("J.A.R.V.I.S: Listening...", "ai");
+        addMessage("J.A.R.V.I.S: 🎤 Listening...", "ai");
 
-        recognition.start();
+        recognition.onstart = function () {
+            voiceBtn.textContent = "🎤 LISTENING...";
+        };
 
         recognition.onresult = function (event) {
-            const text =
-                event.results[0][0].transcript;
+            const text = event.results[0][0].transcript;
 
             input.value = text;
+
+            voiceBtn.textContent = "🎤 VOICE";
+
             sendMessage();
         };
 
-        recognition.onerror = function () {
+        recognition.onerror = function (event) {
+            voiceBtn.textContent = "🎤 VOICE";
+
             addMessage(
-                "J.A.R.V.I.S: Voice recognition error.",
+                "J.A.R.V.I.S: Microphone error: " + event.error,
                 "ai"
             );
         };
+
+        recognition.onend = function () {
+            voiceBtn.textContent = "🎤 VOICE";
+        };
+
+        recognition.start();
     });
 }
 
