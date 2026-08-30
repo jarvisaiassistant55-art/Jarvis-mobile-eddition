@@ -4,989 +4,447 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>J.A.R.V.I.S</title>
+<title>JARVIS AI Assistant</title>
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
 
 <style>
-* {
-    box-sizing: border-box;
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Segoe UI',sans-serif;
 }
 
-body {
-    margin: 0;
-    min-height: 100vh;
-    background: #000b10;
-    color: #08d9ff;
-    font-family: Arial, sans-serif;
+body{
+background:#020814;
+color:white;
+display:flex;
+justify-content:center;
+padding:20px;
 }
 
-/* HEADER */
-
-header {
-    text-align: center;
-    padding: 22px 10px;
-    background: #080c14;
+.app{
+width:430px;
+min-height:100vh;
+background:linear-gradient(180deg,#030b17,#01050d);
+border-radius:30px;
+overflow:hidden;
+padding:20px;
 }
 
-header h1 {
-    margin: 0;
-    font-size: 30px;
-    letter-spacing: 6px;
+:root{
+--cyan:#00f7ff;
+--card:#09111f;
 }
 
-header p {
-    margin: 6px 0 0;
-    color: #777;
-    font-size: 11px;
-    letter-spacing: 4px;
+.topbar{
+display:flex;
+justify-content:space-between;
+align-items:center;
 }
 
-/* CORE */
-
-.core {
-    width: 280px;
-    height: 280px;
-    margin: 25px auto 10px;
-    position: relative;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
+.circle-btn{
+width:55px;
+height:55px;
+border-radius:50%;
+border:1px solid rgba(0,247,255,.5);
+display:flex;
+align-items:center;
+justify-content:center;
+color:var(--cyan);
+font-size:22px;
+box-shadow:0 0 20px rgba(0,247,255,.2);
 }
 
-.ring {
-    position: absolute;
-    border-radius: 50%;
-    border: 3px solid #00d9ff;
-
-    box-shadow:
-        0 0 10px #00d9ff,
-        0 0 30px #008cff,
-        inset 0 0 20px #008cff;
+.logo{
+text-align:center;
 }
 
-.r1 {
-    width: 280px;
-    height: 280px;
-    border-style: dotted;
-
-    animation: rotate1 8s linear infinite;
+.logo h1{
+letter-spacing:12px;
+color:var(--cyan);
+font-size:42px;
 }
 
-.r2 {
-    width: 225px;
-    height: 225px;
-
-    animation: rotate2 6s linear infinite;
+.logo p{
+font-size:12px;
+letter-spacing:4px;
+opacity:.7;
 }
 
-.r3 {
-    width: 170px;
-    height: 170px;
+.hero{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-top:30px;
 }
 
-.r4 {
-    width: 115px;
-    height: 115px;
+.hero-text h2{
+font-size:48px;
+color:var(--cyan);
 }
 
-.core-center {
-    width: 75px;
-    height: 75px;
-    border-radius: 50%;
-
-    background: #08b8d8;
-
-    box-shadow:
-        0 0 20px #00d9ff,
-        0 0 60px #008cff;
-
-    animation: pulse 1.5s infinite;
+.hero-text h3{
+font-size:22px;
+font-weight:300;
+line-height:1.4;
 }
 
-@keyframes rotate1 {
-    from {
-        transform: rotate(0deg);
-    }
-
-    to {
-        transform: rotate(360deg);
-    }
+.chat-btn{
+margin-top:20px;
+background:rgba(0,247,255,.1);
+border:1px solid rgba(0,247,255,.4);
+color:white;
+padding:12px 25px;
+border-radius:30px;
+cursor:pointer;
 }
 
-@keyframes rotate2 {
-    from {
-        transform: rotate(360deg);
-    }
-
-    to {
-        transform: rotate(0deg);
-    }
+.orb{
+width:220px;
+height:220px;
+border-radius:50%;
+background:radial-gradient(circle,var(--cyan),#004f5f);
+box-shadow:0 0 60px rgba(0,247,255,.8);
+animation:float 5s infinite ease-in-out;
 }
 
-@keyframes pulse {
-    0%, 100% {
-        transform: scale(1);
-    }
-
-    50% {
-        transform: scale(1.12);
-    }
+@keyframes float{
+50%{
+transform:translateY(-10px);
+}
 }
 
-.core-status {
-    text-align: center;
-    font-size: 22px;
-    margin: 10px 0 30px;
+.stats{
+display:grid;
+grid-template-columns:repeat(2,1fr);
+gap:15px;
+margin-top:30px;
 }
 
-.core-status span {
-    color: #00ff66;
+.card{
+background:rgba(255,255,255,.03);
+backdrop-filter:blur(20px);
+border:1px solid rgba(0,247,255,.15);
+border-radius:20px;
+padding:20px;
 }
 
-/* BOX */
-
-.box {
-    width: 92%;
-    max-width: 630px;
-
-    margin: 0 auto 25px;
-
-    border: 1px solid #00d9ff;
-    border-radius: 25px;
-
-    padding: 20px;
-
-    box-shadow: 0 0 20px rgba(0,210,255,.2);
+.card i{
+color:var(--cyan);
+font-size:28px;
 }
 
-.box h2 {
-    text-align: center;
-
-    margin: 5px 0 25px;
-
-    font-size: 28px;
-    letter-spacing: 5px;
+.card h4{
+margin-top:10px;
+font-size:14px;
 }
 
-.status {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-
-    padding: 18px 5px;
-
-    border-bottom: 1px solid #12343d;
-
-    font-size: 20px;
+.card p{
+margin-top:10px;
+color:var(--cyan);
+font-weight:bold;
 }
 
-.online,
-.ready {
-    color: #00ff66;
-    font-weight: bold;
+.section{
+margin-top:30px;
 }
 
-.locked {
-    color: #ff4040;
-    font-weight: bold;
+.section-title{
+display:flex;
+justify-content:space-between;
+margin-bottom:15px;
 }
 
-/* CHAT */
-
-#chat {
-    min-height: 180px;
-    max-height: 320px;
-
-    overflow-y: auto;
-
-    font-size: 19px;
-    line-height: 1.5;
+.section-title h3{
+color:var(--cyan);
+font-size:18px;
 }
 
-#chat p {
-    margin: 12px 0;
+.tabs{
+display:flex;
+gap:10px;
+overflow:auto;
+margin-bottom:15px;
 }
 
-.ai {
-    color: #08d9ff;
+.tab{
+padding:10px 18px;
+background:#111b2c;
+border-radius:25px;
+white-space:nowrap;
 }
 
-.user {
-    color: white;
+.active{
+background:var(--cyan);
+color:black;
+font-weight:bold;
 }
 
-/* INPUT */
-
-.input-area {
-    width: 92%;
-    max-width: 630px;
-
-    margin: 0 auto 20px;
-
-    display: flex;
-    gap: 10px;
+.prompt{
+background:#09111f;
+border-radius:15px;
+padding:15px;
+margin-bottom:10px;
+display:flex;
+justify-content:space-between;
+align-items:center;
 }
 
-#msg {
-    flex: 1;
-    min-width: 0;
-
-    padding: 17px;
-
-    border: 1px solid #00d9ff;
-    border-radius: 15px;
-
-    background: #000b10;
-    color: white;
-
-    font-size: 18px;
-
-    outline: none;
+.prompt i{
+color:var(--cyan);
 }
 
-#msg::placeholder {
-    color: #777;
+.chat-panel{
+background:#09111f;
+border-radius:25px;
+padding:20px;
+margin-top:15px;
 }
 
-button {
-    border: 0;
-    border-radius: 15px;
-
-    background: #08c8ef;
-    color: #001018;
-
-    font-size: 16px;
-    font-weight: bold;
-
-    cursor: pointer;
-
-    padding: 0 22px;
-
-    touch-action: manipulation;
+.chat-header{
+display:flex;
+align-items:center;
+gap:12px;
+margin-bottom:20px;
 }
 
-button:active {
-    transform: scale(.95);
+.avatar{
+width:50px;
+height:50px;
+border-radius:50%;
+background:var(--cyan);
 }
 
-/* MIC BUTTON */
-
-#voiceInput {
-    width: 58px;
-    min-width: 58px;
-
-    padding: 0;
-
-    font-size: 22px;
-
-    background: transparent;
-
-    border: 1px solid #00d9ff;
-
-    color: #08d9ff;
+.message{
+padding:14px;
+border-radius:18px;
+margin-bottom:15px;
+max-width:75%;
 }
 
-#voiceInput.listening {
-    background: #08d9ff;
-    color: #001018;
-
-    box-shadow:
-        0 0 10px #00d9ff,
-        0 0 30px #008cff;
+.bot{
+background:rgba(255,255,255,.08);
 }
 
-/* VOICE BUTTON */
-
-.voice-area {
-    text-align: center;
-    margin-bottom: 30px;
+.user{
+background:rgba(0,247,255,.2);
+margin-left:auto;
 }
 
-#voiceButton {
-    min-height: 50px;
-
-    background: transparent;
-
-    border: 1px solid #00d9ff;
-
-    color: #08d9ff;
+.input-area{
+display:flex;
+gap:10px;
+margin-top:20px;
 }
 
-/* MOBILE */
-
-@media (max-width: 500px) {
-
-    .core {
-        width: 250px;
-        height: 250px;
-    }
-
-    .r1 {
-        width: 250px;
-        height: 250px;
-    }
-
-    .r2 {
-        width: 205px;
-        height: 205px;
-    }
-
-    .r3 {
-        width: 155px;
-        height: 155px;
-    }
-
-    .r4 {
-        width: 105px;
-        height: 105px;
-    }
-
-    .core-center {
-        width: 68px;
-        height: 68px;
-    }
-
-    .box {
-        padding: 18px;
-    }
-
-    .box h2 {
-        font-size: 25px;
-    }
-
-    .status {
-        font-size: 18px;
-    }
-
-    #msg {
-        font-size: 16px;
-    }
-
-    button {
-        padding: 0 15px;
-    }
-
-    #voiceInput {
-        width: 52px;
-        min-width: 52px;
-    }
+.input-area input{
+flex:1;
+background:#111b2c;
+border:none;
+outline:none;
+color:white;
+padding:15px;
+border-radius:30px;
 }
+
+.send-btn{
+width:55px;
+height:55px;
+border:none;
+border-radius:50%;
+background:var(--cyan);
+color:black;
+font-size:20px;
+cursor:pointer;
+}
+
+.bottom-nav{
+position:sticky;
+bottom:0;
+margin-top:25px;
+background:#06101f;
+border-radius:25px;
+display:flex;
+justify-content:space-around;
+padding:15px 0;
+}
+
+.nav-item{
+text-align:center;
+}
+
+.nav-item i{
+font-size:22px;
+}
+
+.active-nav{
+color:var(--cyan);
+}
+
 </style>
 </head>
 
 <body>
 
-<header>
-    <h1>J.A.R.V.I.S</h1>
-    <p>MOBILE EDITION</p>
-</header>
+<div class="app">
 
+<div class="topbar">
 
-<!-- CORE -->
+<div class="circle-btn">
+<i class="fa-solid fa-bars"></i>
+</div>
 
-<div class="core">
+<div class="logo">
+<h1>JARVIS</h1>
+<p>AI ASSISTANT SYSTEM</p>
+</div>
 
-    <div class="ring r1"></div>
-    <div class="ring r2"></div>
-    <div class="ring r3"></div>
-    <div class="ring r4"></div>
-
-    <div class="core-center"></div>
+<div class="circle-btn">
+<i class="fa-solid fa-wave-square"></i>
+</div>
 
 </div>
 
+<div class="hero">
 
-<div class="core-status">
-    CORE ACTIVE <span>●</span>
+<div class="hero-text">
+<h2>Hi, Raki</h2>
+<h3>How Can I Help<br>You Today?</h3>
+
+<button class="chat-btn">
+Chat With AI →
+</button>
 </div>
 
-
-<!-- SYSTEM STATUS -->
-
-<div class="box">
-
-    <h2>SYSTEM STATUS</h2>
-
-    <div class="status">
-        <span>AI CORE</span>
-        <span class="online">ONLINE</span>
-    </div>
-
-    <div class="status">
-        <span>NETWORK</span>
-        <span class="online">ONLINE</span>
-    </div>
-
-    <div class="status">
-        <span>VOICE</span>
-        <span class="ready" id="voiceStatus">READY</span>
-    </div>
-
-    <div class="status">
-        <span>MEMORY</span>
-        <span class="locked">LOCKED</span>
-    </div>
+<div class="orb"></div>
 
 </div>
 
+<div class="stats">
 
-<!-- CHAT -->
+<div class="card">
+<i class="fa-solid fa-brain"></i>
+<h4>AI STATUS</h4>
+<p>ONLINE</p>
+</div>
 
-<div class="box">
+<div class="card">
+<i class="fa-solid fa-microchip"></i>
+<h4>CPU USAGE</h4>
+<p>28%</p>
+</div>
 
-    <div id="chat">
+<div class="card">
+<i class="fa-solid fa-microphone"></i>
+<h4>VOICE SYSTEM</h4>
+<p>READY</p>
+</div>
 
-        <p class="ai">
-            J.A.R.V.I.S: Systems online. How may I assist you?
-        </p>
-
-    </div>
+<div class="card">
+<i class="fa-solid fa-wifi"></i>
+<h4>NETWORK</h4>
+<p>CONNECTED</p>
+</div>
 
 </div>
 
+<div class="section">
 
-<!-- INPUT -->
+<div class="section-title">
+<h3>POPULAR PROMPTS</h3>
+<span>View All</span>
+</div>
+
+<div class="tabs">
+<div class="tab active">UI/UX</div>
+<div class="tab">Chat AI</div>
+<div class="tab">Code</div>
+<div class="tab">Business</div>
+<div class="tab">Study</div>
+</div>
+
+<div class="prompt">
+<span>Design a futuristic dashboard...</span>
+<i class="fa-solid fa-chevron-right"></i>
+</div>
+
+<div class="prompt">
+<span>Suggest startup ideas...</span>
+<i class="fa-solid fa-chevron-right"></i>
+</div>
+
+<div class="prompt">
+<span>Explain quantum computing...</span>
+<i class="fa-solid fa-chevron-right"></i>
+</div>
+
+</div>
+
+<div class="chat-panel">
+
+<div class="chat-header">
+<div class="avatar"></div>
+<div>
+<h3>J.A.R.V.I.S</h3>
+<small style="color:lime">● Online</small>
+</div>
+</div>
+
+<div class="message bot">
+Hello Sir! How can I assist you today?
+</div>
+
+<div class="message user">
+What is the weather today?
+</div>
+
+<div class="message bot">
+The weather is sunny with 28°C.
+</div>
 
 <div class="input-area">
-
-    <input
-        id="msg"
-        type="text"
-        placeholder="Ask J.A.R.V.I.S..."
-        autocomplete="off"
-    >
-
-    <button
-        id="voiceInput"
-        type="button"
-        aria-label="Microphone"
-    >
-        🎤
-    </button>
-
-    <button
-        id="send"
-        type="button"
-    >
-        SEND
-    </button>
+<input placeholder="Type your message..." />
+<button class="send-btn">
+<i class="fa-solid fa-paper-plane"></i>
+</button>
+</div>
 
 </div>
 
+<div class="bottom-nav">
 
-<!-- VOICE ON/OFF -->
+<div class="nav-item active-nav">
+<i class="fa-solid fa-house"></i>
+<div>Home</div>
+</div>
 
-<div class="voice-area">
+<div class="nav-item">
+<i class="fa-solid fa-clock-rotate-left"></i>
+<div>History</div>
+</div>
 
-    <button
-        id="voiceButton"
-        type="button"
-    >
-        🔊 VOICE ON
-    </button>
+<div class="nav-item">
+<i class="fa-solid fa-wave-square"></i>
+<div>Voice</div>
+</div>
+
+<div class="nav-item">
+<i class="fa-solid fa-brain"></i>
+<div>Memory</div>
+</div>
+
+<div class="nav-item">
+<i class="fa-solid fa-gear"></i>
+<div>Settings</div>
+</div>
 
 </div>
 
-
-<script>
-
-/* =====================================
-   J.A.R.V.I.S ENGINE
-===================================== */
-
-const input = document.getElementById("msg");
-const send = document.getElementById("send");
-const chat = document.getElementById("chat");
-
-const voiceButton =
-    document.getElementById("voiceButton");
-
-const voiceInput =
-    document.getElementById("voiceInput");
-
-const voiceStatus =
-    document.getElementById("voiceStatus");
-
-
-let voiceEnabled = true;
-
-
-/* =====================================
-   ADD MESSAGE
-===================================== */
-
-function addMessage(text, type) {
-
-    const message =
-        document.createElement("p");
-
-    message.className = type;
-
-    message.textContent = text;
-
-    chat.appendChild(message);
-
-    chat.scrollTop = chat.scrollHeight;
-}
-
-
-/* =====================================
-   SPEAK
-===================================== */
-
-function speak(text) {
-
-    if (!voiceEnabled) {
-        return;
-    }
-
-    if (!("speechSynthesis" in window)) {
-        return;
-    }
-
-    window.speechSynthesis.cancel();
-
-    const speech =
-        new SpeechSynthesisUtterance(text);
-
-    speech.rate = 0.95;
-    speech.pitch = 1;
-    speech.volume = 1;
-
-    window.speechSynthesis.speak(speech);
-}
-
-
-/* =====================================
-   JARVIS REPLY
-===================================== */
-
-function getReply(text) {
-
-    const command =
-        text.toLowerCase().trim();
-
-
-    if (
-        command.includes("hello") ||
-        command.includes("hi") ||
-        command.includes("hey")
-    ) {
-
-        return "Hello. I am J.A.R.V.I.S. How may I assist you?";
-
-    }
-
-
-    if (
-        command.includes("who are you") ||
-        command.includes("what are you")
-    ) {
-
-        return "I am J.A.R.V.I.S., your personal AI assistant.";
-
-    }
-
-
-    if (command.includes("status")) {
-
-        return "All primary systems are operational. AI Core, Network and Voice are ready.";
-
-    }
-
-
-    if (command.includes("time")) {
-
-        return "The current time is " +
-            new Date().toLocaleTimeString();
-
-    }
-
-
-    if (command.includes("date")) {
-
-        return "Today's date is " +
-            new Date().toLocaleDateString();
-
-    }
-
-
-    if (
-        command.includes("voice off") ||
-        command.includes("turn off voice")
-    ) {
-
-        voiceEnabled = false;
-
-        voiceStatus.textContent = "OFF";
-
-        return "Voice system disabled.";
-
-    }
-
-
-    if (
-        command.includes("voice on") ||
-        command.includes("turn on voice")
-    ) {
-
-        voiceEnabled = true;
-
-        voiceStatus.textContent = "READY";
-
-        return "Voice system enabled.";
-
-    }
-
-
-    if (
-        command.includes("thank") ||
-        command.includes("thanks")
-    ) {
-
-        return "You're welcome. Always at your service.";
-
-    }
-
-
-    if (
-        command.includes("bye") ||
-        command.includes("goodbye")
-    ) {
-
-        return "Goodbye. J.A.R.V.I.S systems remain on standby.";
-
-    }
-
-
-    if (command.includes("help")) {
-
-        return "Try saying Hello, Status, What time is it, What is today's date, Who are you, Voice on, or Voice off.";
-
-    }
-
-
-    return "Command received. I understand the command, but I do not have an action for it yet.";
-}
-
-
-/* =====================================
-   SEND MESSAGE
-===================================== */
-
-function sendMessage() {
-
-    const text =
-        input.value.trim();
-
-
-    if (text === "") {
-        return;
-    }
-
-
-    addMessage(
-        "YOU: " + text,
-        "user"
-    );
-
-
-    input.value = "";
-
-
-    const processing =
-        document.createElement("p");
-
-    processing.className = "ai";
-
-    processing.textContent =
-        "J.A.R.V.I.S: Processing...";
-
-    chat.appendChild(processing);
-
-    chat.scrollTop =
-        chat.scrollHeight;
-
-
-    setTimeout(function() {
-
-        const reply =
-            getReply(text);
-
-
-        processing.textContent =
-            "J.A.R.V.I.S: " + reply;
-
-
-        chat.scrollTop =
-            chat.scrollHeight;
-
-
-        speak(reply);
-
-    }, 300);
-}
-
-
-/* =====================================
-   SEND BUTTON
-===================================== */
-
-send.addEventListener(
-    "click",
-    sendMessage
-);
-
-
-/* =====================================
-   ENTER KEY
-===================================== */
-
-input.addEventListener(
-    "keydown",
-    function(event) {
-
-        if (event.key === "Enter") {
-
-            event.preventDefault();
-
-            sendMessage();
-
-        }
-
-    }
-);
-
-
-/* =====================================
-   VOICE ON / OFF
-===================================== */
-
-voiceButton.addEventListener(
-    "click",
-    function() {
-
-        voiceEnabled =
-            !voiceEnabled;
-
-
-        if (voiceEnabled) {
-
-            voiceStatus.textContent =
-                "READY";
-
-            voiceButton.textContent =
-                "🔊 VOICE ON";
-
-            speak(
-                "Voice system enabled."
-            );
-
-        } else {
-
-            if (
-                "speechSynthesis" in window
-            ) {
-
-                window.speechSynthesis.cancel();
-
-            }
-
-            voiceStatus.textContent =
-                "OFF";
-
-            voiceButton.textContent =
-                "🔇 VOICE OFF";
-
-        }
-
-    }
-);
-
-
-/* =====================================
-   MICROPHONE
-===================================== */
-
-const SpeechRecognition =
-    window.SpeechRecognition ||
-    window.webkitSpeechRecognition;
-
-
-if (SpeechRecognition) {
-
-    const recognition =
-        new SpeechRecognition();
-
-
-    recognition.lang =
-        "en-IN";
-
-
-    recognition.continuous =
-        false;
-
-
-    recognition.interimResults =
-        false;
-
-
-    recognition.maxAlternatives =
-        1;
-
-
-    /* MIC CLICK */
-
-    voiceInput.addEventListener(
-        "click",
-        function() {
-
-            try {
-
-                voiceStatus.textContent =
-                    "LISTENING";
-
-                voiceInput.classList.add(
-                    "listening"
-                );
-
-                recognition.start();
-
-            } catch (error) {
-
-                console.log(error);
-
-            }
-
-        }
-    );
-
-
-    /* SPEECH RESULT */
-
-    recognition.onresult =
-        function(event) {
-
-            const spokenText =
-                event.results[0][0]
-                    .transcript;
-
-
-            input.value =
-                spokenText;
-
-
-            voiceStatus.textContent =
-                "READY";
-
-            voiceInput.classList.remove(
-                "listening"
-            );
-
-
-            sendMessage();
-
-        };
-
-
-    /* MIC ERROR */
-
-    recognition.onerror =
-        function(event) {
-
-            console.log(
-                "Microphone error:",
-                event.error
-            );
-
-
-            voiceStatus.textContent =
-                "READY";
-
-            voiceInput.classList.remove(
-                "listening"
-            );
-
-
-            if (
-                event.error ===
-                "not-allowed"
-            ) {
-
-                addMessage(
-                    "J.A.R.V.I.S: Microphone permission denied. Please allow microphone access in Chrome.",
-                    "ai"
-                );
-
-            } else if (
-                event.error ===
-                "no-speech"
-            ) {
-
-                addMessage(
-                    "J.A.R.V.I.S: I didn't hear anything. Please try again.",
-                    "ai"
-                );
-
-            } else {
-
-                addMessage(
-                    "J.A.R.V.I.S: Microphone error: " +
-                    event.error,
-                    "ai"
-                );
-
-            }
-
-        };
-
-
-    /* MIC FINISHED */
-
-    recognition.onend =
-        function() {
-
-            voiceStatus.textContent =
-                "READY";
-
-            voiceInput.classList.remove(
-                "listening"
-            );
-
-        };
-
-} else {
-
-    /* BROWSER DOES NOT SUPPORT MIC */
-
-    voiceStatus.textContent =
-        "NOT SUPPORTED";
-
-
-    voiceInput.addEventListener(
-        "click",
-        function() {
-
-            addMessage(
-                "J.A.R.V.I.S: Speech recognition is not supported in this browser. Please use Google Chrome.",
-                "ai"
-            );
-
-        }
-    );
-
-}
-
-
-/* =====================================
-   READY
-===================================== */
-
-console.log(
-    "J.A.R.V.I.S SYSTEM READY"
-);
-
-</script>
+</div>
 
 </body>
 </html>
