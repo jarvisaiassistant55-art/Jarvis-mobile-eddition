@@ -3,236 +3,415 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>J.A.R.V.I.S</title>
 
 <style>
 
-*{
-    box-sizing:border-box;
+* {
+    box-sizing: border-box;
 }
 
-body{
-    margin:0;
-    background:#000b10;
-    color:#08d9ff;
-    font-family:Arial,sans-serif;
-    min-height:100vh;
+body {
+    margin: 0;
+    min-height: 100vh;
+    background: #000b10;
+    color: #08d9ff;
+    font-family: Arial, sans-serif;
 }
 
 /* HEADER */
 
-header{
-    text-align:center;
-    padding:20px;
-    background:#080c14;
+header {
+    text-align: center;
+    padding: 20px;
+    background: #080c14;
 }
 
-header h1{
-    margin:0;
-    font-size:28px;
-    letter-spacing:6px;
+header h1 {
+    margin: 0;
+    font-size: 28px;
+    letter-spacing: 6px;
 }
 
-header p{
-    margin:6px 0 0;
-    color:#777;
-    font-size:11px;
-    letter-spacing:4px;
+header p {
+    margin: 6px 0 0;
+    color: #777;
+    font-size: 11px;
+    letter-spacing: 4px;
 }
 
-/* JARVIS CORE */
+/* CORE */
 
-.core{
-    width:310px;
-    height:310px;
-    margin:25px auto;
-    position:relative;
-    display:flex;
-    align-items:center;
-    justify-content:center;
+.core {
+    width: 310px;
+    height: 310px;
+    margin: 25px auto;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.ring{
-    position:absolute;
-    border-radius:50%;
-    border:4px solid #00d9ff;
+.ring {
+    position: absolute;
+    border-radius: 50%;
+    border: 4px solid #00d9ff;
     box-shadow:
         0 0 10px #00d9ff,
         0 0 30px #008cff,
         inset 0 0 20px #008cff;
 }
 
-.r1{
-    width:310px;
-    height:310px;
-    border-style:dotted;
-    animation:rotate1 8s linear infinite;
+.r1 {
+    width: 310px;
+    height: 310px;
+    border-style: dotted;
+    animation: rotate1 8s linear infinite;
 }
 
-.r2{
-    width:250px;
-    height:250px;
-    animation:rotate2 6s linear infinite;
+.r2 {
+    width: 250px;
+    height: 250px;
+    animation: rotate2 6s linear infinite;
 }
 
-.r3{
-    width:190px;
-    height:190px;
+.r3 {
+    width: 190px;
+    height: 190px;
 }
 
-.r4{
-    width:130px;
-    height:130px;
+.r4 {
+    width: 130px;
+    height: 130px;
 }
 
-.core-center{
-    width:90px;
-    height:90px;
-    background:#08b8d8;
-    border-radius:50%;
+.core-center {
+    width: 90px;
+    height: 90px;
+    background: #08b8d8;
+    border-radius: 50%;
     box-shadow:
         0 0 20px #00d9ff,
         0 0 60px #008cff;
-    animation:pulse 1.5s infinite;
+    animation: pulse 1.5s infinite;
 }
 
-@keyframes rotate1{
-    from{transform:rotate(0deg)}
-    to{transform:rotate(360deg)}
+@keyframes rotate1 {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
 }
 
-@keyframes rotate2{
-    from{transform:rotate(360deg)}
-    to{transform:rotate(0deg)}
+@keyframes rotate2 {
+    from {
+        transform: rotate(360deg);
+    }
+    to {
+        transform: rotate(0deg);
+    }
 }
 
-@keyframes pulse{
-    0%,100%{transform:scale(1)}
-    50%{transform:scale(1.12)}
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.12);
+    }
 }
 
 /* CORE STATUS */
 
-.core-status{
-    text-align:center;
-    font-size:24px;
-    margin:20px 0 40px;
+.core-status {
+    text-align: center;
+    font-size: 24px;
+    margin: 20px 0 40px;
 }
 
-.core-status span{
-    color:#00ff66;
+.core-status span {
+    color: #00ff66;
 }
 
 /* BOX */
 
-.box{
-    width:92%;
-    max-width:630px;
-    margin:0 auto 30px;
-    border:1px solid #00d9ff;
-    border-radius:25px;
-    padding:25px;
-    box-shadow:0 0 20px rgba(0,210,255,.2);
+.box {
+    width: 92%;
+    max-width: 630px;
+    margin: 0 auto 30px;
+    border: 1px solid #00d9ff;
+    border-radius: 25px;
+    padding: 25px;
+    box-shadow: 0 0 20px rgba(0,210,255,.2);
 }
 
-.box h2{
-    text-align:center;
-    margin:10px 0 30px;
-    font-size:32px;
-    letter-spacing:5px;
+.box h2 {
+    text-align: center;
+    margin: 10px 0 30px;
+    font-size: 32px;
+    letter-spacing: 5px;
 }
 
 /* STATUS */
 
-.status{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    width:100%;
-    padding:20px 10px;
-    border-bottom:1px solid #12343d;
-    font-size:21px;
+.status {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 10px;
+    border-bottom: 1px solid #12343d;
+    font-size: 21px;
 }
 
-.online{
-    color:#00ff66;
-    font-weight:bold;
+.online {
+    color: #00ff66;
+    font-weight: bold;
 }
 
-.locked{
-    color:#ff4040;
-    font-weight:bold;
+.locked {
+    color: #ff4040;
+    font-weight: bold;
 }
 
-.voice-ready{
-    color:#00ff66;
-    font-weight:bold;
+.voice-ready {
+    color: #00ff66;
+    font-weight: bold;
 }
 
 /* CHAT */
 
-#chat{
-    min-height:160px;
-    max-height:350px;
-    overflow-y:auto;
-    font-size:20px;
-    line-height:1.4;
+#chat {
+    min-height: 160px;
+    max-height: 350px;
+    overflow-y: auto;
+    font-size: 20px;
+    line-height: 1.4;
 }
 
-#chat p{
-    margin:12px 0;
+#chat p {
+    margin: 12px 0;
 }
 
-.ai{
-    color:#08d9ff;
+.ai {
+    color: #08d9ff;
 }
 
-.user{
-    color:white;
+.user {
+    color: white;
 }
 
 /* INPUT */
 
-.input-area{
-    width:92%;
-    max-width:630px;
-    margin:0 auto 30px;
-    display:flex;
-    gap:12px;
-    align-items:stretch;
+.input-area {
+    width: 92%;
+    max-width: 630px;
+    margin: 0 auto 30px;
+    display: flex;
+    gap: 10px;
 }
 
-#msg{
-    flex:1;
-    min-width:0;
-    padding:18px;
-    border:1px solid #00d9ff;
-    border-radius:15px;
-    background:#000b10;
-    color:white;
-    font-size:18px;
-    outline:none;
+#msg {
+    flex: 1;
+    min-width: 0;
+    padding: 18px;
+    border: 1px solid #00d9ff;
+    border-radius: 15px;
+    background: #000b10;
+    color: white;
+    font-size: 18px;
+    outline: none;
 }
 
-#msg::placeholder{
-    color:#777;
+#msg::placeholder {
+    color: #777;
 }
+
+/* BUTTONS */
 
 #send,
-#voiceButton{
-    min-width:110px;
-    border:0;
-    border-radius:15px;
-    background:#08c8ef;
-    color:#001018;
-    font-size:16px;
-    font-weight:bold;
-    cursor:pointer;
+#voiceButton {
+    min-width: 105px;
+    height: 58px;
+    border: 0;
+    border-radius: 15px;
+    background: #08c8ef;
+    color: #001018;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
 }
 
-#voiceButton{
-    background:#00d9ff;
+#voiceButton {
+    background: #00d9ff;
 }
 
-#voiceButton
+#voiceButton.listening {
+    background: #ff4040;
+    color: white;
+    box-shadow: 0 0 20px #ff4040;
+}
+
+#send:active,
+#voiceButton:active {
+    transform: scale(.95);
+}
+
+/* VOICE TOGGLE */
+
+#voiceToggle {
+    display: block;
+    margin: 12px auto 25px;
+    padding: 10px 20px;
+    border: 1px solid #00d9ff;
+    border-radius: 10px;
+    background: transparent;
+    color: #08d9ff;
+    cursor: pointer;
+}
+
+/* MOBILE */
+
+@media (max-width: 500px) {
+
+    .core {
+        width: 300px;
+        height: 300px;
+    }
+
+    .r1 {
+        width: 300px;
+        height: 300px;
+    }
+
+    .box {
+        padding: 20px;
+    }
+
+    .box h2 {
+        font-size: 28px;
+    }
+
+    .status {
+        font-size: 19px;
+    }
+
+    .input-area {
+        width: 92%;
+        gap: 7px;
+    }
+
+    #msg {
+        font-size: 16px;
+        padding: 15px;
+    }
+
+    #send,
+    #voiceButton {
+        min-width: 90px;
+        font-size: 13px;
+    }
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>J.A.R.V.I.S</h1>
+    <p>MOBILE EDITION</p>
+</header>
+
+<!-- CORE -->
+
+<div class="core">
+
+    <div class="ring r1"></div>
+    <div class="ring r2"></div>
+    <div class="ring r3"></div>
+    <div class="ring r4"></div>
+
+    <div class="core-center"></div>
+
+</div>
+
+<div class="core-status">
+    CORE ACTIVE <span>●</span>
+</div>
+
+<!-- SYSTEM STATUS -->
+
+<div class="box">
+
+    <h2>SYSTEM STATUS</h2>
+
+    <div class="status">
+        <span>AI CORE</span>
+        <span class="online">ONLINE</span>
+    </div>
+
+    <div class="status">
+        <span>NETWORK</span>
+        <span class="online">ONLINE</span>
+    </div>
+
+    <div class="status">
+        <span>VOICE</span>
+        <span id="voiceStatus" class="voice-ready">READY</span>
+    </div>
+
+    <div class="status">
+        <span>MEMORY</span>
+        <span class="locked">LOCKED</span>
+    </div>
+
+</div>
+
+<!-- CHAT -->
+
+<div class="box">
+
+    <div id="chat">
+
+        <p class="ai">
+            J.A.R.V.I.S: Systems online. How may I assist you?
+        </p>
+
+    </div>
+
+</div>
+
+<!-- INPUT -->
+
+<div class="input-area">
+
+    <input
+        id="msg"
+        type="text"
+        placeholder="Ask J.A.R.V.I.S..."
+        autocomplete="off"
+    >
+
+    <button id="voiceButton" type="button">
+        🎤 VOICE
+    </button>
+
+    <button id="send" type="button">
+        SEND
+    </button>
+
+</div>
+
+<button id="voiceToggle" type="button">
+    🔊 VOICE ON
+</button>
+
+<!-- JAVASCRIPT -->
+
+<script src="script.js"></script>
+
+</body>
+</html>
