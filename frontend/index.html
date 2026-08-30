@@ -1,337 +1,79 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>J.A.R.V.I.S</title>
-
-<style>
-* {
-    box-sizing: border-box;
-}
-
-body {
-    margin: 0;
-    min-height: 100vh;
-    background: #02070b;
-    color: #00d9ff;
-    font-family: Arial, sans-serif;
-    overflow-x: hidden;
-}
-
-/* Main JARVIS body */
-.jarvis {
-    width: 100%;
-    min-height: 100vh;
-    padding: 25px 18px;
-    position: relative;
-    background:
-        radial-gradient(circle at 50% 35%, #063746 0%, #02070b 45%, #000 100%);
-}
-
-/* Header */
-header {
-    text-align: center;
-    margin-bottom: 20px;
-}
-
-header h1 {
-    margin: 0;
-    font-size: 38px;
-    letter-spacing: 8px;
-    text-shadow: 0 0 15px #00d9ff;
-}
-
-header p {
-    margin: 8px 0;
-    letter-spacing: 5px;
-    font-size: 13px;
-}
-
-/* Core */
-.core {
-    width: 210px;
-    height: 210px;
-    margin: 15px auto 25px;
-    position: relative;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-/* Arc rings */
-.ring {
-    position: absolute;
-    border: 2px solid #00d9ff;
-    border-radius: 50%;
-    box-shadow:
-        0 0 10px #00d9ff,
-        inset 0 0 10px #00d9ff;
-}
-
-.r1 {
-    width: 200px;
-    height: 200px;
-    border-style: dashed;
-    animation: spin 8s linear infinite;
-}
-
-.r2 {
-    width: 155px;
-    height: 155px;
-    border-color: #008fb0;
-    animation: spinReverse 5s linear infinite;
-}
-
-.r3 {
-    width: 105px;
-    height: 105px;
-    border-width: 4px;
-    animation: pulse 2s infinite;
-}
-
-/* Reactor */
-.reactor {
-    width: 65px;
-    height: 65px;
-    border-radius: 50%;
-    background: #00d9ff;
-    box-shadow:
-        0 0 15px #00d9ff,
-        0 0 40px #00d9ff,
-        0 0 80px #008cff;
-    animation: pulse 1.5s infinite;
-}
-
-/* Status */
-.status {
-    max-width: 500px;
-    margin: auto;
-    padding: 20px;
-    border: 1px solid #00d9ff;
-    border-radius: 15px;
-    background: rgba(0, 20, 30, 0.75);
-    box-shadow: 0 0 20px rgba(0,217,255,.25);
-}
-
-.status h2 {
-    margin-top: 0;
-    text-align: center;
-    letter-spacing: 4px;
-}
-
-.status p {
-    display: flex;
-    justify-content: space-between;
-    margin: 16px 0;
-    padding: 10px;
-    border-bottom: 1px solid #073c4b;
-}
-
-.online {
-    color: #00ff66;
-    font-weight: bold;
-}
-
-.locked {
-    color: #ff4040;
-    font-weight: bold;
-}
-
-/* Chat */
-.chat {
-    max-width: 500px;
-    margin: 20px auto;
-}
-
-#chat {
-    min-height: 80px;
-    padding: 15px;
-    border: 1px solid #00d9ff;
-    border-radius: 12px;
-    margin-bottom: 12px;
-    background: rgba(0, 20, 30, .8);
-}
-
-.message {
-    margin: 8px 0;
-}
-
-.user {
-    color: white;
-}
-
-.ai {
-    color: #00d9ff;
-}
-
-/* Input */
-.input-area {
-    display: flex;
-    gap: 8px;
-}
-
-#msg {
-    flex: 1;
-    padding: 14px;
-    border-radius: 8px;
-    border: 1px solid #00d9ff;
-    background: #020b10;
-    color: white;
-    outline: none;
-}
-
-#send {
-    padding: 0 20px;
-    border: none;
-    border-radius: 8px;
-    background: #00cfff;
-    color: #001018;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-#send:active {
-    transform: scale(.95);
-}
-
-/* Animations */
-@keyframes spin {
-    from {
-        transform: rotate(0deg);
-    }
-    to {
-        transform: rotate(360deg);
-    }
-}
-
-@keyframes spinReverse {
-    from {
-        transform: rotate(360deg);
-    }
-    to {
-        transform: rotate(0deg);
-    }
-}
-
-@keyframes pulse {
-    0%, 100% {
-        transform: scale(1);
-        opacity: 1;
-    }
-    50% {
-        transform: scale(1.08);
-        opacity: .7;
-    }
-}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>J.A.R.V.I.S</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-<div class="jarvis">
+<header>
+  <h1>J.A.R.V.I.S</h1>
+  <p>MOBILE EDITION</p>
+</header>
 
-    <header>
-        <h1>J.A.R.V.I.S</h1>
-        <p>MOBILE EDITION</p>
-    </header>
-
-    <!-- JARVIS BODY / CORE -->
-    <div class="core">
-        <div class="ring r1"></div>
-        <div class="ring r2"></div>
-        <div class="ring r3"></div>
-        <div class="reactor"></div>
-    </div>
-
-    <div style="text-align:center; margin-bottom:20px;">
-        CORE ACTIVE ●
-    </div>
-
-    <!-- STATUS -->
-    <section class="status">
-        <h2>SYSTEM STATUS</h2>
-
-        <p>
-            <span>AI CORE</span>
-            <span class="online">ONLINE</span>
-        </p>
-
-        <p>
-            <span>NETWORK</span>
-            <span class="online">ONLINE</span>
-        </p>
-
-        <p>
-            <span>VOICE</span>
-            <span class="locked">LOCKED</span>
-        </p>
-
-        <p>
-            <span>MEMORY</span>
-            <span class="locked">LOCKED</span>
-        </p>
-    </section>
-
-    <!-- CHAT -->
-    <div class="chat">
-
-        <div id="chat">
-            <div class="message ai">
-                J.A.R.V.I.S: Systems online. How may I assist you?
-            </div>
-        </div>
-
-        <div class="input-area">
-            <input
-                id="msg"
-                type="text"
-                placeholder="Ask J.A.R.V.I.S..."
-            >
-            <button id="send">SEND</button>
-        </div>
-
-    </div>
-
+<!-- JARVIS CORE -->
+<div class="core">
+  <div class="ring r1"></div>
+  <div class="ring r2"></div>
+  <div class="ring r3"></div>
+  <div class="ring r4"></div>
+  <div class="core-center"></div>
 </div>
 
-<script>
-const chat = document.getElementById("chat");
-const input = document.getElementById("msg");
-const send = document.getElementById("send");
+<div class="core-status">
+  CORE ACTIVE <span>●</span>
+</div>
 
-function addMessage(text, type) {
-    const div = document.createElement("div");
-    div.className = "message " + type;
-    div.textContent = text;
-    chat.appendChild(div);
-    chat.scrollTop = chat.scrollHeight;
-}
+<!-- SYSTEM STATUS -->
+<section class="status-box">
+  <h2>SYSTEM STATUS</h2>
 
-function sendMessage() {
-    const text = input.value.trim();
+  <div class="status-row">
+    <span>AI CORE</span>
+    <b>ONLINE</b>
+  </div>
 
-    if (!text) return;
+  <div class="status-row">
+    <span>NETWORK</span>
+    <b>ONLINE</b>
+  </div>
 
-    addMessage("YOU: " + text, "user");
-    input.value = "";
+  <div class="status-row">
+    <span>VOICE</span>
+    <strong>LOCKED</strong>
+  </div>
 
-    setTimeout(() => {
-        addMessage(
-            "J.A.R.V.I.S: Processing complete. Systems operational.",
-            "ai"
-        );
-    }, 700);
-}
+  <div class="status-row">
+    <span>MEMORY</span>
+    <strong>LOCKED</strong>
+  </div>
+</section>
 
-send.addEventListener("click", sendMessage);
+<!-- CHAT -->
+<section id="chat" class="chat-box">
 
-input.addEventListener("keydown", function(e) {
-    if (e.key === "Enter") {
-        sendMessage();
-    }
-});
-</script>
+  <p class="ai">
+    J.A.R.V.I.S: Systems online. How may I assist you?
+  </p>
+
+</section>
+
+<!-- INPUT -->
+<div class="input-area">
+  <input
+    id="msg"
+    type="text"
+    placeholder="Ask J.A.R.V.I.S..."
+    autocomplete="off"
+  >
+
+  <button id="send">SEND</button>
+</div>
+
+<script src="script.js"></script>
 
 </body>
 </html>
