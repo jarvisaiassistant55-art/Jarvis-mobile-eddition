@@ -1,18 +1,15 @@
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", () => {
 
     const chat = document.getElementById("chat");
     const input = document.getElementById("msg");
     const send = document.getElementById("send");
 
     if (!chat || !input || !send) {
-        console.error("J.A.R.V.I.S: Required HTML elements not found.");
+        console.error("JARVIS: HTML elements missing.");
         return;
     }
 
-    /* =========================
-       VOICE SETTINGS
-    ========================= */
-
+    let isListening = false;
     let voiceEnabled = true;
 
     const SpeechRecognition =
@@ -21,173 +18,82 @@ document.addEventListener("DOMContentLoaded", function () {
 
     let recognition = null;
 
-    if (SpeechRecognition) {
-
-        recognition = new SpeechRecognition();
-
-        recognition.lang = "en-US";
-        recognition.continuous = false;
-        recognition.interimResults = false;
-
-        recognition.onstart = function () {
-            addMessage(
-                "J.A.R.V.I.S: Listening...",
-                "ai"
-            );
-
-            voiceButton.textContent = "🔴 LISTENING";
-        };
-
-        recognition.onresult = function (event) {
-
-            const spokenText =
-                event.results[0][0].transcript;
-
-            input.value = spokenText;
-
-            addMessage(
-                "YOU: " + spokenText,
-                "user"
-            );
-
-            input.value = "";
-
-            processCommand(spokenText);
-        };
-
-        recognition.onerror = function (event) {
-
-            console.error(
-                "Voice recognition error:",
-                event.error
-            );
-
-            addMessage(
-                "J.A.R.V.I.S: I could not understand that.",
-                "ai"
-            );
-
-            voiceButton.textContent = "🎤 VOICE";
-        };
-
-        recognition.onend = function () {
-            voiceButton.textContent = "🎤 VOICE";
-        };
-
-    } else {
-
-        console.warn(
-            "Speech Recognition is not supported."
-        );
-    }
-
-
     /* =========================
        CHAT
     ========================= */
 
     function addMessage(text, type) {
-
-        const message =
-            document.createElement("p");
+        const message = document.createElement("p");
 
         message.className = type;
         message.textContent = text;
 
         chat.appendChild(message);
-
-        chat.scrollTop =
-            chat.scrollHeight;
+        chat.scrollTop = chat.scrollHeight;
     }
 
 
     /* =========================
-       JARVIS BRAIN
+       JARVIS RESPONSE
     ========================= */
 
     function jarvisReply(text) {
 
-        const command =
-            text.toLowerCase().trim();
-
+        const command = text.toLowerCase().trim();
 
         if (
             command.includes("hello") ||
             command.includes("hi") ||
             command.includes("hey")
         ) {
-
             return "Hello. I am J.A.R.V.I.S. How may I assist you?";
         }
-
 
         if (
             command.includes("who are you") ||
             command.includes("your name")
         ) {
-
             return "I am J.A.R.V.I.S., your personal AI assistant.";
         }
 
-
         if (command.includes("status")) {
-
-            return "All primary systems are operational. AI Core, Network, Voice System and Security are online.";
+            return "All primary systems are operational. AI Core and Network are online.";
         }
 
-
         if (command.includes("time")) {
-
             return "The current time is " +
                 new Date().toLocaleTimeString();
         }
 
-
         if (command.includes("date")) {
-
             return "Today's date is " +
                 new Date().toLocaleDateString();
         }
-
 
         if (
             command.includes("thank") ||
             command.includes("thanks")
         ) {
-
             return "You're welcome. Always at your service.";
         }
 
-
         if (command.includes("how are you")) {
-
             return "All systems are functioning normally.";
         }
-
-
-        if (command.includes("help")) {
-
-            return "You can ask me for the time, date, system status, or simply say hello.";
-        }
-
 
         return "Command received. I am ready to assist you.";
     }
 
 
     /* =========================
-       VOICE REPLY
+       SPEAK
     ========================= */
 
     function speak(text) {
 
-        if (!voiceEnabled) {
-            return;
-        }
+        if (!voiceEnabled) return;
 
-        if (!("speechSynthesis" in window)) {
-            return;
-        }
+        if (!("speechSynthesis" in window)) return;
 
         window.speechSynthesis.cancel();
 
@@ -204,7 +110,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     /* =========================
-       PROCESS COMMAND
+       PROCESS
     ========================= */
 
     function processCommand(text) {
@@ -213,83 +119,55 @@ document.addEventListener("DOMContentLoaded", function () {
             document.createElement("p");
 
         processing.className = "ai";
-
         processing.textContent =
             "J.A.R.V.I.S: Processing...";
 
         chat.appendChild(processing);
+        chat.scrollTop = chat.scrollHeight;
 
-        chat.scrollTop =
-            chat.scrollHeight;
+        setTimeout(() => {
 
-
-        setTimeout(function () {
-
-            const reply =
-                jarvisReply(text);
+            const reply = jarvisReply(text);
 
             processing.textContent =
                 "J.A.R.V.I.S: " + reply;
 
-            chat.scrollTop =
-                chat.scrollHeight;
+            chat.scrollTop = chat.scrollHeight;
 
             speak(reply);
 
-        }, 700);
+        }, 600);
     }
 
 
     /* =========================
-       TEXT SEND
+       TEXT INPUT
     ========================= */
 
     function sendMessage() {
 
-        const text =
-            input.value.trim();
+        const text = input.value.trim();
 
-        if (!text) {
-            return;
-        }
+        if (!text) return;
 
-        addMessage(
-            "YOU: " + text,
-            "user"
-        );
+        addMessage("YOU: " + text, "user");
 
         input.value = "";
 
         processCommand(text);
     }
 
+    send.addEventListener("click", sendMessage);
 
-    /* =========================
-       SEND BUTTON
-    ========================= */
+    input.addEventListener("keydown", event => {
 
-    send.addEventListener(
-        "click",
-        sendMessage
-    );
+        if (event.key === "Enter") {
 
+            event.preventDefault();
 
-    /* =========================
-       ENTER KEY
-    ========================= */
-
-    input.addEventListener(
-        "keydown",
-        function (event) {
-
-            if (event.key === "Enter") {
-
-                event.preventDefault();
-
-                sendMessage();
-            }
+            sendMessage();
         }
-    );
+    });
 
 
     /* =========================
@@ -299,13 +177,9 @@ document.addEventListener("DOMContentLoaded", function () {
     const voiceButton =
         document.createElement("button");
 
-    voiceButton.id =
-        "voiceButton";
-
-    voiceButton.textContent =
-        "🎤 VOICE";
-
+    voiceButton.id = "voiceButton";
     voiceButton.type = "button";
+    voiceButton.textContent = "🎤 VOICE";
 
     voiceButton.style.width = "130px";
     voiceButton.style.border = "none";
@@ -316,92 +190,181 @@ document.addEventListener("DOMContentLoaded", function () {
     voiceButton.style.fontWeight = "bold";
     voiceButton.style.cursor = "pointer";
 
-
     send.parentNode.insertBefore(
         voiceButton,
         send
     );
 
 
-    voiceButton.addEventListener(
-        "click",
-        function () {
+    /* =========================
+       SPEECH RECOGNITION
+    ========================= */
 
-            if (!recognition) {
+    if (SpeechRecognition) {
+
+        recognition = new SpeechRecognition();
+
+        recognition.lang = "en-US";
+        recognition.continuous = false;
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+
+
+        recognition.onstart = () => {
+
+            isListening = true;
+
+            voiceButton.textContent =
+                "🔴 LISTENING";
+
+            addMessage(
+                "J.A.R.V.I.S: Listening...",
+                "ai"
+            );
+        };
+
+
+        recognition.onresult = event => {
+
+            const result =
+                event.results[0][0].transcript;
+
+            if (!result) return;
+
+            addMessage(
+                "YOU: " + result,
+                "user"
+            );
+
+            processCommand(result);
+        };
+
+
+        recognition.onerror = event => {
+
+            console.log(
+                "Voice error:",
+                event.error
+            );
+
+            isListening = false;
+
+            voiceButton.textContent =
+                "🎤 VOICE";
+
+            if (event.error === "not-allowed") {
 
                 addMessage(
-                    "J.A.R.V.I.S: Voice recognition is not supported in this browser.",
+                    "J.A.R.V.I.S: Microphone permission is blocked.",
                     "ai"
                 );
 
-                return;
-            }
+            } else if (event.error === "no-speech") {
 
-            try {
-
-                recognition.start();
-
-            } catch (error) {
-
-                console.log(
-                    "Recognition already running."
+                addMessage(
+                    "J.A.R.V.I.S: I didn't hear anything.",
+                    "ai"
                 );
             }
-        }
-    );
+        };
+
+
+        recognition.onend = () => {
+
+            isListening = false;
+
+            voiceButton.textContent =
+                "🎤 VOICE";
+        };
+
+
+        voiceButton.addEventListener(
+            "click",
+            () => {
+
+                if (isListening) {
+
+                    recognition.stop();
+
+                    isListening = false;
+
+                    voiceButton.textContent =
+                        "🎤 VOICE";
+
+                    return;
+                }
+
+
+                try {
+
+                    recognition.start();
+
+                } catch (error) {
+
+                    console.log(
+                        "Recognition restart prevented:",
+                        error
+                    );
+                }
+            }
+        );
+
+    } else {
+
+        voiceButton.textContent =
+            "🎤 NOT SUPPORTED";
+
+        voiceButton.disabled = true;
+
+        addMessage(
+            "J.A.R.V.I.S: Voice recognition is not supported by this browser.",
+            "ai"
+        );
+    }
 
 
     /* =========================
-       VOICE ENABLE / DISABLE
+       VOICE REPLY TOGGLE
     ========================= */
 
-    const voiceToggle =
+    const toggle =
         document.createElement("button");
 
-    voiceToggle.id =
-        "voiceToggle";
+    toggle.id = "voiceToggle";
+    toggle.type = "button";
+    toggle.textContent = "🔊 VOICE ON";
 
-    voiceToggle.textContent =
-        "🔊 VOICE ON";
+    toggle.style.display = "block";
+    toggle.style.margin = "12px auto 25px";
+    toggle.style.padding = "10px 20px";
+    toggle.style.border = "1px solid #00d9ff";
+    toggle.style.borderRadius = "10px";
+    toggle.style.background = "transparent";
+    toggle.style.color = "#08d9ff";
+    toggle.style.cursor = "pointer";
 
-    voiceToggle.type = "button";
-
-    voiceToggle.style.display = "block";
-    voiceToggle.style.margin = "10px auto 25px";
-    voiceToggle.style.padding = "10px 20px";
-    voiceToggle.style.border = "1px solid #00d9ff";
-    voiceToggle.style.borderRadius = "10px";
-    voiceToggle.style.background = "transparent";
-    voiceToggle.style.color = "#08d9ff";
-    voiceToggle.style.cursor = "pointer";
+    voiceButton.parentNode.after(toggle);
 
 
-    voiceButton.parentNode.after(
-        voiceToggle
-    );
+    toggle.addEventListener("click", () => {
 
+        voiceEnabled = !voiceEnabled;
 
-    voiceToggle.addEventListener(
-        "click",
-        function () {
+        if (voiceEnabled) {
 
-            voiceEnabled =
-                !voiceEnabled;
+            toggle.textContent =
+                "🔊 VOICE ON";
 
-            if (voiceEnabled) {
+        } else {
 
-                voiceToggle.textContent =
-                    "🔊 VOICE ON";
+            toggle.textContent =
+                "🔇 VOICE OFF";
 
-            } else {
-
-                voiceToggle.textContent =
-                    "🔇 VOICE OFF";
-
-                window.speechSynthesis.cancel();
+            if ("speechSynthesis" in window) {
+                speechSynthesis.cancel();
             }
         }
-    );
+    });
 
 
     /* =========================
@@ -409,7 +372,7 @@ document.addEventListener("DOMContentLoaded", function () {
     ========================= */
 
     addMessage(
-        "J.A.R.V.I.S: Voice systems online. Say \"Hello JARVIS\".",
+        "J.A.R.V.I.S: Voice systems ready.",
         "ai"
     );
 
