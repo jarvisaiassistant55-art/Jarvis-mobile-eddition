@@ -7,270 +7,283 @@
 <title>J.A.R.V.I.S</title>
 
 <style>
-*{
-    box-sizing:border-box;
+* {
+    box-sizing: border-box;
 }
 
-body{
-    margin:0;
-    background:#000b10;
-    color:#08d9ff;
-    font-family:Arial,sans-serif;
-    min-height:100vh;
+body {
+    margin: 0;
+    min-height: 100vh;
+    background: #000b10;
+    color: #08d9ff;
+    font-family: Arial, sans-serif;
 }
 
-header{
-    text-align:center;
-    padding:20px;
-    background:#080c14;
+header {
+    text-align: center;
+    padding: 22px 10px;
+    background: #080c14;
 }
 
-header h1{
-    margin:0;
-    font-size:28px;
-    letter-spacing:6px;
+header h1 {
+    margin: 0;
+    font-size: 30px;
+    letter-spacing: 6px;
 }
 
-header p{
-    margin:6px 0 0;
-    color:#777;
-    font-size:11px;
-    letter-spacing:4px;
+header p {
+    margin: 6px 0 0;
+    color: #777;
+    font-size: 11px;
+    letter-spacing: 4px;
 }
 
-.core{
-    width:300px;
-    height:300px;
-    margin:25px auto;
-    position:relative;
-    display:flex;
-    align-items:center;
-    justify-content:center;
+/* CORE */
+
+.core {
+    width: 280px;
+    height: 280px;
+    margin: 25px auto 10px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.ring{
-    position:absolute;
-    border-radius:50%;
-    border:4px solid #00d9ff;
-    box-shadow:0 0 10px #00d9ff,0 0 30px #008cff;
+.ring {
+    position: absolute;
+    border-radius: 50%;
+    border: 3px solid #00d9ff;
+    box-shadow:
+        0 0 10px #00d9ff,
+        0 0 30px #008cff,
+        inset 0 0 20px #008cff;
 }
 
-.r1{
-    width:300px;
-    height:300px;
-    border-style:dotted;
-    animation:rotate1 8s linear infinite;
+.r1 {
+    width: 280px;
+    height: 280px;
+    border-style: dotted;
+    animation: rotate1 8s linear infinite;
 }
 
-.r2{
-    width:245px;
-    height:245px;
-    animation:rotate2 6s linear infinite;
+.r2 {
+    width: 225px;
+    height: 225px;
+    animation: rotate2 6s linear infinite;
 }
 
-.r3{
-    width:185px;
-    height:185px;
+.r3 {
+    width: 170px;
+    height: 170px;
 }
 
-.r4{
-    width:125px;
-    height:125px;
+.r4 {
+    width: 115px;
+    height: 115px;
 }
 
-.core-center{
-    width:85px;
-    height:85px;
-    background:#08b8d8;
-    border-radius:50%;
-    box-shadow:0 0 20px #00d9ff,0 0 60px #008cff;
-    animation:pulse 1.5s infinite;
+.core-center {
+    width: 75px;
+    height: 75px;
+    border-radius: 50%;
+    background: #08b8d8;
+    box-shadow:
+        0 0 20px #00d9ff,
+        0 0 60px #008cff;
+    animation: pulse 1.5s infinite;
 }
 
-@keyframes rotate1{
-    from{transform:rotate(0)}
-    to{transform:rotate(360deg)}
+@keyframes rotate1 {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
 }
 
-@keyframes rotate2{
-    from{transform:rotate(360deg)}
-    to{transform:rotate(0)}
+@keyframes rotate2 {
+    from { transform: rotate(360deg); }
+    to { transform: rotate(0deg); }
 }
 
-@keyframes pulse{
-    0%,100%{transform:scale(1)}
-    50%{transform:scale(1.12)}
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.12); }
 }
 
-.core-status{
-    text-align:center;
-    font-size:24px;
-    margin:20px 0 40px;
+.core-status {
+    text-align: center;
+    font-size: 22px;
+    margin: 10px 0 30px;
 }
 
-.core-status span{
-    color:#00ff66;
+.core-status span {
+    color: #00ff66;
 }
 
-.box{
-    width:92%;
-    max-width:630px;
-    margin:0 auto 30px;
-    border:1px solid #00d9ff;
-    border-radius:25px;
-    padding:25px;
-    box-shadow:0 0 20px rgba(0,210,255,.2);
+/* BOX */
+
+.box {
+    width: 92%;
+    max-width: 630px;
+    margin: 0 auto 25px;
+    border: 1px solid #00d9ff;
+    border-radius: 25px;
+    padding: 20px;
+    box-shadow: 0 0 20px rgba(0,210,255,.2);
 }
 
-.box h2{
-    text-align:center;
-    margin:10px 0 30px;
-    font-size:30px;
-    letter-spacing:5px;
+.box h2 {
+    text-align: center;
+    margin: 5px 0 25px;
+    font-size: 28px;
+    letter-spacing: 5px;
 }
 
-.status{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    padding:20px 10px;
-    border-bottom:1px solid #12343d;
-    font-size:21px;
+.status {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 5px;
+    border-bottom: 1px solid #12343d;
+    font-size: 20px;
 }
 
 .online,
-.ready{
-    color:#00ff66;
-    font-weight:bold;
+.ready {
+    color: #00ff66;
+    font-weight: bold;
 }
 
-.locked{
-    color:#ff4040;
-    font-weight:bold;
+.locked {
+    color: #ff4040;
+    font-weight: bold;
 }
 
-#chat{
-    min-height:160px;
-    max-height:350px;
-    overflow-y:auto;
-    font-size:20px;
-    line-height:1.4;
+/* CHAT */
+
+#chat {
+    min-height: 180px;
+    max-height: 320px;
+    overflow-y: auto;
+    font-size: 19px;
+    line-height: 1.5;
 }
 
-#chat p{
-    margin:12px 0;
+#chat p {
+    margin: 12px 0;
 }
 
-.ai{
-    color:#08d9ff;
+.ai {
+    color: #08d9ff;
 }
 
-.user{
-    color:white;
+.user {
+    color: white;
 }
 
-.input-area{
-    width:92%;
-    max-width:630px;
-    margin:0 auto 15px;
-    display:flex;
-    gap:10px;
+/* INPUT */
+
+.input-area {
+    width: 92%;
+    max-width: 630px;
+    margin: 0 auto 20px;
+    display: flex;
+    gap: 10px;
 }
 
-#msg{
-    flex:1;
-    min-width:0;
-    padding:17px;
-    border:1px solid #00d9ff;
-    border-radius:15px;
-    background:#000b10;
-    color:white;
-    font-size:18px;
-    outline:none;
+#msg {
+    flex: 1;
+    min-width: 0;
+    padding: 17px;
+    border: 1px solid #00d9ff;
+    border-radius: 15px;
+    background: #000b10;
+    color: white;
+    font-size: 18px;
+    outline: none;
 }
 
-#msg::placeholder{
-    color:#777;
+#msg::placeholder {
+    color: #777;
 }
 
-button{
-    border:0;
-    border-radius:15px;
-    background:#08c8ef;
-    color:#001018;
-    font-size:16px;
-    font-weight:bold;
-    cursor:pointer;
-    padding:15px;
+button {
+    border: 0;
+    border-radius: 15px;
+    background: #08c8ef;
+    color: #001018;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    padding: 0 22px;
 }
 
-#voiceButton{
-    width:130px;
+button:active {
+    transform: scale(.95);
 }
 
-#send{
-    width:120px;
+.voice-area {
+    text-align: center;
+    margin-bottom: 30px;
 }
 
-#voiceToggle{
-    display:block;
-    margin:10px auto 30px;
-    background:transparent;
-    color:#08d9ff;
-    border:1px solid #00d9ff;
+#voiceButton {
+    min-height: 50px;
+    background: transparent;
+    border: 1px solid #00d9ff;
+    color: #08d9ff;
 }
 
-@media(max-width:500px){
+/* MOBILE */
 
-    .core{
-        width:280px;
-        height:280px;
+@media (max-width: 500px) {
+    .core {
+        width: 250px;
+        height: 250px;
     }
 
-    .r1{
-        width:280px;
-        height:280px;
+    .r1 {
+        width: 250px;
+        height: 250px;
     }
 
-    .r2{
-        width:230px;
-        height:230px;
+    .r2 {
+        width: 205px;
+        height: 205px;
     }
 
-    .r3{
-        width:175px;
-        height:175px;
+    .r3 {
+        width: 155px;
+        height: 155px;
     }
 
-    .r4{
-        width:120px;
-        height:120px;
+    .r4 {
+        width: 105px;
+        height: 105px;
     }
 
-    .box{
-        padding:20px;
+    .core-center {
+        width: 68px;
+        height: 68px;
     }
 
-    .box h2{
-        font-size:26px;
+    .box {
+        padding: 18px;
     }
 
-    .status{
-        font-size:18px;
+    .box h2 {
+        font-size: 25px;
     }
 
-    .input-area{
-        gap:7px;
+    .status {
+        font-size: 18px;
     }
 
-    #voiceButton{
-        width:90px;
-        padding:10px 5px;
+    #msg {
+        font-size: 16px;
     }
 
-    #send{
-        width:90px;
-        padding:10px 5px;
+    button {
+        padding: 0 18px;
     }
 }
 </style>
@@ -311,7 +324,7 @@ button{
 
     <div class="status">
         <span>VOICE</span>
-        <span id="voiceStatus" class="ready">READY</span>
+        <span class="ready" id="voiceStatus">READY</span>
     </div>
 
     <div class="status">
@@ -340,8 +353,8 @@ button{
         autocomplete="off"
     >
 
-    <button id="voiceButton" type="button">
-        🎤 VOICE
+    <button id="voiceInput" type="button">
+        🎤
     </button>
 
     <button id="send" type="button">
@@ -350,297 +363,292 @@ button{
 
 </div>
 
-<button id="voiceToggle" type="button">
-    🔊 VOICE ON
-</button>
+<div class="voice-area">
+    <button id="voiceButton" type="button">
+        🔊 VOICE ON
+    </button>
+</div>
 
 <script>
+/* =========================
+   J.A.R.V.I.S ENGINE
+========================= */
 
-document.addEventListener("DOMContentLoaded", function(){
+const input = document.getElementById("msg");
+const send = document.getElementById("send");
+const chat = document.getElementById("chat");
+const voiceButton = document.getElementById("voiceButton");
+const voiceInput = document.getElementById("voiceInput");
+const voiceStatus = document.getElementById("voiceStatus");
 
-    const input = document.getElementById("msg");
-    const send = document.getElementById("send");
-    const chat = document.getElementById("chat");
-    const voiceButton = document.getElementById("voiceButton");
-    const voiceToggle = document.getElementById("voiceToggle");
-    const voiceStatus = document.getElementById("voiceStatus");
+let voiceEnabled = true;
 
-    let voiceEnabled = true;
-    let listening = false;
-    let recognition = null;
 
-    function addMessage(text, type){
+/* ADD MESSAGE */
 
-        const p = document.createElement("p");
+function addMessage(text, type) {
+    const message = document.createElement("p");
 
-        p.className = type;
-        p.textContent = text;
+    message.className = type;
+    message.textContent = text;
 
-        chat.appendChild(p);
-        chat.scrollTop = chat.scrollHeight;
+    chat.appendChild(message);
+    chat.scrollTop = chat.scrollHeight;
+}
+
+
+/* SPEAK */
+
+function speak(text) {
+
+    if (!voiceEnabled) {
+        return;
     }
 
-    function getReply(text){
+    if (!("speechSynthesis" in window)) {
+        return;
+    }
 
-        const command = text.toLowerCase().trim();
+    window.speechSynthesis.cancel();
 
-        if(command.includes("hello") ||
-           command.includes("hi") ||
-           command.includes("hey")){
+    const speech = new SpeechSynthesisUtterance(text);
 
-            return "Hello. I am J.A.R.V.I.S. How may I assist you?";
-        }
+    speech.rate = 0.95;
+    speech.pitch = 1;
+    speech.volume = 1;
 
-        if(command.includes("who are you") ||
-           command.includes("your name")){
+    window.speechSynthesis.speak(speech);
+}
 
-            return "I am J.A.R.V.I.S., your personal AI assistant.";
-        }
 
-        if(command.includes("status")){
+/* COMMAND ENGINE */
 
-            return "All primary systems are operational. AI Core, Network and Voice are ready.";
-        }
+function getReply(text) {
 
-        if(command.includes("time")){
+    const command = text.toLowerCase().trim();
 
-            return "The current time is " +
+
+    if (
+        command.includes("hello") ||
+        command.includes("hi") ||
+        command.includes("hey")
+    ) {
+        return "Hello. I am J.A.R.V.I.S. How may I assist you?";
+    }
+
+
+    if (
+        command.includes("who are you") ||
+        command.includes("what are you")
+    ) {
+        return "I am J.A.R.V.I.S., your personal AI assistant.";
+    }
+
+
+    if (command.includes("status")) {
+        return "All primary systems are operational. AI Core, Network and Voice are ready.";
+    }
+
+
+    if (command.includes("time")) {
+        return "The current time is " +
             new Date().toLocaleTimeString();
-        }
+    }
 
-        if(command.includes("date")){
 
-            return "Today's date is " +
+    if (command.includes("date")) {
+        return "Today's date is " +
             new Date().toLocaleDateString();
-        }
-
-        if(command.includes("how are you")){
-
-            return "All systems are functioning normally.";
-        }
-
-        if(command.includes("thank")){
-
-            return "You're welcome. Always at your service.";
-        }
-
-        if(command.includes("bye")){
-
-            return "Goodbye. J.A.R.V.I.S systems remain on standby.";
-        }
-
-        return "Command received. I am ready to assist you.";
     }
 
-    function speak(text){
 
-        if(!voiceEnabled) return;
-
-        if(!("speechSynthesis" in window)) return;
-
-        window.speechSynthesis.cancel();
-
-        const speech =
-            new SpeechSynthesisUtterance(text);
-
-        speech.lang = "en-US";
-        speech.rate = 0.9;
-        speech.pitch = 0.85;
-        speech.volume = 1;
-
-        window.speechSynthesis.speak(speech);
+    if (
+        command.includes("voice off") ||
+        command.includes("turn off voice")
+    ) {
+        voiceEnabled = false;
+        voiceStatus.textContent = "OFF";
+        return "Voice system disabled.";
     }
 
-    function sendMessage(){
 
-        const text = input.value.trim();
+    if (
+        command.includes("voice on") ||
+        command.includes("turn on voice")
+    ) {
+        voiceEnabled = true;
+        voiceStatus.textContent = "READY";
+        return "Voice system enabled.";
+    }
 
-        if(!text) return;
 
-        addMessage("YOU: " + text,"user");
+    if (
+        command.includes("thank") ||
+        command.includes("thanks")
+    ) {
+        return "You're welcome. Always at your service.";
+    }
 
-        input.value = "";
 
-        const processing =
-            document.createElement("p");
+    if (
+        command.includes("bye") ||
+        command.includes("goodbye")
+    ) {
+        return "Goodbye. J.A.R.V.I.S systems remain on standby.";
+    }
 
-        processing.className = "ai";
+
+    if (command.includes("help")) {
+        return "Try commands such as Hello, Status, What time is it, What is today's date, Who are you, Voice on, or Voice off.";
+    }
+
+
+    return "Command received. I understand the command, but I do not have an action for it yet.";
+}
+
+
+/* SEND MESSAGE */
+
+function sendMessage() {
+
+    const text = input.value.trim();
+
+    if (text === "") {
+        return;
+    }
+
+    addMessage("YOU: " + text, "user");
+
+    input.value = "";
+
+    const processing = document.createElement("p");
+
+    processing.className = "ai";
+    processing.textContent = "J.A.R.V.I.S: Processing...";
+
+    chat.appendChild(processing);
+    chat.scrollTop = chat.scrollHeight;
+
+
+    setTimeout(function() {
+
+        const reply = getReply(text);
+
         processing.textContent =
-            "J.A.R.V.I.S: Processing...";
+            "J.A.R.V.I.S: " + reply;
 
-        chat.appendChild(processing);
+        chat.scrollTop = chat.scrollHeight;
 
-        setTimeout(function(){
+        speak(reply);
 
-            const reply = getReply(text);
+    }, 500);
+}
 
-            processing.textContent =
-                "J.A.R.V.I.S: " + reply;
 
-            chat.scrollTop = chat.scrollHeight;
+/* SEND BUTTON */
 
-            speak(reply);
+send.addEventListener("click", sendMessage);
 
-        },500);
+
+/* ENTER KEY */
+
+input.addEventListener("keydown", function(event) {
+
+    if (event.key === "Enter") {
+        event.preventDefault();
+        sendMessage();
     }
-
-    send.addEventListener("click",sendMessage);
-
-    input.addEventListener("keydown",function(event){
-
-        if(event.key === "Enter"){
-
-            event.preventDefault();
-            sendMessage();
-
-        }
-
-    });
-
-    const SpeechRecognition =
-        window.SpeechRecognition ||
-        window.webkitSpeechRecognition;
-
-    if(SpeechRecognition){
-
-        recognition = new SpeechRecognition();
-
-        recognition.lang = "en-US";
-        recognition.continuous = false;
-        recognition.interimResults = false;
-        recognition.maxAlternatives = 1;
-
-        recognition.onstart = function(){
-
-            listening = true;
-
-            voiceButton.textContent = "🔴 LISTENING";
-
-            voiceStatus.textContent = "LISTENING";
-            voiceStatus.className = "ready";
-
-            addMessage(
-                "J.A.R.V.I.S: Listening...",
-                "ai"
-            );
-        };
-
-        recognition.onresult = function(event){
-
-            const text =
-                event.results[0][0].transcript;
-
-            if(!text) return;
-
-            addMessage(
-                "YOU: " + text,
-                "user"
-            );
-
-            processVoice(text);
-        };
-
-        function processVoice(text){
-
-            const reply = getReply(text);
-
-            const p =
-                document.createElement("p");
-
-            p.className = "ai";
-            p.textContent =
-                "J.A.R.V.I.S: " + reply;
-
-            chat.appendChild(p);
-
-            chat.scrollTop = chat.scrollHeight;
-
-            speak(reply);
-        }
-
-        recognition.onerror = function(event){
-
-            listening = false;
-
-            voiceButton.textContent = "🎤 VOICE";
-            voiceStatus.textContent = "READY";
-
-            if(event.error === "not-allowed"){
-
-                addMessage(
-                    "J.A.R.V.I.S: Microphone permission denied. Allow microphone access in Chrome.",
-                    "ai"
-                );
-
-            }else if(event.error === "no-speech"){
-
-                addMessage(
-                    "J.A.R.V.I.S: I didn't hear anything.",
-                    "ai"
-                );
-            }
-        };
-
-        recognition.onend = function(){
-
-            listening = false;
-
-            voiceButton.textContent = "🎤 VOICE";
-            voiceStatus.textContent = "READY";
-        };
-
-        voiceButton.addEventListener("click",function(){
-
-            if(listening){
-
-                recognition.stop();
-                return;
-            }
-
-            try{
-
-                recognition.start();
-
-            }catch(error){
-
-                console.log(error);
-            }
-        });
-
-    }else{
-
-        voiceButton.disabled = true;
-        voiceButton.textContent = "🎤 N/A";
-
-        voiceStatus.textContent = "UNAVAILABLE";
-
-        addMessage(
-            "J.A.R.V.I.S: Voice recognition is not supported in this browser.",
-            "ai"
-        );
-    }
-
-    voiceToggle.addEventListener("click",function(){
-
-        voiceEnabled = !voiceEnabled;
-
-        if(voiceEnabled){
-
-            voiceToggle.textContent = "🔊 VOICE ON";
-
-        }else{
-
-            voiceToggle.textContent = "🔇 VOICE OFF";
-
-            if("speechSynthesis" in window){
-
-                speechSynthesis.cancel();
-            }
-        }
-    });
 
 });
 
+
+/* VOICE ON/OFF BUTTON */
+
+voiceButton.addEventListener("click", function() {
+
+    voiceEnabled = !voiceEnabled;
+
+    if (voiceEnabled) {
+
+        voiceStatus.textContent = "READY";
+        voiceButton.textContent = "🔊 VOICE ON";
+
+        speak("Voice system enabled.");
+
+    } else {
+
+        window.speechSynthesis.cancel();
+
+        voiceStatus.textContent = "OFF";
+        voiceButton.textContent = "🔇 VOICE OFF";
+    }
+
+});
+
+
+/* MICROPHONE INPUT */
+
+const SpeechRecognition =
+    window.SpeechRecognition ||
+    window.webkitSpeechRecognition;
+
+if (SpeechRecognition) {
+
+    const recognition = new SpeechRecognition();
+
+    recognition.lang = "en-IN";
+    recognition.continuous = false;
+    recognition.interimResults = false;
+
+
+    voiceInput.addEventListener("click", function() {
+
+        voiceStatus.textContent = "LISTENING";
+
+        recognition.start();
+
+    });
+
+
+    recognition.onresult = function(event) {
+
+        const spokenText =
+            event.results[0][0].transcript;
+
+        input.value = spokenText;
+
+        voiceStatus.textContent = "READY";
+
+        sendMessage();
+
+    };
+
+
+    recognition.onerror = function() {
+
+        voiceStatus.textContent = "READY";
+
+    };
+
+
+    recognition.onend = function() {
+
+        voiceStatus.textContent = "READY";
+
+    };
+
+} else {
+
+    voiceInput.addEventListener("click", function() {
+
+        addMessage(
+            "J.A.R.V.I.S: Voice recognition is not supported by this browser.",
+            "ai"
+        );
+
+    });
+
+}
 </script>
 
 </body>
