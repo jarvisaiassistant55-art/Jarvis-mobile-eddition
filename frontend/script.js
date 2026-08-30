@@ -1,11 +1,21 @@
 const chat = document.getElementById("chat");
 const input = document.getElementById("msg");
 const send = document.getElementById("send");
-const voiceBtn = document.getElementById("voice");
-const voiceOn = document.getElementById("voiceOn");
+
+const voiceInput = document.getElementById("voiceInput");
+const voiceButton = document.getElementById("voiceButton");
+const voiceStatus = document.getElementById("voiceStatus");
+
+let voiceEnabled = true;
+
+
+// =========================
+// ADD MESSAGE
+// =========================
 
 function addMessage(text, type) {
-    const message = document.createElement("div");
+    const message = document.createElement("p");
+
     message.className = type;
     message.textContent = text;
 
@@ -13,10 +23,20 @@ function addMessage(text, type) {
     chat.scrollTop = chat.scrollHeight;
 }
 
+
+// =========================
+// JARVIS REPLY
+// =========================
+
 function jarvisReply(text) {
+
     const command = text.toLowerCase().trim();
 
-    if (command.includes("hello") || command.includes("hi")) {
+    if (
+        command.includes("hello") ||
+        command.includes("hi") ||
+        command.includes("hey")
+    ) {
         return "Hello! I am J.A.R.V.I.S. How may I assist you?";
     }
 
@@ -24,8 +44,15 @@ function jarvisReply(text) {
         return "All systems are operating normally.";
     }
 
-    if (command.includes("who are you")) {
+    if (
+        command.includes("who are you") ||
+        command.includes("what are you")
+    ) {
         return "I am J.A.R.V.I.S., your personal AI assistant.";
+    }
+
+    if (command.includes("status")) {
+        return "All primary systems are operational.";
     }
 
     if (command.includes("time")) {
@@ -39,7 +66,7 @@ function jarvisReply(text) {
     }
 
     if (command.includes("thank")) {
-        return "You're welcome.";
+        return "You're welcome. Always at your service.";
     }
 
     if (command.includes("bye")) {
@@ -49,118 +76,307 @@ function jarvisReply(text) {
     return "I received your command: " + text;
 }
 
+
+// =========================
+// SPEAK
+// =========================
+
+function speak(text) {
+
+    if (!voiceEnabled) return;
+
+    if (!("speechSynthesis" in window)) return;
+
+    speechSynthesis.cancel();
+
+    const speech =
+        new SpeechSynthesisUtterance(text);
+
+    speech.rate = 0.9;
+    speech.pitch = 1;
+    speech.volume = 1;
+
+    speechSynthesis.speak(speech);
+}
+
+
+// =========================
+// SEND MESSAGE
+// =========================
+
 function sendMessage() {
+
     const text = input.value.trim();
 
-    if (!text) {
-        return;
-    }
+    if (!text) return;
 
-    addMessage("YOU: " + text, "user");
+    addMessage(
+        "YOU: " + text,
+        "user"
+    );
 
     input.value = "";
 
-    setTimeout(function () {
+    const processing =
+        document.createElement("p");
+
+    processing.className = "ai";
+    processing.textContent =
+        "J.A.R.V.I.S: Processing...";
+
+    chat.appendChild(processing);
+
+    setTimeout(function() {
+
         const reply = jarvisReply(text);
-        addMessage("J.A.R.V.I.S: " + reply, "ai");
+
+        processing.textContent =
+            "J.A.R.V.I.S: " + reply;
+
+        chat.scrollTop = chat.scrollHeight;
 
         speak(reply);
+
     }, 300);
 }
 
-function speak(text) {
-    if ("speechSynthesis" in window) {
-        speechSynthesis.cancel();
 
-        const voice = new SpeechSynthesisUtterance(text);
-        voice.rate = 0.9;
-        voice.pitch = 1;
-
-        speechSynthesis.speak(voice);
-    }
-}
-
+// =========================
 // SEND BUTTON
+// =========================
+
 if (send) {
-    send.addEventListener("click", sendMessage);
+    send.addEventListener(
+        "click",
+        sendMessage
+    );
 }
 
+
+// =========================
 // ENTER KEY
+// =========================
+
 if (input) {
-    input.addEventListener("keydown", function (event) {
-        if (event.key === "Enter") {
-            event.preventDefault();
-            sendMessage();
+
+    input.addEventListener(
+        "keydown",
+        function(event) {
+
+            if (event.key === "Enter") {
+
+                event.preventDefault();
+
+                sendMessage();
+            }
         }
-    });
+    );
 }
 
-// 🎤 VOICE BUTTON
-if (voiceBtn) {
-    voiceBtn.addEventListener("click", function () {
 
-        const SpeechRecognition =
-            window.SpeechRecognition ||
-            window.webkitSpeechRecognition;
+// =========================
+// VOICE ON / OFF
+// =========================
 
-        if (!SpeechRecognition) {
-            addMessage(
-                "J.A.R.V.I.S: Speech recognition is not supported. Please use Google Chrome.",
-                "ai"
-            );
-            return;
+if (voiceButton) {
+
+    voiceButton.addEventListener(
+        "click",
+        function() {
+
+            voiceEnabled = !voiceEnabled;
+
+            if (voiceEnabled) {
+
+                voiceButton.textContent =
+                    "🔊 VOICE ON";
+
+                if (voiceStatus) {
+                    voiceStatus.textContent =
+                        "READY";
+                }
+
+                speak(
+                    "Voice system enabled."
+                );
+
+            } else {
+
+                speechSynthesis.cancel();
+
+                voiceButton.textContent =
+                    "🔇 VOICE OFF";
+
+                if (voiceStatus) {
+                    voiceStatus.textContent =
+                        "OFF";
+                }
+            }
         }
+    );
+}
 
-        const recognition = new SpeechRecognition();
+
+// =========================
+// MICROPHONE
+// =========================
+
+if (voiceInput) {
+
+    const SpeechRecognition =
+        window.SpeechRecognition ||
+        window.webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+
+        voiceInput.addEventListener(
+            "click",
+            function() {
+
+                addMessage(
+                    "J.A.R.V.I.S: Speech recognition is not supported. Please use Google Chrome.",
+                    "ai"
+                );
+            }
+        );
+
+    } else {
+
+        const recognition =
+            new SpeechRecognition();
 
         recognition.lang = "en-IN";
         recognition.continuous = false;
         recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
 
-        addMessage("J.A.R.V.I.S: 🎤 Listening...", "ai");
 
-        recognition.onstart = function () {
-            voiceBtn.textContent = "🎤 LISTENING...";
-        };
+        // MIC BUTTON
 
-        recognition.onresult = function (event) {
-            const text = event.results[0][0].transcript;
+        voiceInput.addEventListener(
+            "click",
+            function() {
 
-            input.value = text;
+                try {
 
-            voiceBtn.textContent = "🎤 VOICE";
+                    if (voiceStatus) {
+                        voiceStatus.textContent =
+                            "LISTENING";
+                    }
 
-            sendMessage();
-        };
+                    voiceInput.textContent =
+                        "🎤";
 
-        recognition.onerror = function (event) {
-            voiceBtn.textContent = "🎤 VOICE";
+                    voiceInput.classList.add(
+                        "listening"
+                    );
 
-            addMessage(
-                "J.A.R.V.I.S: Microphone error: " + event.error,
-                "ai"
-            );
-        };
+                    recognition.start();
 
-        recognition.onend = function () {
-            voiceBtn.textContent = "🎤 VOICE";
-        };
+                } catch (error) {
 
-        recognition.start();
-    });
+                    console.log(
+                        "Mic start:",
+                        error
+                    );
+                }
+            }
+        );
+
+
+        // SPEECH RESULT
+
+        recognition.onresult =
+            function(event) {
+
+                const spokenText =
+                    event.results[0][0]
+                        .transcript;
+
+                input.value =
+                    spokenText;
+
+                if (voiceStatus) {
+                    voiceStatus.textContent =
+                        "READY";
+                }
+
+                voiceInput.classList.remove(
+                    "listening"
+                );
+
+                sendMessage();
+            };
+
+
+        // MIC ERROR
+
+        recognition.onerror =
+            function(event) {
+
+                console.log(
+                    "Microphone error:",
+                    event.error
+                );
+
+                if (voiceStatus) {
+                    voiceStatus.textContent =
+                        "READY";
+                }
+
+                voiceInput.classList.remove(
+                    "listening"
+                );
+
+                if (
+                    event.error ===
+                    "not-allowed"
+                ) {
+
+                    addMessage(
+                        "J.A.R.V.I.S: Microphone permission denied. Allow microphone access in Chrome.",
+                        "ai"
+                    );
+
+                } else if (
+                    event.error ===
+                    "no-speech"
+                ) {
+
+                    addMessage(
+                        "J.A.R.V.I.S: I didn't hear anything. Please try again.",
+                        "ai"
+                    );
+
+                } else {
+
+                    addMessage(
+                        "J.A.R.V.I.S: Microphone error: " +
+                        event.error,
+                        "ai"
+                    );
+                }
+            };
+
+
+        // MIC FINISHED
+
+        recognition.onend =
+            function() {
+
+                if (voiceStatus) {
+                    voiceStatus.textContent =
+                        "READY";
+                }
+
+                voiceInput.classList.remove(
+                    "listening"
+                );
+            };
+    }
 }
 
-// VOICE ON/OFF
-if (voiceOn) {
-    voiceOn.addEventListener("click", function () {
 
-        if (speechSynthesis.speaking) {
-            speechSynthesis.cancel();
-            voiceOn.textContent = "🔇 VOICE OFF";
-        } else {
-            voiceOn.textContent = "🔊 VOICE ON";
-        }
-    });
-}
-
-console.log("J.A.R.V.I.S JavaScript loaded successfully.");
+console.log(
+    "J.A.R.V.I.S JavaScript loaded successfully."
+);
