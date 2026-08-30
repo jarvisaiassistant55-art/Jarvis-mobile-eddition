@@ -1,85 +1,102 @@
-document.addEventListener("DOMContentLoaded", () => {
+const chat = document.getElementById("chat");
+const input = document.getElementById("msg");
+const send = document.getElementById("send");
 
-    const chat = document.getElementById("chat");
-    const input = document.getElementById("msg");
-    const send = document.getElementById("send");
+function addMessage(text, type) {
+  const message = document.createElement("p");
 
-    function addMessage(text, type) {
-        const message = document.createElement("div");
-        message.className = "message " + type;
-        message.textContent = text;
+  message.className = type;
+  message.textContent = text;
 
-        chat.appendChild(message);
+  chat.appendChild(message);
 
-        // Scroll to newest message
-        chat.scrollTop = chat.scrollHeight;
-    }
+  chat.scrollTop = chat.scrollHeight;
+}
 
-    function jarvisReply(text) {
+function jarvisReply(text) {
 
-        const msg = text.toLowerCase();
+  const command = text.toLowerCase();
 
-        if (msg.includes("hello") || msg.includes("hi")) {
-            return "Hello. I am J.A.R.V.I.S. Systems are fully operational.";
-        }
+  if (command.includes("hello") ||
+      command.includes("hi") ||
+      command.includes("hey")) {
 
-        if (msg.includes("who are you")) {
-            return "I am J.A.R.V.I.S., your personal mobile AI assistant.";
-        }
+    return "Hello. I am J.A.R.V.I.S. How may I assist you?";
 
-        if (msg.includes("how are you")) {
-            return "All systems are online and operating normally.";
-        }
+  }
 
-        if (msg.includes("time")) {
-            return "Current device time is " +
-                   new Date().toLocaleTimeString();
-        }
+  if (command.includes("who are you")) {
 
-        if (msg.includes("status")) {
-            return "System status: AI Core ONLINE. Network ONLINE. Voice LOCKED. Memory LOCKED.";
-        }
+    return "I am J.A.R.V.I.S., your personal AI assistant.";
 
-        if (msg.includes("thank")) {
-            return "You're welcome. Always at your service.";
-        }
+  }
 
-        return "Command received. I am processing your request.";
-    }
+  if (command.includes("status")) {
 
-    function sendMessage() {
+    return "All primary systems are operational. AI Core and Network are online.";
 
-        const text = input.value.trim();
+  }
 
-        if (text === "") {
-            return;
-        }
+  if (command.includes("time")) {
 
-        // User message
-        addMessage("YOU: " + text, "user");
+    return "Current time: " +
+      new Date().toLocaleTimeString();
 
-        // Clear input
-        input.value = "";
+  }
 
-        // JARVIS processing
-        setTimeout(() => {
+  if (command.includes("date")) {
 
-            const reply = jarvisReply(text);
+    return "Today's date: " +
+      new Date().toLocaleDateString();
 
-            addMessage("J.A.R.V.I.S: " + reply, "ai");
+  }
 
-        }, 500);
-    }
+  if (command.includes("thank")) {
 
-    // SEND button
-    send.addEventListener("click", sendMessage);
+    return "You're welcome. Always at your service.";
 
-    // ENTER key
-    input.addEventListener("keydown", (event) => {
-        if (event.key === "Enter") {
-            event.preventDefault();
-            sendMessage();
-        }
-    });
+  }
+
+  return "Command received. I am ready to assist you.";
+}
+
+function sendMessage() {
+
+  const text = input.value.trim();
+
+  if (text === "") {
+    return;
+  }
+
+  addMessage("YOU: " + text, "user");
+
+  input.value = "";
+
+  const processing = document.createElement("p");
+
+  processing.className = "ai";
+
+  processing.textContent =
+    "J.A.R.V.I.S: Processing...";
+
+  chat.appendChild(processing);
+
+  setTimeout(() => {
+
+    processing.textContent =
+      "J.A.R.V.I.S: " + jarvisReply(text);
+
+    chat.scrollTop = chat.scrollHeight;
+
+  }, 700);
+}
+
+send.addEventListener("click", sendMessage);
+
+input.addEventListener("keydown", function(event) {
+
+  if (event.key === "Enter") {
+    sendMessage();
+  }
 
 });
