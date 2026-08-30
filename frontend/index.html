@@ -3,318 +3,293 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>J.A.R.V.I.S</title>
 
 <style>
-
-* {
-    box-sizing: border-box;
+*{
+    box-sizing:border-box;
 }
 
-body {
-    margin: 0;
-    min-height: 100vh;
-    background: #000b10;
-    color: #08d9ff;
-    font-family: Arial, sans-serif;
+body{
+    margin:0;
+    min-height:100vh;
+    background:#000b10;
+    color:#08d9ff;
+    font-family:Arial,sans-serif;
 }
 
-/* HEADER */
-
-header {
-    text-align: center;
-    padding: 20px;
-    background: #080c14;
+header{
+    text-align:center;
+    padding:20px;
+    background:#080c14;
 }
 
-header h1 {
-    margin: 0;
-    font-size: 28px;
-    letter-spacing: 6px;
+header h1{
+    margin:0;
+    font-size:28px;
+    letter-spacing:6px;
 }
 
-header p {
-    margin: 6px 0 0;
-    color: #777;
-    font-size: 11px;
-    letter-spacing: 4px;
+header p{
+    margin:6px 0 0;
+    color:#777;
+    font-size:11px;
+    letter-spacing:4px;
 }
 
 /* CORE */
 
-.core {
-    width: 310px;
-    height: 310px;
-    margin: 25px auto;
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+.core{
+    width:310px;
+    height:310px;
+    margin:25px auto;
+    position:relative;
+    display:flex;
+    align-items:center;
+    justify-content:center;
 }
 
-.ring {
-    position: absolute;
-    border-radius: 50%;
-    border: 4px solid #00d9ff;
+.ring{
+    position:absolute;
+    border-radius:50%;
+    border:4px solid #00d9ff;
     box-shadow:
         0 0 10px #00d9ff,
         0 0 30px #008cff,
         inset 0 0 20px #008cff;
 }
 
-.r1 {
-    width: 310px;
-    height: 310px;
-    border-style: dotted;
-    animation: rotate1 8s linear infinite;
+.r1{
+    width:310px;
+    height:310px;
+    border-style:dotted;
+    animation:rotate1 8s linear infinite;
 }
 
-.r2 {
-    width: 250px;
-    height: 250px;
-    animation: rotate2 6s linear infinite;
+.r2{
+    width:250px;
+    height:250px;
+    animation:rotate2 6s linear infinite;
 }
 
-.r3 {
-    width: 190px;
-    height: 190px;
+.r3{
+    width:190px;
+    height:190px;
 }
 
-.r4 {
-    width: 130px;
-    height: 130px;
+.r4{
+    width:130px;
+    height:130px;
 }
 
-.core-center {
-    width: 90px;
-    height: 90px;
-    background: #08b8d8;
-    border-radius: 50%;
+.core-center{
+    width:90px;
+    height:90px;
+    background:#08b8d8;
+    border-radius:50%;
     box-shadow:
         0 0 20px #00d9ff,
         0 0 60px #008cff;
-    animation: pulse 1.5s infinite;
+    animation:pulse 1.5s infinite;
 }
 
-@keyframes rotate1 {
-    from {
-        transform: rotate(0deg);
-    }
-    to {
-        transform: rotate(360deg);
-    }
+@keyframes rotate1{
+    from{transform:rotate(0deg)}
+    to{transform:rotate(360deg)}
 }
 
-@keyframes rotate2 {
-    from {
-        transform: rotate(360deg);
-    }
-    to {
-        transform: rotate(0deg);
-    }
+@keyframes rotate2{
+    from{transform:rotate(360deg)}
+    to{transform:rotate(0deg)}
 }
 
-@keyframes pulse {
-    0%, 100% {
-        transform: scale(1);
-    }
-
-    50% {
-        transform: scale(1.12);
-    }
+@keyframes pulse{
+    0%,100%{transform:scale(1)}
+    50%{transform:scale(1.12)}
 }
 
-/* CORE STATUS */
-
-.core-status {
-    text-align: center;
-    font-size: 24px;
-    margin: 20px 0 40px;
+.core-status{
+    text-align:center;
+    font-size:24px;
+    margin:20px 0 40px;
 }
 
-.core-status span {
-    color: #00ff66;
+.core-status span{
+    color:#00ff66;
 }
 
 /* BOX */
 
-.box {
-    width: 92%;
-    max-width: 630px;
-    margin: 0 auto 30px;
-    border: 1px solid #00d9ff;
-    border-radius: 25px;
-    padding: 25px;
-    box-shadow: 0 0 20px rgba(0,210,255,.2);
+.box{
+    width:92%;
+    max-width:630px;
+    margin:0 auto 30px;
+    border:1px solid #00d9ff;
+    border-radius:25px;
+    padding:25px;
+    box-shadow:0 0 20px rgba(0,210,255,.2);
 }
 
-.box h2 {
-    text-align: center;
-    margin: 10px 0 30px;
-    font-size: 32px;
-    letter-spacing: 5px;
+.box h2{
+    text-align:center;
+    margin:10px 0 30px;
+    font-size:32px;
+    letter-spacing:5px;
 }
 
 /* STATUS */
 
-.status {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px 10px;
-    border-bottom: 1px solid #12343d;
-    font-size: 21px;
+.status{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:20px 10px;
+    border-bottom:1px solid #12343d;
+    font-size:21px;
 }
 
-.online {
-    color: #00ff66;
-    font-weight: bold;
+.online,
+.ready{
+    color:#00ff66;
+    font-weight:bold;
 }
 
-.locked {
-    color: #ff4040;
-    font-weight: bold;
-}
-
-.voice-ready {
-    color: #00ff66;
-    font-weight: bold;
+.locked{
+    color:#ff4040;
+    font-weight:bold;
 }
 
 /* CHAT */
 
-#chat {
-    min-height: 160px;
-    max-height: 350px;
-    overflow-y: auto;
-    font-size: 20px;
-    line-height: 1.4;
+#chat{
+    height:260px;
+    overflow-y:auto;
+    font-size:20px;
+    line-height:1.4;
 }
 
-#chat p {
-    margin: 12px 0;
+#chat p{
+    margin:12px 0;
 }
 
-.ai {
-    color: #08d9ff;
+.ai{
+    color:#08d9ff;
 }
 
-.user {
-    color: white;
+.user{
+    color:white;
 }
 
 /* INPUT */
 
-.input-area {
-    width: 92%;
-    max-width: 630px;
-    margin: 0 auto 30px;
-    display: flex;
-    gap: 10px;
+.input-area{
+    width:92%;
+    max-width:630px;
+    margin:0 auto 15px;
+    display:flex;
+    gap:12px;
 }
 
-#msg {
-    flex: 1;
-    min-width: 0;
-    padding: 18px;
-    border: 1px solid #00d9ff;
-    border-radius: 15px;
-    background: #000b10;
-    color: white;
-    font-size: 18px;
-    outline: none;
+#msg{
+    flex:1;
+    min-width:0;
+    padding:18px;
+    border:1px solid #00d9ff;
+    border-radius:15px;
+    background:#000b10;
+    color:white;
+    font-size:18px;
+    outline:none;
 }
 
-#msg::placeholder {
-    color: #777;
+#msg::placeholder{
+    color:#777;
 }
 
-/* BUTTONS */
-
-#send,
-#voiceButton {
-    min-width: 105px;
-    height: 58px;
-    border: 0;
-    border-radius: 15px;
-    background: #08c8ef;
-    color: #001018;
-    font-size: 15px;
-    font-weight: bold;
-    cursor: pointer;
+button{
+    border:0;
+    border-radius:15px;
+    background:#08c8ef;
+    color:#001018;
+    font-size:16px;
+    font-weight:bold;
+    cursor:pointer;
 }
 
-#voiceButton {
-    background: #00d9ff;
+#send{
+    width:120px;
 }
 
-#voiceButton.listening {
-    background: #ff4040;
-    color: white;
-    box-shadow: 0 0 20px #ff4040;
+#voiceButton{
+    width:120px;
 }
 
-#send:active,
-#voiceButton:active {
-    transform: scale(.95);
+#voiceButton.listening{
+    background:#ff3030;
+    color:white;
 }
 
-/* VOICE TOGGLE */
-
-#voiceToggle {
-    display: block;
-    margin: 12px auto 25px;
-    padding: 10px 20px;
-    border: 1px solid #00d9ff;
-    border-radius: 10px;
-    background: transparent;
-    color: #08d9ff;
-    cursor: pointer;
+#voiceToggle{
+    display:block;
+    margin:15px auto 30px;
+    padding:12px 20px;
+    background:transparent;
+    color:#08d9ff;
+    border:1px solid #00d9ff;
 }
 
 /* MOBILE */
 
-@media (max-width: 500px) {
+@media(max-width:500px){
 
-    .core {
-        width: 300px;
-        height: 300px;
+    .core{
+        width:280px;
+        height:280px;
     }
 
-    .r1 {
-        width: 300px;
-        height: 300px;
+    .r1{
+        width:280px;
+        height:280px;
     }
 
-    .box {
-        padding: 20px;
+    .r2{
+        width:230px;
+        height:230px;
     }
 
-    .box h2 {
-        font-size: 28px;
+    .r3{
+        width:180px;
+        height:180px;
     }
 
-    .status {
-        font-size: 19px;
+    .r4{
+        width:125px;
+        height:125px;
     }
 
-    .input-area {
-        width: 92%;
-        gap: 7px;
+    .box{
+        padding:20px;
     }
 
-    #msg {
-        font-size: 16px;
-        padding: 15px;
+    .box h2{
+        font-size:28px;
+    }
+
+    .status{
+        font-size:19px;
+    }
+
+    .input-area{
+        gap:8px;
     }
 
     #send,
-    #voiceButton {
-        min-width: 90px;
-        font-size: 13px;
+    #voiceButton{
+        width:105px;
+        min-width:105px;
     }
 }
-
 </style>
 </head>
 
@@ -328,14 +303,11 @@ header p {
 <!-- CORE -->
 
 <div class="core">
-
     <div class="ring r1"></div>
     <div class="ring r2"></div>
     <div class="ring r3"></div>
     <div class="ring r4"></div>
-
     <div class="core-center"></div>
-
 </div>
 
 <div class="core-status">
@@ -360,7 +332,7 @@ header p {
 
     <div class="status">
         <span>VOICE</span>
-        <span id="voiceStatus" class="voice-ready">READY</span>
+        <span id="voiceStatus" class="ready">READY</span>
     </div>
 
     <div class="status">
@@ -375,11 +347,9 @@ header p {
 <div class="box">
 
     <div id="chat">
-
         <p class="ai">
             J.A.R.V.I.S: Systems online. How may I assist you?
         </p>
-
     </div>
 
 </div>
@@ -409,9 +379,375 @@ header p {
     🔊 VOICE ON
 </button>
 
-<!-- JAVASCRIPT -->
 
-<script src="script.js"></script>
+<script>
+
+document.addEventListener("DOMContentLoaded", function(){
+
+    const chat = document.getElementById("chat");
+    const input = document.getElementById("msg");
+    const send = document.getElementById("send");
+    const voiceButton = document.getElementById("voiceButton");
+    const voiceStatus = document.getElementById("voiceStatus");
+    const voiceToggle = document.getElementById("voiceToggle");
+
+    let voiceOn = true;
+    let listening = false;
+
+    /* =========================
+       ADD MESSAGE
+    ========================= */
+
+    function addMessage(text, type){
+
+        const message = document.createElement("p");
+
+        message.className = type;
+        message.textContent = text;
+
+        chat.appendChild(message);
+
+        chat.scrollTop = chat.scrollHeight;
+    }
+
+
+    /* =========================
+       JARVIS BRAIN
+    ========================= */
+
+    function getReply(text){
+
+        const command = text.toLowerCase().trim();
+
+        if(
+            command.includes("hello") ||
+            command.includes("hi") ||
+            command.includes("hey")
+        ){
+            return "Hello. I am J.A.R.V.I.S. How may I assist you?";
+        }
+
+        if(
+            command.includes("who are you") ||
+            command.includes("your name")
+        ){
+            return "I am J.A.R.V.I.S., your personal AI assistant.";
+        }
+
+        if(command.includes("status")){
+            return "All primary systems are operational. AI Core, Network and Voice are ready.";
+        }
+
+        if(command.includes("time")){
+            return "The current time is " +
+            new Date().toLocaleTimeString();
+        }
+
+        if(command.includes("date")){
+            return "Today's date is " +
+            new Date().toLocaleDateString();
+        }
+
+        if(
+            command.includes("thank") ||
+            command.includes("thanks")
+        ){
+            return "You're welcome. Always at your service.";
+        }
+
+        if(command.includes("how are you")){
+            return "All systems are functioning normally.";
+        }
+
+        if(command.includes("bye")){
+            return "Goodbye. J.A.R.V.I.S systems remain on standby.";
+        }
+
+        if(command.includes("voice")){
+            return "Voice systems are online and ready.";
+        }
+
+        return "Command received. I am ready to assist you.";
+    }
+
+
+    /* =========================
+       SPEAK
+    ========================= */
+
+    function speak(text){
+
+        if(!voiceOn) return;
+
+        if(!("speechSynthesis" in window)){
+            return;
+        }
+
+        window.speechSynthesis.cancel();
+
+        const speech =
+            new SpeechSynthesisUtterance(text);
+
+        speech.lang = "en-US";
+        speech.rate = 0.9;
+        speech.pitch = 0.85;
+        speech.volume = 1;
+
+        window.speechSynthesis.speak(speech);
+    }
+
+
+    /* =========================
+       PROCESS COMMAND
+    ========================= */
+
+    function processCommand(text){
+
+        const processing =
+            document.createElement("p");
+
+        processing.className = "ai";
+
+        processing.textContent =
+            "J.A.R.V.I.S: Processing...";
+
+        chat.appendChild(processing);
+
+        chat.scrollTop = chat.scrollHeight;
+
+        setTimeout(function(){
+
+            const reply = getReply(text);
+
+            processing.textContent =
+                "J.A.R.V.I.S: " + reply;
+
+            chat.scrollTop = chat.scrollHeight;
+
+            speak(reply);
+
+        },500);
+    }
+
+
+    /* =========================
+       SEND
+    ========================= */
+
+    function sendMessage(){
+
+        const text = input.value.trim();
+
+        if(!text){
+            return;
+        }
+
+        addMessage(
+            "YOU: " + text,
+            "user"
+        );
+
+        input.value = "";
+
+        processCommand(text);
+    }
+
+
+    send.addEventListener(
+        "click",
+        sendMessage
+    );
+
+
+    input.addEventListener(
+        "keydown",
+        function(event){
+
+            if(event.key === "Enter"){
+
+                event.preventDefault();
+
+                sendMessage();
+            }
+
+        }
+    );
+
+
+    /* =========================
+       VOICE RECOGNITION
+    ========================= */
+
+    const SpeechRecognition =
+        window.SpeechRecognition ||
+        window.webkitSpeechRecognition;
+
+    let recognition = null;
+
+    if(SpeechRecognition){
+
+        recognition = new SpeechRecognition();
+
+        recognition.lang = "en-US";
+        recognition.continuous = false;
+        recognition.interimResults = false;
+
+        recognition.onstart = function(){
+
+            listening = true;
+
+            voiceButton.textContent =
+                "🔴 LISTENING";
+
+            voiceButton.classList.add("listening");
+
+            voiceStatus.textContent =
+                "LISTENING";
+        };
+
+
+        recognition.onresult = function(event){
+
+            const text =
+                event.results[0][0].transcript;
+
+            if(!text){
+                return;
+            }
+
+            input.value = text;
+
+            addMessage(
+                "YOU: " + text,
+                "user"
+            );
+
+            input.value = "";
+
+            processCommand(text);
+        };
+
+
+        recognition.onerror = function(event){
+
+            console.log(
+                "Voice error:",
+                event.error
+            );
+
+            if(event.error === "not-allowed"){
+
+                addMessage(
+                    "J.A.R.V.I.S: Please allow microphone permission.",
+                    "ai"
+                );
+            }
+
+            if(event.error === "no-speech"){
+
+                addMessage(
+                    "J.A.R.V.I.S: I did not hear anything.",
+                    "ai"
+                );
+            }
+        };
+
+
+        recognition.onend = function(){
+
+            listening = false;
+
+            voiceButton.textContent =
+                "🎤 VOICE";
+
+            voiceButton.classList.remove("listening");
+
+            voiceStatus.textContent =
+                "READY";
+        };
+
+
+        voiceButton.addEventListener(
+            "click",
+            function(){
+
+                if(listening){
+
+                    recognition.stop();
+
+                    return;
+                }
+
+                try{
+
+                    recognition.start();
+
+                }catch(error){
+
+                    console.log(error);
+                }
+
+            }
+        );
+
+    }else{
+
+        voiceButton.disabled = true;
+
+        voiceButton.textContent =
+            "VOICE N/A";
+
+        voiceStatus.textContent =
+            "UNSUPPORTED";
+
+        addMessage(
+            "J.A.R.V.I.S: Voice recognition is not supported in this browser.",
+            "ai"
+        );
+    }
+
+
+    /* =========================
+       VOICE ON / OFF
+    ========================= */
+
+    voiceToggle.addEventListener(
+        "click",
+        function(){
+
+            voiceOn = !voiceOn;
+
+            if(voiceOn){
+
+                voiceToggle.textContent =
+                    "🔊 VOICE ON";
+
+            }else{
+
+                voiceToggle.textContent =
+                    "🔇 VOICE OFF";
+
+                if("speechSynthesis" in window){
+
+                    window.speechSynthesis.cancel();
+
+                }
+            }
+        }
+    );
+
+
+    /* =========================
+       STARTUP
+    ========================= */
+
+    console.log(
+        "J.A.R.V.I.S: System initialized successfully."
+    );
+
+});
+
+</script>
 
 </body>
 </html>
