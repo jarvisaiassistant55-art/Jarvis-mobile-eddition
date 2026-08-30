@@ -1,4 +1,3 @@
-alert("JARVIS SCRIPT LOADED");
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -19,6 +18,8 @@ body {
     color: #08d9ff;
     font-family: Arial, sans-serif;
 }
+
+/* HEADER */
 
 header {
     text-align: center;
@@ -46,6 +47,7 @@ header p {
     height: 280px;
     margin: 25px auto 10px;
     position: relative;
+
     display: flex;
     align-items: center;
     justify-content: center;
@@ -55,6 +57,7 @@ header p {
     position: absolute;
     border-radius: 50%;
     border: 3px solid #00d9ff;
+
     box-shadow:
         0 0 10px #00d9ff,
         0 0 30px #008cff,
@@ -65,12 +68,14 @@ header p {
     width: 280px;
     height: 280px;
     border-style: dotted;
+
     animation: rotate1 8s linear infinite;
 }
 
 .r2 {
     width: 225px;
     height: 225px;
+
     animation: rotate2 6s linear infinite;
 }
 
@@ -88,26 +93,44 @@ header p {
     width: 75px;
     height: 75px;
     border-radius: 50%;
+
     background: #08b8d8;
+
     box-shadow:
         0 0 20px #00d9ff,
         0 0 60px #008cff;
+
     animation: pulse 1.5s infinite;
 }
 
 @keyframes rotate1 {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 @keyframes rotate2 {
-    from { transform: rotate(360deg); }
-    to { transform: rotate(0deg); }
+    from {
+        transform: rotate(360deg);
+    }
+
+    to {
+        transform: rotate(0deg);
+    }
 }
 
 @keyframes pulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.12); }
+    0%, 100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.12);
+    }
 }
 
 .core-status {
@@ -125,16 +148,22 @@ header p {
 .box {
     width: 92%;
     max-width: 630px;
+
     margin: 0 auto 25px;
+
     border: 1px solid #00d9ff;
     border-radius: 25px;
+
     padding: 20px;
+
     box-shadow: 0 0 20px rgba(0,210,255,.2);
 }
 
 .box h2 {
     text-align: center;
+
     margin: 5px 0 25px;
+
     font-size: 28px;
     letter-spacing: 5px;
 }
@@ -143,8 +172,11 @@ header p {
     display: flex;
     justify-content: space-between;
     align-items: center;
+
     padding: 18px 5px;
+
     border-bottom: 1px solid #12343d;
+
     font-size: 20px;
 }
 
@@ -164,7 +196,9 @@ header p {
 #chat {
     min-height: 180px;
     max-height: 320px;
+
     overflow-y: auto;
+
     font-size: 19px;
     line-height: 1.5;
 }
@@ -186,7 +220,9 @@ header p {
 .input-area {
     width: 92%;
     max-width: 630px;
+
     margin: 0 auto 20px;
+
     display: flex;
     gap: 10px;
 }
@@ -194,12 +230,17 @@ header p {
 #msg {
     flex: 1;
     min-width: 0;
+
     padding: 17px;
+
     border: 1px solid #00d9ff;
     border-radius: 15px;
+
     background: #000b10;
     color: white;
+
     font-size: 18px;
+
     outline: none;
 }
 
@@ -210,17 +251,51 @@ header p {
 button {
     border: 0;
     border-radius: 15px;
+
     background: #08c8ef;
     color: #001018;
+
     font-size: 16px;
     font-weight: bold;
+
     cursor: pointer;
+
     padding: 0 22px;
+
+    touch-action: manipulation;
 }
 
 button:active {
     transform: scale(.95);
 }
+
+/* MIC BUTTON */
+
+#voiceInput {
+    width: 58px;
+    min-width: 58px;
+
+    padding: 0;
+
+    font-size: 22px;
+
+    background: transparent;
+
+    border: 1px solid #00d9ff;
+
+    color: #08d9ff;
+}
+
+#voiceInput.listening {
+    background: #08d9ff;
+    color: #001018;
+
+    box-shadow:
+        0 0 10px #00d9ff,
+        0 0 30px #008cff;
+}
+
+/* VOICE BUTTON */
 
 .voice-area {
     text-align: center;
@@ -229,14 +304,18 @@ button:active {
 
 #voiceButton {
     min-height: 50px;
+
     background: transparent;
+
     border: 1px solid #00d9ff;
+
     color: #08d9ff;
 }
 
 /* MOBILE */
 
 @media (max-width: 500px) {
+
     .core {
         width: 250px;
         height: 250px;
@@ -284,7 +363,12 @@ button:active {
     }
 
     button {
-        padding: 0 18px;
+        padding: 0 15px;
+    }
+
+    #voiceInput {
+        width: 52px;
+        min-width: 52px;
     }
 }
 </style>
@@ -297,17 +381,27 @@ button:active {
     <p>MOBILE EDITION</p>
 </header>
 
+
+<!-- CORE -->
+
 <div class="core">
+
     <div class="ring r1"></div>
     <div class="ring r2"></div>
     <div class="ring r3"></div>
     <div class="ring r4"></div>
+
     <div class="core-center"></div>
+
 </div>
+
 
 <div class="core-status">
     CORE ACTIVE <span>●</span>
 </div>
+
+
+<!-- SYSTEM STATUS -->
 
 <div class="box">
 
@@ -335,15 +429,23 @@ button:active {
 
 </div>
 
+
+<!-- CHAT -->
+
 <div class="box">
 
     <div id="chat">
+
         <p class="ai">
             J.A.R.V.I.S: Systems online. How may I assist you?
         </p>
+
     </div>
 
 </div>
+
+
+<!-- INPUT -->
 
 <div class="input-area">
 
@@ -354,51 +456,83 @@ button:active {
         autocomplete="off"
     >
 
-    <button id="voiceInput" type="button">
+    <button
+        id="voiceInput"
+        type="button"
+        aria-label="Microphone"
+    >
         🎤
     </button>
 
-    <button id="send" type="button">
+    <button
+        id="send"
+        type="button"
+    >
         SEND
     </button>
 
 </div>
 
+
+<!-- VOICE ON/OFF -->
+
 <div class="voice-area">
-    <button id="voiceButton" type="button">
+
+    <button
+        id="voiceButton"
+        type="button"
+    >
         🔊 VOICE ON
     </button>
+
 </div>
 
+
 <script>
-/* =========================
+
+/* =====================================
    J.A.R.V.I.S ENGINE
-========================= */
+===================================== */
 
 const input = document.getElementById("msg");
 const send = document.getElementById("send");
 const chat = document.getElementById("chat");
-const voiceButton = document.getElementById("voiceButton");
-const voiceInput = document.getElementById("voiceInput");
-const voiceStatus = document.getElementById("voiceStatus");
+
+const voiceButton =
+    document.getElementById("voiceButton");
+
+const voiceInput =
+    document.getElementById("voiceInput");
+
+const voiceStatus =
+    document.getElementById("voiceStatus");
+
 
 let voiceEnabled = true;
 
 
-/* ADD MESSAGE */
+/* =====================================
+   ADD MESSAGE
+===================================== */
 
 function addMessage(text, type) {
-    const message = document.createElement("p");
+
+    const message =
+        document.createElement("p");
 
     message.className = type;
+
     message.textContent = text;
 
     chat.appendChild(message);
+
     chat.scrollTop = chat.scrollHeight;
 }
 
 
-/* SPEAK */
+/* =====================================
+   SPEAK
+===================================== */
 
 function speak(text) {
 
@@ -412,7 +546,8 @@ function speak(text) {
 
     window.speechSynthesis.cancel();
 
-    const speech = new SpeechSynthesisUtterance(text);
+    const speech =
+        new SpeechSynthesisUtterance(text);
 
     speech.rate = 0.95;
     speech.pitch = 1;
@@ -422,11 +557,14 @@ function speak(text) {
 }
 
 
-/* COMMAND ENGINE */
+/* =====================================
+   JARVIS REPLY
+===================================== */
 
 function getReply(text) {
 
-    const command = text.toLowerCase().trim();
+    const command =
+        text.toLowerCase().trim();
 
 
     if (
@@ -434,7 +572,9 @@ function getReply(text) {
         command.includes("hi") ||
         command.includes("hey")
     ) {
+
         return "Hello. I am J.A.R.V.I.S. How may I assist you?";
+
     }
 
 
@@ -442,24 +582,32 @@ function getReply(text) {
         command.includes("who are you") ||
         command.includes("what are you")
     ) {
+
         return "I am J.A.R.V.I.S., your personal AI assistant.";
+
     }
 
 
     if (command.includes("status")) {
+
         return "All primary systems are operational. AI Core, Network and Voice are ready.";
+
     }
 
 
     if (command.includes("time")) {
+
         return "The current time is " +
             new Date().toLocaleTimeString();
+
     }
 
 
     if (command.includes("date")) {
+
         return "Today's date is " +
             new Date().toLocaleDateString();
+
     }
 
 
@@ -467,9 +615,13 @@ function getReply(text) {
         command.includes("voice off") ||
         command.includes("turn off voice")
     ) {
+
         voiceEnabled = false;
+
         voiceStatus.textContent = "OFF";
+
         return "Voice system disabled.";
+
     }
 
 
@@ -477,9 +629,13 @@ function getReply(text) {
         command.includes("voice on") ||
         command.includes("turn on voice")
     ) {
+
         voiceEnabled = true;
+
         voiceStatus.textContent = "READY";
+
         return "Voice system enabled.";
+
     }
 
 
@@ -487,7 +643,9 @@ function getReply(text) {
         command.includes("thank") ||
         command.includes("thanks")
     ) {
+
         return "You're welcome. Always at your service.";
+
     }
 
 
@@ -495,12 +653,16 @@ function getReply(text) {
         command.includes("bye") ||
         command.includes("goodbye")
     ) {
+
         return "Goodbye. J.A.R.V.I.S systems remain on standby.";
+
     }
 
 
     if (command.includes("help")) {
-        return "Try commands such as Hello, Status, What time is it, What is today's date, Who are you, Voice on, or Voice off.";
+
+        return "Try saying Hello, Status, What time is it, What is today's date, Who are you, Voice on, or Voice off.";
+
     }
 
 
@@ -508,148 +670,323 @@ function getReply(text) {
 }
 
 
-/* SEND MESSAGE */
+/* =====================================
+   SEND MESSAGE
+===================================== */
 
 function sendMessage() {
 
-    const text = input.value.trim();
+    const text =
+        input.value.trim();
+
 
     if (text === "") {
         return;
     }
 
-    addMessage("YOU: " + text, "user");
+
+    addMessage(
+        "YOU: " + text,
+        "user"
+    );
+
 
     input.value = "";
 
-    const processing = document.createElement("p");
+
+    const processing =
+        document.createElement("p");
 
     processing.className = "ai";
-    processing.textContent = "J.A.R.V.I.S: Processing...";
+
+    processing.textContent =
+        "J.A.R.V.I.S: Processing...";
 
     chat.appendChild(processing);
-    chat.scrollTop = chat.scrollHeight;
+
+    chat.scrollTop =
+        chat.scrollHeight;
 
 
     setTimeout(function() {
 
-        const reply = getReply(text);
+        const reply =
+            getReply(text);
+
 
         processing.textContent =
             "J.A.R.V.I.S: " + reply;
 
-        chat.scrollTop = chat.scrollHeight;
+
+        chat.scrollTop =
+            chat.scrollHeight;
+
 
         speak(reply);
 
-    }, 500);
+    }, 300);
 }
 
 
-/* SEND BUTTON */
+/* =====================================
+   SEND BUTTON
+===================================== */
 
-send.addEventListener("click", sendMessage);
+send.addEventListener(
+    "click",
+    sendMessage
+);
 
 
-/* ENTER KEY */
+/* =====================================
+   ENTER KEY
+===================================== */
 
-input.addEventListener("keydown", function(event) {
+input.addEventListener(
+    "keydown",
+    function(event) {
 
-    if (event.key === "Enter") {
-        event.preventDefault();
-        sendMessage();
+        if (event.key === "Enter") {
+
+            event.preventDefault();
+
+            sendMessage();
+
+        }
+
     }
+);
 
-});
+
+/* =====================================
+   VOICE ON / OFF
+===================================== */
+
+voiceButton.addEventListener(
+    "click",
+    function() {
+
+        voiceEnabled =
+            !voiceEnabled;
 
 
-/* VOICE ON/OFF BUTTON */
+        if (voiceEnabled) {
 
-voiceButton.addEventListener("click", function() {
+            voiceStatus.textContent =
+                "READY";
 
-    voiceEnabled = !voiceEnabled;
+            voiceButton.textContent =
+                "🔊 VOICE ON";
 
-    if (voiceEnabled) {
+            speak(
+                "Voice system enabled."
+            );
 
-        voiceStatus.textContent = "READY";
-        voiceButton.textContent = "🔊 VOICE ON";
+        } else {
 
-        speak("Voice system enabled.");
+            if (
+                "speechSynthesis" in window
+            ) {
 
-    } else {
+                window.speechSynthesis.cancel();
 
-        window.speechSynthesis.cancel();
+            }
 
-        voiceStatus.textContent = "OFF";
-        voiceButton.textContent = "🔇 VOICE OFF";
+            voiceStatus.textContent =
+                "OFF";
+
+            voiceButton.textContent =
+                "🔇 VOICE OFF";
+
+        }
+
     }
+);
 
-});
 
-
-/* MICROPHONE INPUT */
+/* =====================================
+   MICROPHONE
+===================================== */
 
 const SpeechRecognition =
     window.SpeechRecognition ||
     window.webkitSpeechRecognition;
 
+
 if (SpeechRecognition) {
 
-    const recognition = new SpeechRecognition();
-
-    recognition.lang = "en-IN";
-    recognition.continuous = false;
-    recognition.interimResults = false;
+    const recognition =
+        new SpeechRecognition();
 
 
-    voiceInput.addEventListener("click", function() {
-
-        voiceStatus.textContent = "LISTENING";
-
-        recognition.start();
-
-    });
+    recognition.lang =
+        "en-IN";
 
 
-    recognition.onresult = function(event) {
-
-        const spokenText =
-            event.results[0][0].transcript;
-
-        input.value = spokenText;
-
-        voiceStatus.textContent = "READY";
-
-        sendMessage();
-
-    };
+    recognition.continuous =
+        false;
 
 
-    recognition.onerror = function() {
-
-        voiceStatus.textContent = "READY";
-
-    };
+    recognition.interimResults =
+        false;
 
 
-    recognition.onend = function() {
+    recognition.maxAlternatives =
+        1;
 
-        voiceStatus.textContent = "READY";
 
-    };
+    /* MIC CLICK */
+
+    voiceInput.addEventListener(
+        "click",
+        function() {
+
+            try {
+
+                voiceStatus.textContent =
+                    "LISTENING";
+
+                voiceInput.classList.add(
+                    "listening"
+                );
+
+                recognition.start();
+
+            } catch (error) {
+
+                console.log(error);
+
+            }
+
+        }
+    );
+
+
+    /* SPEECH RESULT */
+
+    recognition.onresult =
+        function(event) {
+
+            const spokenText =
+                event.results[0][0]
+                    .transcript;
+
+
+            input.value =
+                spokenText;
+
+
+            voiceStatus.textContent =
+                "READY";
+
+            voiceInput.classList.remove(
+                "listening"
+            );
+
+
+            sendMessage();
+
+        };
+
+
+    /* MIC ERROR */
+
+    recognition.onerror =
+        function(event) {
+
+            console.log(
+                "Microphone error:",
+                event.error
+            );
+
+
+            voiceStatus.textContent =
+                "READY";
+
+            voiceInput.classList.remove(
+                "listening"
+            );
+
+
+            if (
+                event.error ===
+                "not-allowed"
+            ) {
+
+                addMessage(
+                    "J.A.R.V.I.S: Microphone permission denied. Please allow microphone access in Chrome.",
+                    "ai"
+                );
+
+            } else if (
+                event.error ===
+                "no-speech"
+            ) {
+
+                addMessage(
+                    "J.A.R.V.I.S: I didn't hear anything. Please try again.",
+                    "ai"
+                );
+
+            } else {
+
+                addMessage(
+                    "J.A.R.V.I.S: Microphone error: " +
+                    event.error,
+                    "ai"
+                );
+
+            }
+
+        };
+
+
+    /* MIC FINISHED */
+
+    recognition.onend =
+        function() {
+
+            voiceStatus.textContent =
+                "READY";
+
+            voiceInput.classList.remove(
+                "listening"
+            );
+
+        };
 
 } else {
 
-    voiceInput.addEventListener("click", function() {
+    /* BROWSER DOES NOT SUPPORT MIC */
 
-        addMessage(
-            "J.A.R.V.I.S: Voice recognition is not supported by this browser.",
-            "ai"
-        );
+    voiceStatus.textContent =
+        "NOT SUPPORTED";
 
-    });
+
+    voiceInput.addEventListener(
+        "click",
+        function() {
+
+            addMessage(
+                "J.A.R.V.I.S: Speech recognition is not supported in this browser. Please use Google Chrome.",
+                "ai"
+            );
+
+        }
+    );
 
 }
-<script src="script.js"></script>
+
+
+/* =====================================
+   READY
+===================================== */
+
+console.log(
+    "J.A.R.V.I.S SYSTEM READY"
+);
+
+</script>
+
 </body>
 </html>
