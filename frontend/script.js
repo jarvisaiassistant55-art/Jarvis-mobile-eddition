@@ -1,7 +1,13 @@
-/* =========================================
+/* =========================================================
    J.A.R.V.I.S. MOBILE EDITION
-   COMPLETE REPLACEMENT SCRIPT
-========================================= */
+   COMPLETE SCRIPT.JS — MEMORY SYSTEM
+   ========================================================= */
+
+"use strict";
+
+/* =========================================================
+   ELEMENTS
+   ========================================================= */
 
 const chat = document.getElementById("chat");
 const input = document.getElementById("msg");
@@ -9,333 +15,637 @@ const send = document.getElementById("send");
 
 const voiceButton = document.getElementById("voiceButton");
 const voiceHead = document.getElementById("voiceHead");
-
 const voiceStatus = document.getElementById("voiceStatus");
-const voiceState = document.getElementById("voiceState");
 
-const coreButton = document.getElementById("coreButton");
+/* =========================================================
+   STORAGE KEYS
+   ========================================================= */
 
-let voiceUnlocked = false;
-let listening = false;
+const STORAGE = {
+    memories: "jarvis_memories_v1",
+    chat: "jarvis_chat_history_v1",
+    settings: "jarvis_settings_v1"
+};
+
+/* =========================================================
+   JARVIS STATE
+   ========================================================= */
+
+let memories = loadJSON(STORAGE.memories, []);
+let chatHistory = loadJSON(STORAGE.chat, []);
+
+let isListening = false;
 let recognition = null;
 
+/* =========================================================
+   STORAGE FUNCTIONS
+   ========================================================= */
 
-/* =========================================
-   TIME
-========================================= */
+function loadJSON(key, fallback) {
+    try {
+        const data = localStorage.getItem(key);
 
-function currentTime() {
-    return new Date().toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit"
+        if (!data) return fallback;
+
+        const parsed = JSON.parse(data);
+
+        return parsed ?? fallback;
+    } catch (error) {
+        console.warn("JARVIS storage error:", error);
+        return fallback;
+    }
+}
+
+function saveJSON(key, data) {
+    try {
+        localStorage.setItem(key, JSON.stringify(data));
+    } catch (error) {
+        console.warn("JARVIS could not save:", error);
+    }
+}
+
+/* =========================================================
+   MEMORY SYSTEM
+   ========================================================= */
+
+function normalizeText(text) {
+    return String(text || "")
+        .trim()
+        .replace(/\s+/g, " ");
+}
+
+function createMemory(text, category = "general") {
+
+    text = normalizeText(text);
+
+    if (!text) return null;
+
+    const duplicate = memories.find(
+        memory =>
+            memory.text.toLowerCase() === text.toLowerCase()
+    );
+
+    if (duplicate) {
+        return duplicate;
+    }
+
+    const memory = {
+        id: Date.now().toString(),
+        text: text,
+        category: category,
+        createdAt: new Date().toISOString()
+    };
+
+    memories.push(memory);
+
+    saveJSON(STORAGE.memories, memories);
+
+    return memory;
+}
+
+function remember(text, category = "general") {
+
+    const memory = createMemory(text, category);
+
+    if (!memory) {
+        return "I couldn't find anything to remember.";
+    }
+
+    return `I'll remember that: ${memory.text}`;
+}
+
+function getMemories() {
+    return memories;
+}
+
+function recallMemories() {
+
+    if (!memories.length) {
+        return "I don't have any saved memories yet.";
+    }
+
+    let response = "Here is what I remember:\n\n";
+
+    memories.forEach((memory, index) => {
+        response += `${index + 1}. ${memory.text}\n`;
     });
+
+    return response;
 }
 
+function forgetMemory(query) {
 
-/* =========================================
-   VOICE STATUS
-========================================= */
+    query = normalizeText(query).toLowerCase();
 
-function setVoiceState(state) {
-
-    if (!voiceState) return;
-
-    voiceState.textContent = state;
-
-    if (state === "UNLOCKED" || state === "ACTIVE") {
-
-        voiceState.className = "green";
-
-    } else {
-
-        voiceState.className = "yellow";
+    if (!query) {
+        return "Tell me which memory you want me to forget.";
     }
-}
 
+    const before = memories.length;
 
-function setVoiceStatus(text) {
+    memories = memories.filter(memory =>
+        !memory.text.toLowerCase().includes(query)
+    );
 
-    if (voiceStatus) {
-        voiceStatus.textContent = text;
+    const removed = before - memories.length;
+
+    saveJSON(STORAGE.memories, memories);
+
+    if (removed === 0) {
+        return `I couldn't find a memory matching "${query}".`;
     }
+
+    return `I've forgotten ${removed} memory${removed > 1 ? "ies" : ""} matching "${query}".`;
 }
 
+function clearAllMemories() {
 
-/* =========================================
-   ADD CHAT MESSAGE
-========================================= */
+    memories = [];
 
-function addMessage(text, type) {
+    saveJSON(STORAGE.memories, memories);
+
+    return "All saved JARVIS memories have been cleared.";
+}
+
+/* =========================================================
+   MEMORY DETECTION
+   ========================================================= */
+
+function detectMemoryCommand(text) {
+
+    const lower = text.toLowerCase().trim();
+
+    /* ---------- REMEMBER ---------- */
+
+    const rememberPatterns = [
+        /^remember that (.+)$/i,
+        /^remember (.+)$/i,
+        /^save that (.+)$/i,
+        /^save (.+)$/i,
+        /^memorize (.+)$/i,
+        /^keep in memory (.+)$/i
+    ];
+
+    for (const pattern of rememberPatterns) {
+
+        const match = lower.match(pattern);
+
+        if (match) {
+
+            let memoryText = text
+                .replace(pattern, "$1")
+                .trim();
+
+            return {
+                type: "remember",
+                value: memoryText
+            };
+        }
+    }
+
+    /* ---------- RECALL ---------- */
+
+    if (
+        lower === "what do you remember" ||
+        lower === "what can you remember" ||
+        lower === "show my memories" ||
+        lower === "show memories" ||
+        lower === "my memories" ||
+        lower === "recall my memories"
+    ) {
+        return {
+            type: "recall"
+        };
+    }
+
+    /* ---------- FORGET ALL ---------- */
+
+    if (
+        lower === "forget everything" ||
+        lower === "forget all memories" ||
+        lower === "clear my memory" ||
+        lower === "clear all memories" ||
+        lower === "delete all memories"
+    ) {
+        return {
+            type: "forgetAll"
+        };
+    }
+
+    /* ---------- FORGET ONE ---------- */
+
+    const forgetPatterns = [
+        /^forget that (.+)$/i,
+        /^forget (.+)$/i,
+        /^delete memory (.+)$/i,
+        /^remove memory (.+)$/i
+    ];
+
+    for (const pattern of forgetPatterns) {
+
+        const match = lower.match(pattern);
+
+        if (match) {
+
+            const value = text
+                .replace(pattern, "$1")
+                .trim();
+
+            return {
+                type: "forget",
+                value: value
+            };
+        }
+    }
+
+    return null;
+}
+
+/* =========================================================
+   SMART MEMORY CATEGORIES
+   ========================================================= */
+
+function detectCategory(text) {
+
+    const lower = text.toLowerCase();
+
+    if (
+        lower.includes("my name") ||
+        lower.includes("call me") ||
+        lower.includes("nickname")
+    ) {
+        return "identity";
+    }
+
+    if (
+        lower.includes("favorite") ||
+        lower.includes("favourite") ||
+        lower.includes("i like") ||
+        lower.includes("i love")
+    ) {
+        return "preference";
+    }
+
+    if (
+        lower.includes("project") ||
+        lower.includes("jarvis") ||
+        lower.includes("friday")
+    ) {
+        return "project";
+    }
+
+    if (
+        lower.includes("prefer") ||
+        lower.includes("always") ||
+        lower.includes("usually")
+    ) {
+        return "preference";
+    }
+
+    return "general";
+}
+
+/* =========================================================
+   AUTOMATIC MEMORY DETECTION
+   ========================================================= */
+
+function detectAutomaticMemory(text) {
+
+    const lower = text.toLowerCase();
+
+    /*
+       Only save information when the user clearly
+       presents it as something that should be remembered.
+    */
+
+    const patterns = [
+        /^my name is (.+)$/i,
+        /^call me (.+)$/i,
+        /^i prefer (.+)$/i,
+        /^my favorite (.+) is (.+)$/i,
+        /^my favourite (.+) is (.+)$/i
+    ];
+
+    for (const pattern of patterns) {
+
+        if (pattern.test(text)) {
+
+            return {
+                text: normalizeText(text),
+                category: detectCategory(text)
+            };
+        }
+    }
+
+    return null;
+}
+
+/* =========================================================
+   CHAT HISTORY
+   ========================================================= */
+
+function saveChatMessage(role, text) {
+
+    chatHistory.push({
+        role: role,
+        text: text,
+        timestamp: new Date().toISOString()
+    });
+
+    /*
+       Keep storage lightweight.
+    */
+
+    if (chatHistory.length > 100) {
+        chatHistory = chatHistory.slice(-100);
+    }
+
+    saveJSON(STORAGE.chat, chatHistory);
+}
+
+function clearChatHistory() {
+
+    chatHistory = [];
+
+    saveJSON(STORAGE.chat, chatHistory);
+
+    if (chat) {
+        chat.innerHTML = "";
+    }
+
+    addMessage(
+        "system",
+        "Conversation history cleared."
+    );
+}
+
+/* =========================================================
+   MESSAGE UI
+   ========================================================= */
+
+function addMessage(type, text) {
 
     if (!chat) return;
 
     const message = document.createElement("div");
 
-    message.className = "message " + type;
-
-
-    if (type === "jarvis") {
-
-        const avatar = document.createElement("div");
-
-        avatar.className = "avatar";
-
-        avatar.textContent = "◆";
-
-        message.appendChild(avatar);
-    }
-
-
-    const bubble = document.createElement("div");
-
-    bubble.className = "bubble";
-
-
-    const label = document.createElement("label");
-
-    label.textContent =
+    message.className =
         type === "user"
-            ? "YOU"
-            : "J.A.R.V.I.S.";
+            ? "message user-message"
+            : "message jarvis-message";
 
+    /*
+       Preserve line breaks safely.
+    */
 
-    const paragraph = document.createElement("p");
-
-    paragraph.textContent = text;
-
-
-    const time = document.createElement("time");
-
-    time.textContent = currentTime();
-
-
-    bubble.appendChild(label);
-    bubble.appendChild(paragraph);
-    bubble.appendChild(time);
-
-    message.appendChild(bubble);
+    message.textContent = text;
 
     chat.appendChild(message);
 
     chat.scrollTop = chat.scrollHeight;
 }
 
+/* =========================================================
+   LOAD CHAT
+   ========================================================= */
 
-/* =========================================
-   UNLOCK VOICE
-========================================= */
+function loadChatHistory() {
 
-function unlockVoice() {
+    if (!chat) return;
 
-    voiceUnlocked = true;
+    chat.innerHTML = "";
 
-    setVoiceState("UNLOCKED");
+    if (!chatHistory.length) {
 
-    setVoiceStatus("VOICE UNLOCKED");
+        addMessage(
+            "jarvis",
+            "JARVIS online. Memory system initialized."
+        );
+
+        return;
+    }
+
+    /*
+       Only restore recent messages.
+    */
+
+    chatHistory
+        .slice(-50)
+        .forEach(message => {
+
+            addMessage(
+                message.role === "user"
+                    ? "user"
+                    : "jarvis",
+                message.text
+            );
+        });
 }
 
+/* =========================================================
+   JARVIS RESPONSE ENGINE
+   ========================================================= */
 
-/* =========================================
-   LOCK VOICE
-========================================= */
+function processCommand(text) {
 
-function lockVoice() {
+    text = normalizeText(text);
 
-    voiceUnlocked = false;
-
-    if (recognition && listening) {
-
-        try {
-            recognition.stop();
-        } catch (e) {}
-
+    if (!text) {
+        return "Please give me a command.";
     }
 
-    listening = false;
+    /* MEMORY COMMAND */
 
-    setVoiceState("LOCKED");
+    const memoryCommand = detectMemoryCommand(text);
 
-    setVoiceStatus("VOICE STANDBY");
-}
+    if (memoryCommand) {
 
+        switch (memoryCommand.type) {
 
-/* =========================================
-   JARVIS RESPONSE
-========================================= */
+            case "remember":
 
-function getResponse(text) {
+                return remember(
+                    memoryCommand.value,
+                    detectCategory(memoryCommand.value)
+                );
 
-    const command = text.toLowerCase().trim();
+            case "recall":
 
+                return recallMemories();
 
-    /* ---- VOICE UNLOCK ---- */
+            case "forget":
 
-    if (
-        command.includes("unlock my voice") ||
-        command.includes("unlock voice") ||
-        command.includes("unlock the voice") ||
-        command.includes("activate my voice") ||
-        command.includes("activate voice") ||
-        command.includes("enable my voice") ||
-        command.includes("enable voice")
-    ) {
+                return forgetMemory(
+                    memoryCommand.value
+                );
 
-        unlockVoice();
+            case "forgetAll":
 
-        return "Voice system unlocked. I am ready to listen.";
+                return clearAllMemories();
+        }
     }
 
+    /* AUTOMATIC MEMORY */
 
-    /* ---- VOICE LOCK ---- */
+    const automaticMemory =
+        detectAutomaticMemory(text);
 
-    if (
-        command.includes("lock my voice") ||
-        command.includes("lock voice") ||
-        command.includes("lock the voice") ||
-        command.includes("disable voice")
-    ) {
+    if (automaticMemory) {
 
-        lockVoice();
-
-        return "Voice system locked.";
-    }
-
-
-    /* ---- STATUS ---- */
-
-    if (
-        command === "status" ||
-        command.includes("system status") ||
-        command.includes("check status")
-    ) {
-
-        return (
-            "System status: " +
-            "AI core online. " +
-            "Network online. " +
-            "Voice " +
-            (voiceUnlocked ? "unlocked." : "locked.")
+        createMemory(
+            automaticMemory.text,
+            automaticMemory.category
         );
     }
 
+    /* BASIC COMMANDS */
 
-    /* ---- GREETING ---- */
+    const lower = text.toLowerCase();
 
     if (
-        command === "hello" ||
-        command === "hi" ||
-        command === "hey" ||
-        command.includes("hello jarvis") ||
-        command.includes("hello jarvis")
+        lower === "hello" ||
+        lower === "hi" ||
+        lower === "hey"
     ) {
-
-        return "Hello, sir. How can I assist you?";
+        return "Hello. JARVIS systems are online.";
     }
 
-
-    /* ---- HOW ARE YOU ---- */
-
     if (
-        command.includes("how are you")
+        lower.includes("who are you") ||
+        lower.includes("what are you")
     ) {
-
-        return "All systems are operational, sir.";
+        return "I am JARVIS, your personal AI assistant.";
     }
 
-
-    /* ---- YOUR NAME ---- */
-
     if (
-        command.includes("who are you") ||
-        command.includes("your name")
+        lower.includes("memory status") ||
+        lower.includes("how many memories")
     ) {
 
-        return "I am J.A.R.V.I.S., your personal AI assistant.";
+        return `I currently have ${memories.length} saved memor${memories.length === 1 ? "y" : "ies"}.`;
     }
 
-
-    /* ---- MEMORY ---- */
-
     if (
-        command.includes("memory") ||
-        command.includes("show memories")
+        lower === "clear chat" ||
+        lower === "clear conversation"
     ) {
-
-        return "Memory module is ready. Memory access is available.";
+        clearChatHistory();
+        return null;
     }
 
-
-    /* ---- TIME ---- */
-
     if (
-        command === "time" ||
-        command.includes("what time")
+        lower === "help" ||
+        lower === "jarvis help"
     ) {
 
         return (
-            "The current time is " +
-            new Date().toLocaleTimeString()
+            "Available commands:\n\n" +
+            "• Remember that...\n" +
+            "• What do you remember?\n" +
+            "• Forget...\n" +
+            "• Forget everything\n" +
+            "• Memory status\n" +
+            "• Clear chat"
         );
     }
 
+    /* DEFAULT */
 
-    /* ---- HELP ---- */
-
-    if (
-        command === "help" ||
-        command.includes("what can you do")
-    ) {
-
-        return (
-            "I can respond to commands, " +
-            "control the voice system, " +
-            "check system status, and manage your assistant interface."
-        );
-    }
-
-
-    /* ---- DEFAULT ---- */
-
-    return (
-        "Command received, sir. " +
-        "J.A.R.V.I.S. is ready."
-    );
+    return generateBasicResponse(text);
 }
 
+/* =========================================================
+   BASIC RESPONSE
+   ========================================================= */
 
-/* =========================================
+function generateBasicResponse(text) {
+
+    const lower = text.toLowerCase();
+
+    if (lower.includes("thank")) {
+        return "You're welcome.";
+    }
+
+    if (lower.includes("good morning")) {
+        return "Good morning. JARVIS is ready.";
+    }
+
+    if (lower.includes("good night")) {
+        return "Good night. I'll be here when you return.";
+    }
+
+    if (lower.includes("are you there")) {
+        return "Always ready.";
+    }
+
+    /*
+       This is the local fallback.
+       You can replace this section later with
+       Gemini/OpenAI/API integration.
+    */
+
+    return `I received: "${text}"`;
+}
+
+/* =========================================================
    SEND MESSAGE
-========================================= */
+   ========================================================= */
 
 function sendMessage() {
 
     if (!input) return;
 
-    const text = input.value.trim();
+    const text = normalizeText(input.value);
 
     if (!text) return;
 
+    addMessage("user", text);
 
-    addMessage(text, "user");
+    saveChatMessage("user", text);
 
     input.value = "";
 
+    const response = processCommand(text);
 
-    setTimeout(function() {
+    if (response === null) return;
 
-        const reply = getResponse(text);
+    setTimeout(() => {
 
-        addMessage(reply, "jarvis");
+        addMessage("jarvis", response);
 
-        speak(reply);
+        saveChatMessage(
+            "jarvis",
+            response
+        );
 
-    }, 300);
+        speak(response);
+
+    }, 250);
 }
 
+/* =========================================================
+   ENTER KEY
+   ========================================================= */
 
-/* =========================================
+if (input) {
+
+    input.addEventListener(
+        "keydown",
+        event => {
+
+            if (event.key === "Enter") {
+
+                event.preventDefault();
+
+                sendMessage();
+            }
+        }
+    );
+}
+
+/* =========================================================
    SEND BUTTON
-========================================= */
+   ========================================================= */
 
 if (send) {
 
@@ -345,336 +655,243 @@ if (send) {
     );
 }
 
-
-/* =========================================
-   ENTER KEY
-========================================= */
-
-if (input) {
-
-    input.addEventListener(
-        "keydown",
-        function(event) {
-
-            if (event.key === "Enter") {
-
-                event.preventDefault();
-
-                sendMessage();
-            }
-
-        }
-    );
-}
-
-
-/* =========================================
+/* =========================================================
    TEXT TO SPEECH
-========================================= */
+   ========================================================= */
 
 function speak(text) {
 
-    if (!window.speechSynthesis) {
+    if (!("speechSynthesis" in window)) {
+        return;
+    }
+
+    /*
+       Don't read extremely long memory lists.
+    */
+
+    if (text.length > 600) {
         return;
     }
 
     window.speechSynthesis.cancel();
 
-
-    const speech =
+    const utterance =
         new SpeechSynthesisUtterance(text);
 
-
-    speech.lang = "en-IN";
-
-    speech.rate = 0.95;
-
-    speech.pitch = 1;
-
-    speech.volume = 1;
-
+    utterance.rate = 0.95;
+    utterance.pitch = 1.0;
+    utterance.volume = 1.0;
 
     window.speechSynthesis.speak(
-        speech
+        utterance
     );
 }
 
+/* =========================================================
+   VOICE INPUT
+   ========================================================= */
 
-/* =========================================
-   SPEECH RECOGNITION
-========================================= */
+function initializeVoice() {
 
-const SpeechRecognition =
-    window.SpeechRecognition ||
-    window.webkitSpeechRecognition;
+    const SpeechRecognition =
+        window.SpeechRecognition ||
+        window.webkitSpeechRecognition;
 
+    if (!SpeechRecognition) {
 
-if (SpeechRecognition) {
+        if (voiceStatus) {
+            voiceStatus.textContent =
+                "Voice input unavailable";
+        }
+
+        return;
+    }
 
     recognition =
         new SpeechRecognition();
 
+    recognition.continuous = false;
+    recognition.interimResults = false;
 
     recognition.lang = "en-IN";
 
-    recognition.continuous = false;
+    recognition.onstart = () => {
 
-    recognition.interimResults = false;
+        isListening = true;
 
-    recognition.maxAlternatives = 1;
+        if (voiceStatus) {
+            voiceStatus.textContent =
+                "Listening...";
+        }
 
+        if (voiceButton) {
+            voiceButton.classList.add(
+                "active"
+            );
+        }
 
-    /* ---- START ---- */
-
-    recognition.onstart = function() {
-
-        listening = true;
-
-        unlockVoice();
-
-        setVoiceState("ACTIVE");
-
-        setVoiceStatus(
-            "● LISTENING..."
-        );
+        if (voiceHead) {
+            voiceHead.classList.add(
+                "listening"
+            );
+        }
     };
 
+    recognition.onresult = event => {
 
-    /* ---- RESULT ---- */
+        const transcript =
+            event.results[0][0].transcript;
 
-    recognition.onresult =
-        function(event) {
+        if (input) {
+            input.value = transcript;
+        }
 
-            if (
-                !event.results ||
-                !event.results[0]
-            ) {
-                return;
-            }
+        sendMessage();
+    };
 
+    recognition.onerror = event => {
 
-            const result =
-                event.results[0][0];
+        console.warn(
+            "Voice error:",
+            event.error
+        );
 
+        if (voiceStatus) {
+            voiceStatus.textContent =
+                "Voice error";
+        }
+    };
 
-            if (!result) {
-                return;
-            }
+    recognition.onend = () => {
 
+        isListening = false;
 
-            const text =
-                result.transcript.trim();
+        if (voiceStatus) {
+            voiceStatus.textContent =
+                "Voice ready";
+        }
 
-
-            if (!text) {
-                return;
-            }
-
-
-            input.value = text;
-
-            sendMessage();
-        };
-
-
-    /* ---- ERROR ---- */
-
-    recognition.onerror =
-        function(event) {
-
-            console.log(
-                "Speech recognition error:",
-                event.error
+        if (voiceButton) {
+            voiceButton.classList.remove(
+                "active"
             );
+        }
 
-
-            listening = false;
-
-
-            if (
-                event.error ===
-                "not-allowed"
-            ) {
-
-                setVoiceStatus(
-                    "MIC PERMISSION REQUIRED"
-                );
-
-            } else {
-
-                setVoiceStatus(
-                    "VOICE ERROR"
-                );
-            }
-
-
-            setVoiceState(
-                voiceUnlocked
-                    ? "UNLOCKED"
-                    : "LOCKED"
+        if (voiceHead) {
+            voiceHead.classList.remove(
+                "listening"
             );
-        };
-
-
-    /* ---- END ---- */
-
-    recognition.onend =
-        function() {
-
-            listening = false;
-
-
-            setVoiceState(
-                voiceUnlocked
-                    ? "UNLOCKED"
-                    : "LOCKED"
-            );
-
-
-            setVoiceStatus(
-                voiceUnlocked
-                    ? "VOICE UNLOCKED"
-                    : "VOICE STANDBY"
-            );
-        };
+        }
+    };
 }
-
-
-/* =========================================
-   START LISTENING
-========================================= */
-
-function startVoice() {
-
-    if (!recognition) {
-
-        setVoiceStatus(
-            "VOICE NOT SUPPORTED"
-        );
-
-        addMessage(
-            "Voice recognition is not supported by this browser.",
-            "jarvis"
-        );
-
-        return;
-    }
-
-
-    if (listening) {
-
-        try {
-            recognition.stop();
-        } catch (e) {}
-
-        return;
-    }
-
-
-    /* IMPORTANT:
-       Unlock BEFORE microphone starts */
-
-    unlockVoice();
-
-    setVoiceStatus(
-        "STARTING VOICE..."
-    );
-
-
-    try {
-
-        recognition.start();
-
-    } catch (error) {
-
-        console.log(
-            "Recognition start error:",
-            error
-        );
-
-        setVoiceStatus(
-            "VOICE READY"
-        );
-    }
-}
-
-
-/* =========================================
-   MICROPHONE BUTTON
-========================================= */
 
 if (voiceButton) {
 
     voiceButton.addEventListener(
         "click",
-        startVoice
-    );
-}
+        () => {
 
+            if (!recognition) {
+                initializeVoice();
+            }
 
-/* =========================================
-   HEADER VOICE BUTTON
-========================================= */
+            if (!recognition) return;
 
-if (voiceHead) {
+            if (isListening) {
 
-    voiceHead.addEventListener(
-        "click",
-        startVoice
-    );
-}
+                recognition.stop();
 
+            } else {
 
-/* =========================================
-   CORE BUTTON
-========================================= */
-
-if (coreButton) {
-
-    coreButton.addEventListener(
-        "click",
-        function() {
-
-            const message =
-                "J.A.R.V.I.S. core active. Awaiting your command.";
-
-            addMessage(
-                message,
-                "jarvis"
-            );
-
-            speak(message);
+                try {
+                    recognition.start();
+                } catch (error) {
+                    console.warn(
+                        "Voice start error:",
+                        error
+                    );
+                }
+            }
         }
     );
 }
 
+/* =========================================================
+   MEMORY API
+   ========================================================= */
 
-/* =========================================
-   STARTUP
-========================================= */
+/*
+   These functions are exposed globally so
+   other parts of your JARVIS UI can use them.
 
-window.addEventListener(
-    "load",
-    function() {
+   Example:
+       window.JARVIS.memory.remember("...");
+*/
 
-        voiceUnlocked = false;
+window.JARVIS = {
 
-        setVoiceState("LOCKED");
+    memory: {
 
-        setVoiceStatus(
-            "VOICE STANDBY"
+        remember: remember,
+
+        recall: recallMemories,
+
+        forget: forgetMemory,
+
+        clear: clearAllMemories,
+
+        count: () => memories.length,
+
+        getAll: getMemories
+    },
+
+    chat: {
+
+        clear: clearChatHistory,
+
+        history: () => chatHistory
+    },
+
+    voice: {
+
+        start: () => {
+
+            if (!recognition) {
+                initializeVoice();
+            }
+
+            if (recognition) {
+                recognition.start();
+            }
+        },
+
+        stop: () => {
+
+            if (recognition) {
+                recognition.stop();
+            }
+        }
+    }
+};
+
+/* =========================================================
+   START JARVIS
+   ========================================================= */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    () => {
+
+        loadChatHistory();
+
+        initializeVoice();
+
+        console.log(
+            "JARVIS online."
         );
 
-        setTimeout(
-            function() {
-
-                addMessage(
-                    "All systems initialized. J.A.R.V.I.S. online.",
-                    "jarvis"
-                );
-
-            },
-            500
+        console.log(
+            `Memory database: ${memories.length} entries`
         );
     }
 );
