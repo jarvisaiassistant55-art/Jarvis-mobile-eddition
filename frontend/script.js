@@ -1,7 +1,7 @@
 /* =========================================================
    J.A.R.V.I.S. MOBILE EDITION
    COMPLETE REPLACEMENT SCRIPT
-   MEMORY + VOICE + CHAT
+   MEMORY AUTO-UNLOCK + VOICE + CHAT
    ========================================================= */
 
 "use strict";
@@ -22,6 +22,7 @@ const voiceState = document.getElementById("voiceState");
 const coreButton = document.getElementById("coreButton");
 const menuBtn = document.getElementById("menuBtn");
 
+
 /* =========================================================
    STORAGE
    ========================================================= */
@@ -29,6 +30,8 @@ const menuBtn = document.getElementById("menuBtn");
 const MEMORY_KEY = "JARVIS_MEMORY_V2";
 const CHAT_KEY = "JARVIS_CHAT_V2";
 const SETTINGS_KEY = "JARVIS_SETTINGS_V2";
+const UNLOCK_KEY = "JARVIS_MEMORY_UNLOCKED";
+
 
 /* =========================================================
    STATE
@@ -37,22 +40,21 @@ const SETTINGS_KEY = "JARVIS_SETTINGS_V2";
 let memories = loadData(MEMORY_KEY, []);
 let chatHistory = loadData(CHAT_KEY, []);
 
-let memoryUnlocked =
-    localStorage.getItem("JARVIS_MEMORY_UNLOCKED") === "true";
+/*
+   MEMORY IS AUTOMATICALLY UNLOCKED
+*/
+
+let memoryUnlocked = true;
+
+localStorage.setItem(
+    UNLOCK_KEY,
+    "true"
+);
 
 let voiceEnabled = true;
 let listening = false;
 let recognition = null;
 
-/*
-   Used when the user says:
-
-   "What is my favourite colour?"
-   "Blue"
-
-   JARVIS can understand that the answer belongs
-   to the previous question.
-*/
 let pendingQuestion = null;
 
 
@@ -61,24 +63,46 @@ let pendingQuestion = null;
    ========================================================= */
 
 function loadData(key, fallback) {
+
     try {
-        const data = localStorage.getItem(key);
+
+        const data =
+            localStorage.getItem(key);
 
         if (!data) return fallback;
 
-        return JSON.parse(data);
+        const parsed =
+            JSON.parse(data);
+
+        return parsed;
+
     } catch (error) {
-        console.error("JARVIS storage error:", error);
+
+        console.error(
+            "JARVIS storage error:",
+            error
+        );
+
         return fallback;
     }
 }
 
 
 function saveData(key, data) {
+
     try {
-        localStorage.setItem(key, JSON.stringify(data));
+
+        localStorage.setItem(
+            key,
+            JSON.stringify(data)
+        );
+
     } catch (error) {
-        console.error("JARVIS save error:", error);
+
+        console.error(
+            "JARVIS save error:",
+            error
+        );
     }
 }
 
@@ -92,28 +116,57 @@ function unlockMemory() {
     memoryUnlocked = true;
 
     localStorage.setItem(
-        "JARVIS_MEMORY_UNLOCKED",
+        UNLOCK_KEY,
         "true"
     );
 
     updateMemoryStatus();
 
-    return "Memory system unlocked. I am ready to remember information.";
+    return (
+        "Memory system unlocked. " +
+        "I am ready to remember information."
+    );
 }
 
 
+/* =========================================================
+   MEMORY LOCK
+   ========================================================= */
+
 function lockMemory() {
+
+    /*
+       Lock command is still available,
+       but startup automatically unlocks memory.
+    */
 
     memoryUnlocked = false;
 
     localStorage.setItem(
-        "JARVIS_MEMORY_UNLOCKED",
+        UNLOCK_KEY,
         "false"
     );
 
     updateMemoryStatus();
 
     return "Memory system locked.";
+}
+
+
+/* =========================================================
+   AUTO MEMORY INITIALIZATION
+   ========================================================= */
+
+function initializeMemory() {
+
+    memoryUnlocked = true;
+
+    localStorage.setItem(
+        UNLOCK_KEY,
+        "true"
+    );
+
+    updateMemoryStatus();
 }
 
 
@@ -128,7 +181,8 @@ function getMemoryStatusElement() {
 
     for (const box of statusBoxes) {
 
-        const small = box.querySelector("small");
+        const small =
+            box.querySelector("small");
 
         if (
             small &&
@@ -136,6 +190,7 @@ function getMemoryStatusElement() {
                 .trim()
                 .toUpperCase() === "MEMORY"
         ) {
+
             return box.querySelector("strong");
         }
     }
@@ -143,6 +198,10 @@ function getMemoryStatusElement() {
     return null;
 }
 
+
+/* =========================================================
+   UPDATE MEMORY STATUS
+   ========================================================= */
 
 function updateMemoryStatus() {
 
@@ -194,63 +253,100 @@ function updateVoiceStatus(online) {
 
 
 /* =========================================================
+   CLEAN TEXT
+   ========================================================= */
+
+function cleanText(text) {
+
+    return String(text || "")
+        .replace(/\s+/g, " ")
+        .trim();
+}
+
+
+/* =========================================================
    MEMORY DATABASE
    ========================================================= */
 
-function addMemory(text, category = "general") {
+function addMemory(
+    text,
+    category = "general"
+) {
 
     text = cleanText(text);
 
     if (!text) return false;
 
-    /*
-       Don't save duplicates.
-    */
-
-    const duplicate = memories.some(
-        item =>
-            item.text.toLowerCase() ===
-            text.toLowerCase()
-    );
+    const duplicate =
+        memories.some(
+            item =>
+                item.text &&
+                item.text.toLowerCase() ===
+                text.toLowerCase()
+        );
 
     if (duplicate) {
         return true;
     }
 
     memories.push({
-        id: Date.now() + "-" + Math.random(),
+
+        id:
+            Date.now() +
+            "-" +
+            Math.random(),
+
         text: text,
+
         category: category,
-        created: new Date().toISOString()
+
+        created:
+            new Date().toISOString()
     });
 
-    saveData(MEMORY_KEY, memories);
+    saveData(
+        MEMORY_KEY,
+        memories
+    );
 
     return true;
 }
 
 
+/* =========================================================
+   REMOVE MEMORY
+   ========================================================= */
+
 function removeMemory(search) {
 
-    search = cleanText(search).toLowerCase();
+    search =
+        cleanText(search).toLowerCase();
 
     if (!search) return false;
 
-    const oldLength = memories.length;
+    const oldLength =
+        memories.length;
 
-    memories = memories.filter(memory => {
+    memories =
+        memories.filter(
+            memory =>
+                !memory.text
+                    .toLowerCase()
+                    .includes(search)
+        );
 
-        return !memory.text
-            .toLowerCase()
-            .includes(search);
-
-    });
-
-    saveData(MEMORY_KEY, memories);
+    saveData(
+        MEMORY_KEY,
+        memories
+    );
 
     return memories.length < oldLength;
 }
 
+
+/* =========================================================
+   CLEAR ALL MEMORIES
+   ========================================================= */
 
 function clearMemories() {
 
@@ -264,45 +360,37 @@ function clearMemories() {
 
 
 /* =========================================================
-   MEMORY SEARCH
+   SEARCH MEMORY
    ========================================================= */
 
 function searchMemory(query) {
 
-    query = query.toLowerCase();
+    query =
+        cleanText(query).toLowerCase();
 
-    return memories.filter(memory =>
-        memory.text
-            .toLowerCase()
-            .includes(query)
+    return memories.filter(
+        memory =>
+            memory.text
+                .toLowerCase()
+                .includes(query)
     );
 }
 
 
 /* =========================================================
-   CLEAN TEXT
-   ========================================================= */
-
-function cleanText(text) {
-
-    return String(text || "")
-        .replace(/\s+/g, " ")
-        .trim();
-}
-
-
-/* =========================================================
-   CATEGORY
+   MEMORY CATEGORY
    ========================================================= */
 
 function getCategory(text) {
 
-    const lower = text.toLowerCase();
+    const lower =
+        text.toLowerCase();
 
     if (
         lower.includes("name") ||
         lower.includes("call me")
     ) {
+
         return "identity";
     }
 
@@ -310,6 +398,7 @@ function getCategory(text) {
         lower.includes("favorite") ||
         lower.includes("favourite")
     ) {
+
         return "preference";
     }
 
@@ -318,6 +407,7 @@ function getCategory(text) {
         lower.includes("love") ||
         lower.includes("prefer")
     ) {
+
         return "preference";
     }
 
@@ -325,6 +415,7 @@ function getCategory(text) {
         lower.includes("project") ||
         lower.includes("jarvis")
     ) {
+
         return "project";
     }
 
@@ -333,7 +424,7 @@ function getCategory(text) {
 
 
 /* =========================================================
-   REMEMBER COMMAND
+   REMEMBER INFORMATION
    ========================================================= */
 
 function rememberInformation(text) {
@@ -346,22 +437,35 @@ function rememberInformation(text) {
         );
     }
 
-    let memory = cleanText(text);
+    let memory =
+        cleanText(text);
 
-    /*
-       Remove command words.
-    */
-
-    memory = memory
-        .replace(/^remember that\s+/i, "")
-        .replace(/^remember\s+/i, "")
-        .replace(/^save that\s+/i, "")
-        .replace(/^save\s+/i, "")
-        .trim();
+    memory =
+        memory
+            .replace(
+                /^remember that\s+/i,
+                ""
+            )
+            .replace(
+                /^remember\s+/i,
+                ""
+            )
+            .replace(
+                /^save that\s+/i,
+                ""
+            )
+            .replace(
+                /^save\s+/i,
+                ""
+            )
+            .trim();
 
     if (!memory) {
 
-        return "Tell me what you want me to remember.";
+        return (
+            "Tell me what you want " +
+            "me to remember."
+        );
     }
 
     addMemory(
@@ -369,7 +473,9 @@ function rememberInformation(text) {
         getCategory(memory)
     );
 
-    return `Memory saved: ${memory}`;
+    return (
+        `Memory saved: ${memory}`
+    );
 }
 
 
@@ -389,18 +495,21 @@ function recallMemory() {
 
     if (memories.length === 0) {
 
-        return "My memory database is empty.";
+        return (
+            "My memory database is empty."
+        );
     }
 
     let result =
         "Here is what I remember:\n\n";
 
-    memories.forEach((memory, index) => {
+    memories.forEach(
+        (memory, index) => {
 
-        result +=
-            `${index + 1}. ${memory.text}\n`;
-
-    });
+            result +=
+                `${index + 1}. ${memory.text}\n`;
+        }
+    );
 
     return result;
 }
@@ -420,27 +529,52 @@ function forgetInformation(text) {
         );
     }
 
-    let query = cleanText(text)
-        .replace(/^forget that\s+/i, "")
-        .replace(/^forget\s+/i, "")
-        .replace(/^delete memory\s+/i, "")
-        .replace(/^remove memory\s+/i, "")
-        .trim();
+    let query =
+        cleanText(text);
+
+    query =
+        query
+            .replace(
+                /^forget that\s+/i,
+                ""
+            )
+            .replace(
+                /^forget\s+/i,
+                ""
+            )
+            .replace(
+                /^delete memory\s+/i,
+                ""
+            )
+            .replace(
+                /^remove memory\s+/i,
+                ""
+            )
+            .trim();
 
     if (!query) {
 
-        return "Tell me which memory to forget.";
+        return (
+            "Tell me which memory " +
+            "to forget."
+        );
     }
 
-    const removed = removeMemory(query);
+    const removed =
+        removeMemory(query);
 
     if (removed) {
 
-        return `I've forgotten the memory matching "${query}".`;
-
+        return (
+            `I've forgotten the memory ` +
+            `matching "${query}".`
+        );
     }
 
-    return `I couldn't find a memory matching "${query}".`;
+    return (
+        `I couldn't find a memory ` +
+        `matching "${query}".`
+    );
 }
 
 
@@ -450,109 +584,205 @@ function forgetInformation(text) {
 
 function answerMemoryQuestion(text) {
 
-    const lower = text.toLowerCase();
+    const lower =
+        text.toLowerCase();
 
-    /*
-       FAVOURITE / FAVORITE COLOUR
-    */
+
+    /* =========================================
+       FAVOURITE COLOUR
+       ========================================= */
 
     if (
-        lower.includes("what is my favourite colour") ||
-        lower.includes("what is my favorite colour") ||
-        lower.includes("what's my favourite colour") ||
-        lower.includes("what's my favorite colour") ||
-        lower.includes("what is my favourite color") ||
-        lower.includes("what is my favorite color")
+        lower.includes(
+            "what is my favourite colour"
+        ) ||
+        lower.includes(
+            "what is my favorite colour"
+        ) ||
+        lower.includes(
+            "what's my favourite colour"
+        ) ||
+        lower.includes(
+            "what's my favorite colour"
+        ) ||
+        lower.includes(
+            "what is my favourite color"
+        ) ||
+        lower.includes(
+            "what is my favorite color"
+        ) ||
+        lower.includes(
+            "what's my favourite color"
+        ) ||
+        lower.includes(
+            "what's my favorite color"
+        )
     ) {
 
-        const matches = memories.filter(memory =>
-            /favou?rite\s+colou?r/i.test(memory.text)
-        );
+        if (!memoryUnlocked) {
 
-        if (matches.length > 0) {
-
-            return extractValue(
-                matches[matches.length - 1].text,
-                /favou?rite\s+colou?r\s+(?:is|=)\s+(.+)/i
+            return (
+                "Memory is currently locked."
             );
         }
 
-        return "I don't have your favourite colour saved yet.";
+        const matches =
+            memories.filter(
+                memory =>
+                    /favou?rite\s+colou?r/i
+                        .test(memory.text)
+            );
+
+        if (matches.length > 0) {
+
+            const latest =
+                matches[matches.length - 1];
+
+            const match =
+                latest.text.match(
+                    /favou?rite\s+colou?r\s+(?:is|=)\s+(.+)/i
+                );
+
+            if (
+                match &&
+                match[1]
+            ) {
+
+                return (
+                    `Your favourite colour is ` +
+                    `${match[1].trim()}.`
+                );
+            }
+
+            return latest.text;
+        }
+
+        return (
+            "I don't have your favourite " +
+            "colour saved yet."
+        );
     }
 
 
-    /*
+    /* =========================================
        FAVOURITE FOOD
-    */
+       ========================================= */
 
     if (
-        lower.includes("what is my favourite food") ||
-        lower.includes("what is my favorite food")
+        lower.includes(
+            "what is my favourite food"
+        ) ||
+        lower.includes(
+            "what is my favorite food"
+        ) ||
+        lower.includes(
+            "what's my favourite food"
+        ) ||
+        lower.includes(
+            "what's my favorite food"
+        )
     ) {
 
-        const matches = memories.filter(memory =>
-            /favou?rite\s+food/i.test(memory.text)
-        );
+        if (!memoryUnlocked) {
 
-        if (matches.length > 0) {
-
-            return extractValue(
-                matches[matches.length - 1].text,
-                /favou?rite\s+food\s+(?:is|=)\s+(.+)/i
+            return (
+                "Memory is currently locked."
             );
         }
 
-        return "I don't have your favourite food saved yet.";
+        const matches =
+            memories.filter(
+                memory =>
+                    /favou?rite\s+food/i
+                        .test(memory.text)
+            );
+
+        if (matches.length > 0) {
+
+            const latest =
+                matches[matches.length - 1];
+
+            const match =
+                latest.text.match(
+                    /favou?rite\s+food\s+(?:is|=)\s+(.+)/i
+                );
+
+            if (
+                match &&
+                match[1]
+            ) {
+
+                return (
+                    `Your favourite food is ` +
+                    `${match[1].trim()}.`
+                );
+            }
+
+            return latest.text;
+        }
+
+        return (
+            "I don't have your favourite " +
+            "food saved yet."
+        );
     }
 
 
-    /*
+    /* =========================================
        NAME
-    */
+       ========================================= */
 
     if (
         lower === "what is my name" ||
         lower === "what's my name" ||
-        lower.includes("do you know my name")
+        lower.includes(
+            "do you know my name"
+        )
     ) {
 
-        const matches = memories.filter(memory =>
-            /my name is/i.test(memory.text) ||
-            /call me/i.test(memory.text)
-        );
+        if (!memoryUnlocked) {
+
+            return (
+                "Memory is currently locked."
+            );
+        }
+
+        const matches =
+            memories.filter(
+                memory =>
+                    /my name is/i
+                        .test(memory.text) ||
+                    /call me/i
+                        .test(memory.text)
+            );
 
         if (matches.length > 0) {
 
             const value =
-                matches[matches.length - 1].text
-                    .replace(/^my name is\s+/i, "")
-                    .replace(/^call me\s+/i, "");
+                matches[
+                    matches.length - 1
+                ].text
+                    .replace(
+                        /^my name is\s+/i,
+                        ""
+                    )
+                    .replace(
+                        /^call me\s+/i,
+                        ""
+                    );
 
-            return `Your name is ${value}.`;
+            return (
+                `Your name is ${value}.`
+            );
         }
 
-        return "You haven't told me your name yet.";
+        return (
+            "You haven't told me your " +
+            "name yet."
+        );
     }
-
 
     return null;
-}
-
-
-/* =========================================================
-   EXTRACT MEMORY VALUE
-   ========================================================= */
-
-function extractValue(text, regex) {
-
-    const match = text.match(regex);
-
-    if (match && match[1]) {
-
-        return `Your favourite colour is ${match[1].trim()}.`;
-    }
-
-    return text;
 }
 
 
@@ -560,19 +790,24 @@ function extractValue(text, regex) {
    CHAT HISTORY
    ========================================================= */
 
-function saveChat(role, text) {
+function saveChat(
+    role,
+    text
+) {
 
     chatHistory.push({
+
         role: role,
+
         text: text,
-        time: new Date().toISOString()
+
+        time:
+            new Date().toISOString()
     });
 
-    /*
-       Keep last 100 messages.
-    */
-
-    if (chatHistory.length > 100) {
+    if (
+        chatHistory.length > 100
+    ) {
 
         chatHistory =
             chatHistory.slice(-100);
@@ -591,21 +826,25 @@ function saveChat(role, text) {
 
 function getTime() {
 
-    return new Date().toLocaleTimeString(
-        [],
-        {
-            hour: "2-digit",
-            minute: "2-digit"
-        }
-    );
+    return new Date()
+        .toLocaleTimeString(
+            [],
+            {
+                hour: "2-digit",
+                minute: "2-digit"
+            }
+        );
 }
 
 
 /* =========================================================
-   CHAT MESSAGE — MATCHES YOUR HTML
+   CHAT MESSAGE
    ========================================================= */
 
-function addMessage(type, text) {
+function addMessage(
+    type,
+    text
+) {
 
     if (!chat) return;
 
@@ -650,16 +889,15 @@ function addMessage(type, text) {
     }
 
 
-    /*
-       textContent prevents HTML injection.
-    */
-
     const paragraph =
         message.querySelector("p");
 
-    paragraph.textContent = text;
+    paragraph.textContent =
+        text;
 
-    chat.appendChild(message);
+    chat.appendChild(
+        message
+    );
 
     chat.scrollTop =
         chat.scrollHeight;
@@ -667,7 +905,96 @@ function addMessage(type, text) {
 
 
 /* =========================================================
-   JARVIS RESPONSE
+   SIMPLE ANSWER DETECTION
+   ========================================================= */
+
+function isSimpleAnswer(text) {
+
+    const lower =
+        text.toLowerCase();
+
+    if (
+        lower.startsWith("what ") ||
+        lower.startsWith("who ") ||
+        lower.startsWith("where ") ||
+        lower.startsWith("why ") ||
+        lower.startsWith("how ")
+    ) {
+
+        return false;
+    }
+
+    return (
+        text.length < 80
+    );
+}
+
+
+/* =========================================================
+   SAVE CONTEXTUAL ANSWER
+   ========================================================= */
+
+function saveAnswerToQuestion(
+    question,
+    answer
+) {
+
+    answer =
+        cleanText(answer);
+
+    if (!answer) return;
+
+
+    if (
+        question ===
+        "favourite colour"
+    ) {
+
+        addMemory(
+            `My favourite colour is ${answer}`,
+            "preference"
+        );
+
+        return;
+    }
+
+
+    if (
+        question ===
+        "favourite food"
+    ) {
+
+        addMemory(
+            `My favourite food is ${answer}`,
+            "preference"
+        );
+
+        return;
+    }
+
+
+    if (
+        question === "name"
+    ) {
+
+        addMemory(
+            `My name is ${answer}`,
+            "identity"
+        );
+
+        return;
+    }
+
+
+    addMemory(
+        answer,
+        "general"
+    );
+}
+
+
+/* =========================================================
+   JARVIS RESPONSE ENGINE
    ========================================================= */
 
 function getResponse(text) {
@@ -677,6 +1004,12 @@ function getResponse(text) {
 
     const lower =
         command.toLowerCase();
+
+
+    if (!command) {
+
+        return "Please say something.";
+    }
 
 
     /* =========================================
@@ -717,7 +1050,9 @@ function getResponse(text) {
         lower.startsWith("save that ")
     ) {
 
-        return rememberInformation(command);
+        return rememberInformation(
+            command
+        );
     }
 
 
@@ -738,7 +1073,7 @@ function getResponse(text) {
 
 
     /* =========================================
-       MEMORY COUNT
+       MEMORY STATUS
        ========================================= */
 
     if (
@@ -748,7 +1083,13 @@ function getResponse(text) {
     ) {
 
         return memoryUnlocked
-            ? `Memory is online. I have ${memories.length} saved memor${memories.length === 1 ? "y" : "ies"}.`
+            ? `Memory is online. I have ${
+                memories.length
+            } saved memor${
+                memories.length === 1
+                    ? "y"
+                    : "ies"
+            }.`
             : "Memory is currently locked.";
     }
 
@@ -768,13 +1109,17 @@ function getResponse(text) {
 
             return (
                 "Memory is locked. " +
-                "Unlock it before clearing memories."
+                "Unlock it before " +
+                "clearing memories."
             );
         }
 
         clearMemories();
 
-        return "All JARVIS memories have been cleared.";
+        return (
+            "All JARVIS memories " +
+            "have been cleared."
+        );
     }
 
 
@@ -789,7 +1134,9 @@ function getResponse(text) {
         lower.startsWith("remove memory ")
     ) {
 
-        return forgetInformation(command);
+        return forgetInformation(
+            command
+        );
     }
 
 
@@ -798,7 +1145,9 @@ function getResponse(text) {
        ========================================= */
 
     const memoryAnswer =
-        answerMemoryQuestion(command);
+        answerMemoryQuestion(
+            command
+        );
 
     if (memoryAnswer) {
 
@@ -822,9 +1171,39 @@ function getResponse(text) {
                 command
             );
 
+            const question =
+                pendingQuestion;
+
             pendingQuestion = null;
 
-            return `Understood. I'll remember that your answer is ${command}.`;
+            if (
+                question ===
+                "favourite colour"
+            ) {
+
+                return (
+                    `Understood. I'll remember ` +
+                    `that your favourite colour ` +
+                    `is ${command}.`
+                );
+            }
+
+            if (
+                question ===
+                "favourite food"
+            ) {
+
+                return (
+                    `Understood. I'll remember ` +
+                    `that your favourite food ` +
+                    `is ${command}.`
+                );
+            }
+
+            return (
+                `Understood. I'll remember ` +
+                `that: ${command}.`
+            );
         }
     }
 
@@ -834,17 +1213,47 @@ function getResponse(text) {
        ========================================= */
 
     if (
-        lower.includes("favourite colour") ||
-        lower.includes("favorite colour") ||
-        lower.includes("favourite color") ||
-        lower.includes("favorite color")
+        lower.includes(
+            "favourite colour"
+        ) ||
+        lower.includes(
+            "favorite colour"
+        ) ||
+        lower.includes(
+            "favourite color"
+        ) ||
+        lower.includes(
+            "favorite color"
+        )
     ) {
 
         pendingQuestion =
             "favourite colour";
 
-        return answerMemoryQuestion(
-            "what is my favourite colour"
+        return (
+            "What is your favourite colour?"
+        );
+    }
+
+
+    /* =========================================
+       FAVOURITE FOOD QUESTION
+       ========================================= */
+
+    if (
+        lower.includes(
+            "favourite food"
+        ) ||
+        lower.includes(
+            "favorite food"
+        )
+    ) {
+
+        pendingQuestion =
+            "favourite food";
+
+        return (
+            "What is your favourite food?"
         );
     }
 
@@ -860,7 +1269,10 @@ function getResponse(text) {
         lower === "hello jarvis"
     ) {
 
-        return "Hello. J.A.R.V.I.S. systems are online.";
+        return (
+            "Hello. J.A.R.V.I.S. " +
+            "systems are online."
+        );
     }
 
 
@@ -869,11 +1281,18 @@ function getResponse(text) {
        ========================================= */
 
     if (
-        lower.includes("who are you") ||
-        lower.includes("what are you")
+        lower.includes(
+            "who are you"
+        ) ||
+        lower.includes(
+            "what are you"
+        )
     ) {
 
-        return "I am J.A.R.V.I.S., your personal AI assistant.";
+        return (
+            "I am J.A.R.V.I.S., " +
+            "your personal AI assistant."
+        );
     }
 
 
@@ -882,11 +1301,17 @@ function getResponse(text) {
        ========================================= */
 
     if (
-        lower.includes("are you there") ||
-        lower.includes("jarvis are you there")
+        lower.includes(
+            "are you there"
+        ) ||
+        lower.includes(
+            "jarvis are you there"
+        )
     ) {
 
-        return "Always online and ready.";
+        return (
+            "Always online and ready."
+        );
     }
 
 
@@ -905,6 +1330,7 @@ function getResponse(text) {
             "Remember that...\n" +
             "What do you remember?\n" +
             "What is my favourite colour?\n" +
+            "What is my favourite food?\n" +
             "Memory status\n" +
             "Forget...\n" +
             "Forget everything\n" +
@@ -917,32 +1343,442 @@ function getResponse(text) {
        DEFAULT
        ========================================= */
 
-    return `I received: "${command}"`;
+    return (
+        `I received: "${command}"`
+    );
 }
 
 
 /* =========================================================
-   SIMPLE ANSWER DETECTION
+   SEND MESSAGE
    ========================================================= */
 
-function isSimpleAnswer(text) {
+function sendMessage() {
 
-    const lower = text.toLowerCase();
+    if (!input) return;
 
-    if (
-        lower.startsWith("what ") ||
-        lower.startsWith("who ") ||
-        lower.startsWith("where ") ||
-        lower.startsWith("why ") ||
-        lower.startsWith("how ")
-    ) {
-        return false;
-    }
+    const text =
+        cleanText(input.value);
 
-    return text.length < 80;
+    if (!text) return;
+
+    addMessage(
+        "user",
+        text
+    );
+
+    saveChat(
+        "user",
+        text
+    );
+
+    input.value = "";
+
+    const response =
+        getResponse(text);
+
+    setTimeout(
+        () => {
+
+            addMessage(
+                "jarvis",
+                response
+            );
+
+            saveChat(
+                "jarvis",
+                response
+            );
+
+            speak(response);
+
+        },
+        180
+    );
 }
 
 
 /* =========================================================
-   SAVE CONTEXTUAL ANSWER
+   BUTTON
+   ========================================================= */
+
+if (send) {
+
+    send.addEventListener(
+        "click",
+        sendMessage
+    );
+}
+
+
+/* =========================================================
+   ENTER KEY
+   ========================================================= */
+
+if (input) {
+
+    input.addEventListener(
+        "keydown",
+        event => {
+
+            if (
+                event.key === "Enter"
+            ) {
+
+                event.preventDefault();
+
+                sendMessage();
+            }
+        }
+    );
+}
+
+
+/* =========================================================
+   TEXT TO SPEECH
+   ========================================================= */
+
+function speak(text) {
+
+    if (
+        !voiceEnabled ||
+        !("speechSynthesis" in window)
+    ) {
+
+        return;
+    }
+
+    try {
+
+        window.speechSynthesis.cancel();
+
+        const utterance =
+            new SpeechSynthesisUtterance(
+                text
+            );
+
+        utterance.rate = 0.95;
+        utterance.pitch = 0.9;
+        utterance.volume = 1;
+
+        window.speechSynthesis.speak(
+            utterance
+        );
+
+    } catch (error) {
+
+        console.error(
+            "JARVIS speech error:",
+            error
+        );
+    }
+}
+
+
+/* =========================================================
+   VOICE RECOGNITION
+   ========================================================= */
+
+const SpeechRecognition =
+    window.SpeechRecognition ||
+    window.webkitSpeechRecognition;
+
+
+if (SpeechRecognition) {
+
+    recognition =
+        new SpeechRecognition();
+
+    recognition.continuous = false;
+
+    recognition.interimResults = false;
+
+    recognition.lang = "en-IN";
+
+
+    recognition.onstart = () => {
+
+        listening = true;
+
+        if (voiceStatus) {
+
+            voiceStatus.textContent =
+                "LISTENING...";
+        }
+
+        updateVoiceStatus(true);
+    };
+
+
+    recognition.onresult = event => {
+
+        const result =
+            event.results[
+                event.results.length - 1
+            ];
+
+        if (!result) return;
+
+        const transcript =
+            result[0].transcript.trim();
+
+        if (!transcript) return;
+
+        if (input) {
+
+            input.value =
+                transcript;
+        }
+
+        sendMessage();
+    };
+
+
+    recognition.onerror = event => {
+
+        console.error(
+            "Voice recognition error:",
+            event.error
+        );
+
+        listening = false;
+
+        if (voiceStatus) {
+
+            voiceStatus.textContent =
+                "VOICE ERROR";
+        }
+    };
+
+
+    recognition.onend = () => {
+
+        listening = false;
+
+        if (voiceStatus) {
+
+            voiceStatus.textContent =
+                "READY";
+        }
+    };
+
+} else {
+
+    updateVoiceStatus(false);
+}
+
+
+/* =========================================================
+   VOICE BUTTON
+   ========================================================= */
+
+function startVoice() {
+
+    if (!recognition) {
+
+        if (voiceStatus) {
+
+            voiceStatus.textContent =
+                "VOICE NOT SUPPORTED";
+        }
+
+        return;
+    }
+
+    if (listening) {
+
+        recognition.stop();
+
+        return;
+    }
+
+    try {
+
+        recognition.start();
+
+    } catch (error) {
+
+        console.error(
+            "Voice start error:",
+            error
+        );
+    }
+}
+
+
+if (voiceButton) {
+
+    voiceButton.addEventListener(
+        "click",
+        startVoice
+    );
+}
+
+
+if (voiceHead) {
+
+    voiceHead.addEventListener(
+        "click",
+        startVoice
+    );
+}
+
+
+/* =========================================================
+   CORE BUTTON
+   ========================================================= */
+
+if (coreButton) {
+
+    coreButton.addEventListener(
+        "click",
+        () => {
+
+            if (voiceEnabled) {
+
+                startVoice();
+
+            } else {
+
+                speak(
+                    "J.A.R.V.I.S. systems ready."
+                );
+            }
+        }
+    );
+}
+
+
+/* =========================================================
+   MENU BUTTON
+   ========================================================= */
+
+if (menuBtn) {
+
+    menuBtn.addEventListener(
+        "click",
+        () => {
+
+            addMessage(
+                "jarvis",
+                "J.A.R.V.I.S. menu online. Say \"help\" for available commands."
+            );
+        }
+    );
+}
+
+
+/* =========================================================
+   RESTORE CHAT HISTORY
+   ========================================================= */
+
+function restoreChat() {
+
+    if (!chat) return;
+
+    chat.innerHTML = "";
+
+    chatHistory.forEach(
+        item => {
+
+            addMessage(
+                item.role === "user"
+                    ? "user"
+                    : "jarvis",
+                item.text
+            );
+        }
+    );
+}
+
+
+/* =========================================================
+   STARTUP
+   ========================================================= */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    () => {
+
+        /*
+           Force memory ONLINE every time
+           J.A.R.V.I.S. starts.
+        */
+
+        initializeMemory();
+
+        updateVoiceStatus(
+            !!recognition
+        );
+
+        restoreChat();
+
+        /*
+           If there is no previous chat,
+           show startup message.
+        */
+
+        if (
+            chatHistory.length === 0
+        ) {
+
+            addMessage(
+                "jarvis",
+                "J.A.R.V.I.S. systems online. Memory is unlocked and ready."
+            );
+        }
+
+        console.log(
+            "J.A.R.V.I.S. ONLINE"
+        );
+
+        console.log(
+            "Memory:",
+            memoryUnlocked
+                ? "UNLOCKED"
+                : "LOCKED"
+        );
+
+        console.log(
+            "Saved memories:",
+            memories.length
+        );
+    }
+);
+
+
+/* =========================================================
+   GLOBAL ACCESS
+   Useful for testing from console
+   ========================================================= */
+
+window.JARVIS = {
+
+    unlockMemory,
+
+    lockMemory,
+
+    addMemory,
+
+    removeMemory,
+
+    clearMemories,
+
+    recallMemory,
+
+    searchMemory,
+
+    getResponse,
+
+    sendMessage,
+
+    speak,
+
+    memories: () =>
+        memories
+};
+
+
+/* =========================================================
+   END
    ========================================================= */
