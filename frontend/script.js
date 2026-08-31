@@ -1,15 +1,15 @@
 /* =========================================================
-   J.A.R.V.I.S. MOBILE EDITION
-   COMPLETE STABLE REPLACEMENT SCRIPT
+   J.A.R.V.I.S. MOBILE EDITION — V5
+   LOCAL COMMANDS + MEMORY + VOICE + AI BACKEND
    ========================================================= */
 
 "use strict";
 
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", () => {
 
     /* =====================================================
        ELEMENTS
-    ===================================================== */
+       ===================================================== */
 
     const chat = document.getElementById("chat");
     const input = document.getElementById("msg");
@@ -17,6 +17,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const voiceButton = document.getElementById("voiceButton");
     const voiceHead = document.getElementById("voiceHead");
+
     const voiceStatus = document.getElementById("voiceStatus");
     const voiceState = document.getElementById("voiceState");
 
@@ -25,62 +26,72 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     /* =====================================================
-       STORAGE
-    ===================================================== */
+       CONFIG
+       ===================================================== */
 
-    const MEMORY_KEY = "JARVIS_MEMORY_V4";
-    const CHAT_KEY = "JARVIS_CHAT_V4";
-    const MEMORY_UNLOCK_KEY = "JARVIS_MEMORY_UNLOCKED";
+    const AI_ENDPOINT = "/api/chat";
+
+    const MEMORY_KEY = "JARVIS_MEMORY_V5";
+    const CHAT_KEY = "JARVIS_CHAT_V5";
 
     let memories = load(MEMORY_KEY, []);
     let chatHistory = load(CHAT_KEY, []);
 
     let memoryUnlocked =
-        localStorage.getItem(MEMORY_UNLOCK_KEY) !== "false";
+        localStorage.getItem("JARVIS_MEMORY_UNLOCKED") !== "false";
 
     let recognition = null;
     let listening = false;
+    let busy = false;
 
 
     /* =====================================================
-       SAFE STORAGE
-    ===================================================== */
+       STORAGE
+       ===================================================== */
 
     function load(key, fallback) {
-        try {
-            const data = localStorage.getItem(key);
 
-            if (!data) {
+        try {
+
+            const value = localStorage.getItem(key);
+
+            if (!value) {
                 return fallback;
             }
 
-            const parsed = JSON.parse(data);
+            return JSON.parse(value);
 
-            return parsed;
         } catch (error) {
-            console.error("JARVIS storage load error:", error);
+
+            console.error("Storage load error:", error);
+
             return fallback;
         }
     }
 
 
-    function save(key, data) {
+    function save(key, value) {
+
         try {
+
             localStorage.setItem(
                 key,
-                JSON.stringify(data)
+                JSON.stringify(value)
             );
+
         } catch (error) {
-            console.error("JARVIS storage save error:", error);
+
+            console.error("Storage save error:", error);
         }
     }
 
 
     /* =====================================================
        TIME
-    ===================================================== */
+       ===================================================== */
 
     function getTime() {
+
         return new Date().toLocaleTimeString([], {
             hour: "2-digit",
             minute: "2-digit"
@@ -89,12 +100,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     /* =====================================================
-       CHAT
-    ===================================================== */
+       CHAT MESSAGE
+       ===================================================== */
 
     function addMessage(type, text) {
 
         if (!chat) return;
+
 
         const message =
             document.createElement("div");
@@ -123,19 +135,22 @@ document.addEventListener("DOMContentLoaded", function () {
             const label =
                 document.createElement("label");
 
-            label.textContent = "J.A.R.V.I.S.";
+            label.textContent =
+                "J.A.R.V.I.S.";
 
 
             const p =
                 document.createElement("p");
 
-            p.textContent = text;
+            p.textContent =
+                text;
 
 
             const time =
                 document.createElement("time");
 
-            time.textContent = getTime();
+            time.textContent =
+                getTime();
 
 
             bubble.appendChild(label);
@@ -150,19 +165,22 @@ document.addEventListener("DOMContentLoaded", function () {
             const bubble =
                 document.createElement("div");
 
-            bubble.className = "bubble";
+            bubble.className =
+                "bubble";
 
 
             const label =
                 document.createElement("label");
 
-            label.textContent = "YOU";
+            label.textContent =
+                "YOU";
 
 
             const p =
                 document.createElement("p");
 
-            p.textContent = text;
+            p.textContent =
+                text;
 
 
             const time =
@@ -188,350 +206,136 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     /* =====================================================
+       TYPING INDICATOR
+       ===================================================== */
+
+    function showThinking() {
+
+        if (!chat) return;
+
+
+        const message =
+            document.createElement("div");
+
+        message.className =
+            "message jarvis thinking";
+
+
+        const avatar =
+            document.createElement("div");
+
+        avatar.className =
+            "avatar";
+
+        avatar.textContent =
+            "◆";
+
+
+        const bubble =
+            document.createElement("div");
+
+        bubble.className =
+            "bubble";
+
+
+        const label =
+            document.createElement("label");
+
+        label.textContent =
+            "J.A.R.V.I.S.";
+
+
+        const p =
+            document.createElement("p");
+
+        p.textContent =
+            "Processing...";
+
+
+        bubble.appendChild(label);
+        bubble.appendChild(p);
+
+        message.appendChild(avatar);
+        message.appendChild(bubble);
+
+        chat.appendChild(message);
+
+        chat.scrollTop =
+            chat.scrollHeight;
+
+        return message;
+    }
+
+
+    /* =====================================================
        MEMORY STATUS
-    ===================================================== */
+       ===================================================== */
 
     function updateMemoryStatus() {
 
-        const statuses =
-            document.querySelectorAll(".status");
+        document
+            .querySelectorAll(".status")
+            .forEach(box => {
 
-        statuses.forEach(function (box) {
+                const small =
+                    box.querySelector("small");
 
-            const small =
-                box.querySelector("small");
+                const strong =
+                    box.querySelector("strong");
 
-            const strong =
-                box.querySelector("strong");
+                if (!small || !strong) return;
 
-            if (!small || !strong) return;
 
-            if (
-                small.textContent
-                    .trim()
-                    .toUpperCase() === "MEMORY"
-            ) {
+                if (
+                    small.textContent
+                        .trim()
+                        .toUpperCase() === "MEMORY"
+                ) {
 
-                if (memoryUnlocked) {
+                    if (memoryUnlocked) {
 
-                    strong.textContent = "ONLINE";
+                        strong.textContent =
+                            "ONLINE";
 
-                    strong.classList.remove("yellow");
-                    strong.classList.add("green");
+                        strong.classList.remove(
+                            "yellow"
+                        );
 
-                } else {
+                        strong.classList.add(
+                            "green"
+                        );
 
-                    strong.textContent = "LOCKED";
+                    } else {
 
-                    strong.classList.remove("green");
-                    strong.classList.add("yellow");
+                        strong.textContent =
+                            "LOCKED";
+
+                        strong.classList.remove(
+                            "green"
+                        );
+
+                        strong.classList.add(
+                            "yellow"
+                        );
+                    }
                 }
-            }
-        });
-    }
-
-
-    /* =====================================================
-       VOICE SUPPORT
-    ===================================================== */
-
-    function setupVoice() {
-
-        const SpeechRecognition =
-            window.SpeechRecognition ||
-            window.webkitSpeechRecognition;
-
-
-        if (!SpeechRecognition) {
-
-            recognition = null;
-
-            if (voiceStatus) {
-                voiceStatus.textContent =
-                    "VOICE NOT SUPPORTED";
-            }
-
-            if (voiceState) {
-                voiceState.textContent =
-                    "UNAVAILABLE";
-
-                voiceState.classList.remove("green");
-                voiceState.classList.add("yellow");
-            }
-
-            return;
-        }
-
-
-        recognition =
-            new SpeechRecognition();
-
-
-        recognition.lang = "en-IN";
-
-        recognition.continuous = false;
-
-        recognition.interimResults = false;
-
-        recognition.maxAlternatives = 1;
-
-
-        recognition.onstart = function () {
-
-            listening = true;
-
-            if (voiceStatus) {
-                voiceStatus.textContent =
-                    "LISTENING...";
-            }
-
-            if (voiceState) {
-
-                voiceState.textContent =
-                    "LISTENING";
-
-                voiceState.classList.remove("yellow");
-                voiceState.classList.add("green");
-            }
-        };
-
-
-        recognition.onresult = function (event) {
-
-            const result =
-                event.results[0][0].transcript;
-
-            if (input) {
-                input.value = result;
-            }
-
-            if (voiceStatus) {
-                voiceStatus.textContent =
-                    "VOICE RECEIVED";
-            }
-
-            /* Automatically send voice command */
-            setTimeout(function () {
-
-                sendMessage();
-
-            }, 100);
-        };
-
-
-        recognition.onerror = function (event) {
-
-            console.error(
-                "Voice recognition error:",
-                event.error
-            );
-
-            listening = false;
-
-            if (voiceStatus) {
-                voiceStatus.textContent =
-                    "VOICE ERROR";
-            }
-
-            updateVoiceUI();
-        };
-
-
-        recognition.onend = function () {
-
-            listening = false;
-
-            updateVoiceUI();
-        };
-
-
-        if (voiceStatus) {
-            voiceStatus.textContent =
-                "VOICE READY";
-        }
-
-        if (voiceState) {
-
-            voiceState.textContent =
-                "ONLINE";
-
-            voiceState.classList.remove("yellow");
-            voiceState.classList.add("green");
-        }
-    }
-
-
-    function updateVoiceUI() {
-
-        if (!voiceState) return;
-
-        if (!recognition) {
-
-            voiceState.textContent =
-                "UNAVAILABLE";
-
-            voiceState.classList.remove("green");
-            voiceState.classList.add("yellow");
-
-            return;
-        }
-
-
-        if (listening) {
-
-            voiceState.textContent =
-                "LISTENING";
-
-            voiceState.classList.remove("yellow");
-            voiceState.classList.add("green");
-
-        } else {
-
-            voiceState.textContent =
-                "ONLINE";
-
-            voiceState.classList.remove("yellow");
-            voiceState.classList.add("green");
-        }
-    }
-
-
-    function toggleVoice() {
-
-        if (!recognition) {
-
-            if (voiceStatus) {
-                voiceStatus.textContent =
-                    "VOICE NOT SUPPORTED";
-            }
-
-            return;
-        }
-
-
-        try {
-
-            if (listening) {
-
-                recognition.stop();
-
-            } else {
-
-                recognition.start();
-            }
-
-        } catch (error) {
-
-            console.error(
-                "Voice start/stop error:",
-                error
-            );
-
-            listening = false;
-
-            updateVoiceUI();
-        }
-    }
-
-
-    /* =====================================================
-       TEXT TO SPEECH
-    ===================================================== */
-
-    function speak(text) {
-
-        if (
-            !window.speechSynthesis ||
-            typeof SpeechSynthesisUtterance === "undefined"
-        ) {
-            return;
-        }
-
-
-        try {
-
-            window.speechSynthesis.cancel();
-
-
-            const cleanText =
-                String(text)
-                    .replace(/\n/g, ". ")
-                    .trim();
-
-
-            if (!cleanText) return;
-
-
-            const utterance =
-                new SpeechSynthesisUtterance(
-                    cleanText
-                );
-
-
-            utterance.lang = "en-IN";
-
-            utterance.rate = 0.95;
-
-            utterance.pitch = 1.0;
-
-            utterance.volume = 1.0;
-
-
-            utterance.onstart = function () {
-
-                if (voiceStatus) {
-                    voiceStatus.textContent =
-                        "J.A.R.V.I.S. SPEAKING";
-                }
-            };
-
-
-            utterance.onend = function () {
-
-                if (voiceStatus) {
-                    voiceStatus.textContent =
-                        recognition
-                            ? "VOICE READY"
-                            : "VOICE STANDBY";
-                }
-            };
-
-
-            utterance.onerror = function () {
-
-                if (voiceStatus) {
-                    voiceStatus.textContent =
-                        "VOICE STANDBY";
-                }
-            };
-
-
-            window.speechSynthesis.speak(
-                utterance
-            );
-
-        } catch (error) {
-
-            console.error(
-                "Speech synthesis error:",
-                error
-            );
-        }
+            });
     }
 
 
     /* =====================================================
        MEMORY
-    ===================================================== */
+       ===================================================== */
 
     function remember(text) {
 
         if (!memoryUnlocked) {
+
             return "Memory is locked.";
         }
 
 
-        let value =
+        const value =
             text
                 .replace(/^remember that\s+/i, "")
                 .replace(/^remember\s+/i, "")
@@ -541,16 +345,18 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
         if (!value) {
-            return "Tell me what you want me to remember.";
+
+            return (
+                "Tell me what you want me to remember."
+            );
         }
 
 
         const exists =
-            memories.some(function (item) {
-
-                return item.toLowerCase() ===
-                    value.toLowerCase();
-            });
+            memories.some(item =>
+                item.toLowerCase() ===
+                value.toLowerCase()
+            );
 
 
         if (!exists) {
@@ -566,32 +372,36 @@ document.addEventListener("DOMContentLoaded", function () {
 
         updateMemoryStatus();
 
-        return "Memory saved: " + value;
+        return (
+            "Memory saved: " +
+            value
+        );
     }
 
 
     function recall() {
 
         if (!memoryUnlocked) {
+
             return "Memory is locked.";
         }
 
 
         if (!memories.length) {
-            return "My memory database is empty.";
+
+            return (
+                "My memory database is empty."
+            );
         }
 
 
         return (
             "Here is what I remember:\n\n" +
             memories
-                .map(function (item, index) {
-                    return (
-                        (index + 1) +
-                        ". " +
-                        item
-                    );
-                })
+                .map(
+                    (item, index) =>
+                        `${index + 1}. ${item}`
+                )
                 .join("\n")
         );
     }
@@ -600,6 +410,7 @@ document.addEventListener("DOMContentLoaded", function () {
     function forget(text) {
 
         if (!memoryUnlocked) {
+
             return "Memory is locked.";
         }
 
@@ -613,7 +424,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
         if (!query) {
-            return "Tell me which memory to forget.";
+
+            return (
+                "Tell me which memory to forget."
+            );
         }
 
 
@@ -622,12 +436,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
         memories =
-            memories.filter(function (item) {
-
-                return !item
-                    .toLowerCase()
-                    .includes(query);
-            });
+            memories.filter(
+                item =>
+                    !item
+                        .toLowerCase()
+                        .includes(query)
+            );
 
 
         save(
@@ -640,167 +454,34 @@ document.addEventListener("DOMContentLoaded", function () {
             memories.length <
             oldLength
         ) {
+
             return "Memory forgotten.";
         }
 
 
-        return "I couldn't find that memory.";
-    }
-
-
-    function memoryQuestion(text) {
-
-        const lower =
-            text.toLowerCase();
-
-
-        /* NAME */
-
-        if (
-            lower === "what is my name" ||
-            lower === "what's my name"
-        ) {
-
-            const found =
-                memories.filter(function (item) {
-
-                    return (
-                        /^my name is /i.test(item) ||
-                        /^call me /i.test(item)
-                    );
-                });
-
-
-            if (!found.length) {
-                return "You haven't told me your name yet.";
-            }
-
-
-            const latest =
-                found[found.length - 1];
-
-
-            const name =
-                latest
-                    .replace(/^my name is /i, "")
-                    .replace(/^call me /i, "");
-
-
-            return "Your name is " + name + ".";
-        }
-
-
-        /* FAVOURITE COLOUR */
-
-        if (
-            lower.includes("what is my favourite colour") ||
-            lower.includes("what is my favorite colour") ||
-            lower.includes("what is my favourite color") ||
-            lower.includes("what is my favorite color")
-        ) {
-
-            const found =
-                memories.filter(function (item) {
-
-                    return (
-                        /my favourite colour is /i.test(item) ||
-                        /my favorite colour is /i.test(item) ||
-                        /my favourite color is /i.test(item) ||
-                        /my favorite color is /i.test(item)
-                    );
-                });
-
-
-            if (!found.length) {
-
-                return (
-                    "I don't have your favourite colour saved yet."
-                );
-            }
-
-
-            const latest =
-                found[found.length - 1];
-
-
-            const colour =
-                latest.replace(
-                    /^my favou?rite colou?r is /i,
-                    ""
-                );
-
-
-            return (
-                "Your favourite colour is " +
-                colour +
-                "."
-            );
-        }
-
-
-        /* FAVOURITE FOOD */
-
-        if (
-            lower.includes("what is my favourite food") ||
-            lower.includes("what is my favorite food")
-        ) {
-
-            const found =
-                memories.filter(function (item) {
-
-                    return (
-                        /my favourite food is /i.test(item) ||
-                        /my favorite food is /i.test(item)
-                    );
-                });
-
-
-            if (!found.length) {
-
-                return (
-                    "I don't have your favourite food saved yet."
-                );
-            }
-
-
-            const latest =
-                found[found.length - 1];
-
-
-            const food =
-                latest.replace(
-                    /^my favou?rite food is /i,
-                    ""
-                );
-
-
-            return (
-                "Your favourite food is " +
-                food +
-                "."
-            );
-        }
-
-
-        return null;
+        return (
+            "I couldn't find that memory."
+        );
     }
 
 
     /* =====================================================
-       RESPONSE ENGINE
-    ===================================================== */
+       LOCAL COMMANDS
+       ===================================================== */
 
-    function getResponse(text) {
+    function localCommand(text) {
 
         const command =
             text.trim();
-
 
         const lower =
             command.toLowerCase();
 
 
+        /* EMPTY */
+
         if (!command) {
+
             return "Please say something.";
         }
 
@@ -816,14 +497,14 @@ document.addEventListener("DOMContentLoaded", function () {
             memoryUnlocked = true;
 
             localStorage.setItem(
-                MEMORY_UNLOCK_KEY,
+                "JARVIS_MEMORY_UNLOCKED",
                 "true"
             );
 
             updateMemoryStatus();
 
             return (
-                "Memory system unlocked. I am ready to remember."
+                "Memory system unlocked."
             );
         }
 
@@ -838,13 +519,15 @@ document.addEventListener("DOMContentLoaded", function () {
             memoryUnlocked = false;
 
             localStorage.setItem(
-                MEMORY_UNLOCK_KEY,
+                "JARVIS_MEMORY_UNLOCKED",
                 "false"
             );
 
             updateMemoryStatus();
 
-            return "Memory system locked.";
+            return (
+                "Memory system locked."
+            );
         }
 
 
@@ -892,31 +575,40 @@ document.addEventListener("DOMContentLoaded", function () {
         ) {
 
             if (!memoryUnlocked) {
+
                 return "Memory is locked.";
             }
 
 
             memories = [];
 
-
             save(
                 MEMORY_KEY,
                 memories
             );
 
-
-            return "All memories have been cleared.";
+            return (
+                "All memories have been cleared."
+            );
         }
 
 
-        /* MEMORY QUESTIONS */
+        /* MEMORY STATUS */
 
-        const memoryAnswer =
-            memoryQuestion(command);
+        if (
+            lower === "memory status"
+        ) {
 
-
-        if (memoryAnswer) {
-            return memoryAnswer;
+            return (
+                "Memory is " +
+                (
+                    memoryUnlocked
+                        ? "ONLINE."
+                        : "LOCKED."
+                ) +
+                " Saved memories: " +
+                memories.length
+            );
         }
 
 
@@ -955,25 +647,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
 
-        /* MEMORY STATUS */
-
-        if (
-            lower === "memory status"
-        ) {
-
-            return (
-                "Memory is " +
-                (
-                    memoryUnlocked
-                        ? "ONLINE."
-                        : "LOCKED."
-                ) +
-                " Saved memories: " +
-                memories.length
-            );
-        }
-
-
         /* CLEAR CHAT */
 
         if (
@@ -982,19 +655,18 @@ document.addEventListener("DOMContentLoaded", function () {
 
             chatHistory = [];
 
-
             save(
                 CHAT_KEY,
                 chatHistory
             );
 
-
             if (chat) {
                 chat.innerHTML = "";
             }
 
-
-            return "Chat history cleared.";
+            return (
+                "Chat history cleared."
+            );
         }
 
 
@@ -1006,13 +678,10 @@ document.addEventListener("DOMContentLoaded", function () {
         ) {
 
             return (
-                "J.A.R.V.I.S. COMMANDS\n\n" +
+                "Available commands:\n\n" +
                 "Memory unlock\n" +
                 "Remember that...\n" +
                 "What do you remember?\n" +
-                "What is my name?\n" +
-                "What is my favourite colour?\n" +
-                "What is my favourite food?\n" +
                 "Memory status\n" +
                 "Forget...\n" +
                 "Clear memory\n" +
@@ -1039,42 +708,189 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
 
-        /* IDENTITY */
+        /* LOCAL COMMAND NOT FOUND */
 
-        if (
-            lower.includes("who are you")
-        ) {
+        return null;
+    }
+
+
+    /* =====================================================
+       AI BACKEND
+       ===================================================== */
+
+    async function askAI(text) {
+
+        try {
+
+            const response =
+                await fetch(
+                    AI_ENDPOINT,
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        body: JSON.stringify({
+                            message: text,
+                            history:
+                                chatHistory.slice(-12),
+                            memories:
+                                memoryUnlocked
+                                    ? memories
+                                    : []
+                        })
+                    }
+                );
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    "AI server returned " +
+                    response.status
+                );
+            }
+
+
+            const data =
+                await response.json();
+
+
+            if (
+                data &&
+                typeof data.reply === "string" &&
+                data.reply.trim()
+            ) {
+
+                return data.reply.trim();
+            }
+
+
+            throw new Error(
+                "Invalid AI response."
+            );
+
+        } catch (error) {
+
+            console.error(
+                "AI connection error:",
+                error
+            );
+
 
             return (
-                "I am J.A.R.V.I.S., your personal AI assistant."
+                "I can handle local commands, Sir, " +
+                "but the AI connection is not available yet."
             );
+        }
+    }
+
+
+    /* =====================================================
+       SPEECH SYNTHESIS
+       ===================================================== */
+
+    function speak(text) {
+
+        if (
+            !window.speechSynthesis ||
+            typeof SpeechSynthesisUtterance ===
+                "undefined"
+        ) {
+            return;
         }
 
 
-        /* DEFAULT */
+        try {
 
-        return (
-            'I received: "' +
-            command +
-            '"'
-        );
+            window.speechSynthesis.cancel();
+
+
+            const utterance =
+                new SpeechSynthesisUtterance(
+                    String(text)
+                        .replace(/\n/g, ". ")
+                );
+
+
+            utterance.lang =
+                "en-IN";
+
+            utterance.rate =
+                0.95;
+
+            utterance.pitch =
+                1;
+
+            utterance.volume =
+                1;
+
+
+            utterance.onstart = () => {
+
+                if (voiceStatus) {
+
+                    voiceStatus.textContent =
+                        "J.A.R.V.I.S. SPEAKING";
+                }
+            };
+
+
+            utterance.onend = () => {
+
+                if (voiceStatus) {
+
+                    voiceStatus.textContent =
+                        recognition
+                            ? "VOICE READY"
+                            : "VOICE STANDBY";
+                }
+            };
+
+
+            window.speechSynthesis.speak(
+                utterance
+            );
+
+        } catch (error) {
+
+            console.error(
+                "Speech error:",
+                error
+            );
+        }
     }
 
 
     /* =====================================================
        SEND MESSAGE
-    ===================================================== */
+       ===================================================== */
 
-    function sendMessage() {
+    async function sendMessage() {
 
-        if (!input) return;
+        if (!input || busy) {
+            return;
+        }
 
 
         const text =
             input.value.trim();
 
 
-        if (!text) return;
+        if (!text) {
+            return;
+        }
+
+
+        busy = true;
+
+
+        if (send) {
+            send.disabled = true;
+        }
 
 
         addMessage(
@@ -1099,23 +915,28 @@ document.addEventListener("DOMContentLoaded", function () {
         input.value = "";
 
 
-        let response;
+        /* LOCAL COMMAND FIRST */
+
+        let response =
+            localCommand(text);
 
 
-        try {
+        /* AI ONLY IF NO LOCAL COMMAND */
+
+        if (response === null) {
+
+            const thinking =
+                showThinking();
+
 
             response =
-                getResponse(text);
+                await askAI(text);
 
-        } catch (error) {
 
-            console.error(
-                "JARVIS response error:",
-                error
-            );
+            if (thinking) {
 
-            response =
-                "Sorry, Sir. I encountered an internal error.";
+                thinking.remove();
+            }
         }
 
 
@@ -1139,168 +960,48 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
         speak(response);
-    }
 
 
-    /* =====================================================
-       BUTTON EVENTS
-    ===================================================== */
-
-    if (send) {
-
-        send.addEventListener(
-            "click",
-            function (event) {
-
-                event.preventDefault();
-
-                sendMessage();
-            }
-        );
-    }
+        busy = false;
 
 
-    if (input) {
-
-        input.addEventListener(
-            "keydown",
-            function (event) {
-
-                if (event.key === "Enter") {
-
-                    event.preventDefault();
-
-                    sendMessage();
-                }
-            }
-        );
-    }
+        if (send) {
+            send.disabled = false;
+        }
 
 
-    if (voiceButton) {
-
-        voiceButton.addEventListener(
-            "click",
-            function (event) {
-
-                event.preventDefault();
-
-                toggleVoice();
-            }
-        );
-    }
-
-
-    if (voiceHead) {
-
-        voiceHead.addEventListener(
-            "click",
-            function (event) {
-
-                event.preventDefault();
-
-                toggleVoice();
-            }
-        );
-    }
-
-
-    /* =====================================================
-       CORE BUTTON
-    ===================================================== */
-
-    if (coreButton) {
-
-        coreButton.addEventListener(
-            "click",
-            function () {
-
-                if (voiceStatus) {
-
-                    voiceStatus.textContent =
-                        "J.A.R.V.I.S. CORE ACTIVE";
-                }
-
-                addMessage(
-                    "jarvis",
-                    "Core systems are active. How may I assist you?"
-                );
-
-                speak(
-                    "Core systems are active. How may I assist you?"
-                );
-            }
-        );
-    }
-
-
-    /* =====================================================
-       MENU BUTTON
-    ===================================================== */
-
-    if (menuBtn) {
-
-        menuBtn.addEventListener(
-            "click",
-            function () {
-
-                addMessage(
-                    "jarvis",
-                    "System menu is ready. Try saying 'help' for available commands."
-                );
-            }
-        );
-    }
-
-
-    /* =====================================================
-       RESTORE CHAT
-    ===================================================== */
-
-    function restoreChat() {
-
-        if (!chat) return;
-
-
-        /*
-         * Keep the original HTML welcome messages.
-         * Restore saved messages after them.
-         */
-
-        chatHistory.forEach(function (item) {
-
-            if (!item || !item.text) return;
-
-            addMessage(
-                item.role === "user"
-                    ? "user"
-                    : "jarvis",
-                item.text
-            );
-        });
-    }
-
-
-    /* =====================================================
-       INITIALIZE
-    ===================================================== */
-
-    updateMemoryStatus();
-
-    setupVoice();
-
-    /*
-     * Focus input after startup.
-     */
-    if (input) {
-        setTimeout(function () {
+        if (input) {
             input.focus();
-        }, 300);
+        }
     }
 
 
-    console.log(
-        "J.A.R.V.I.S. initialized successfully."
-    );
+    /* =====================================================
+       VOICE RECOGNITION
+       ===================================================== */
 
-});
+    function setupVoice() {
+
+        const SpeechRecognition =
+            window.SpeechRecognition ||
+            window.webkitSpeechRecognition;
+
+
+        if (!SpeechRecognition) {
+
+            recognition = null;
+
+            if (voiceStatus) {
+
+                voiceStatus.textContent =
+                    "VOICE NOT SUPPORTED";
+            }
+
+
+            if (voiceState) {
+
+                voiceState.textContent =
+                    "UNAVAILABLE";
+
+                voiceState.classList.remove(
+         
