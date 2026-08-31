@@ -1,16 +1,17 @@
-/* =====================================
-   J.A.R.V.I.S. CORE
-===================================== */
+const chat =
+    document.getElementById("chat");
 
-const chat = document.getElementById("chat");
-const input = document.getElementById("msg");
-const send = document.getElementById("send");
+const input =
+    document.getElementById("msg");
+
+const send =
+    document.getElementById("send");
 
 const voiceButton =
     document.getElementById("voiceButton");
 
-const voiceTop =
-    document.getElementById("voiceTop");
+const voiceHead =
+    document.getElementById("voiceHead");
 
 const voiceStatus =
     document.getElementById("voiceStatus");
@@ -18,33 +19,37 @@ const voiceStatus =
 const voiceState =
     document.getElementById("voiceState");
 
-const uptimeElement =
-    document.getElementById("uptime");
-
 const coreButton =
     document.getElementById("coreButton");
 
 
-let startTime = Date.now();
-let listening = false;
+/* =========================
+   TIME
+========================= */
+
+function currentTime() {
+
+    return new Date().toLocaleTimeString(
+        [],
+        {
+            hour: "2-digit",
+            minute: "2-digit"
+        }
+    );
+}
 
 
-/* =====================================
-   ADD CHAT MESSAGE
-===================================== */
+/* =========================
+   ADD MESSAGE
+========================= */
 
-function addMessage(
-    text,
-    type = "jarvis"
-) {
+function addMessage(text, type) {
 
-    const row =
+    const message =
         document.createElement("div");
 
-    row.className =
-        type === "user"
-            ? "chat-row user-row"
-            : "chat-row jarvis-row";
+    message.className =
+        "message " + type;
 
 
     if (type === "jarvis") {
@@ -53,22 +58,18 @@ function addMessage(
             document.createElement("div");
 
         avatar.className =
-            "mini-avatar";
+            "avatar";
 
-        avatar.innerHTML =
-            "<div></div>";
+        avatar.textContent = "◆";
 
-        row.appendChild(avatar);
+        message.appendChild(avatar);
     }
 
 
     const bubble =
         document.createElement("div");
 
-    bubble.className =
-        type === "user"
-            ? "bubble user-bubble"
-            : "bubble jarvis-bubble";
+    bubble.className = "bubble";
 
 
     const label =
@@ -80,46 +81,40 @@ function addMessage(
             : "J.A.R.V.I.S.";
 
 
-    const message =
+    const paragraph =
         document.createElement("p");
 
-    message.textContent = text;
+    paragraph.textContent = text;
 
 
     const time =
-        document.createElement("small");
+        document.createElement("time");
 
     time.textContent =
-        new Date().toLocaleTimeString(
-            [],
-            {
-                hour: "2-digit",
-                minute: "2-digit"
-            }
-        );
+        currentTime();
 
 
     bubble.appendChild(label);
-    bubble.appendChild(message);
+    bubble.appendChild(paragraph);
     bubble.appendChild(time);
 
-    row.appendChild(bubble);
+    message.appendChild(bubble);
 
-    chat.appendChild(row);
+    chat.appendChild(message);
 
     chat.scrollTop =
         chat.scrollHeight;
 }
 
 
-/* =====================================
-   JARVIS AI RESPONSE
-===================================== */
+/* =========================
+   JARVIS RESPONSE
+========================= */
 
-function jarvisReply(text) {
+function getResponse(text) {
 
     const command =
-        text.toLowerCase().trim();
+        text.toLowerCase();
 
 
     if (
@@ -128,21 +123,7 @@ function jarvisReply(text) {
         command.includes("hey")
     ) {
 
-        return (
-            "Hello, sir. " +
-            "How can I assist you today?"
-        );
-    }
-
-
-    if (
-        command.includes("who are you")
-    ) {
-
-        return (
-            "I am J.A.R.V.I.S., " +
-            "your personal AI assistant."
-        );
+        return "Hello, sir. How can I assist you?";
     }
 
 
@@ -150,9 +131,7 @@ function jarvisReply(text) {
         command.includes("how are you")
     ) {
 
-        return (
-            "All systems are operational, sir."
-        );
+        return "All systems are operational, sir.";
     }
 
 
@@ -161,10 +140,8 @@ function jarvisReply(text) {
     ) {
 
         return (
-            "All systems are operational. " +
-            "AI core online. " +
-            "Network online. " +
-            "System stable."
+            "System status: AI core online, " +
+            "network connected, system stable."
         );
     }
 
@@ -181,23 +158,23 @@ function jarvisReply(text) {
 
 
     if (
-        command.includes("date")
+        command.includes("memory")
     ) {
 
         return (
-            "Today is " +
-            new Date().toLocaleDateString()
+            "Memory module is ready. " +
+            "Access is currently locked."
         );
     }
 
 
     if (
-        command.includes("memory")
+        command.includes("who are you")
     ) {
 
         return (
-            "Memory module detected. " +
-            "Access is currently locked."
+            "I am J.A.R.V.I.S., " +
+            "your personal AI assistant."
         );
     }
 
@@ -209,14 +186,15 @@ function jarvisReply(text) {
 }
 
 
-/* =====================================
+/* =========================
    SEND
-===================================== */
+========================= */
 
 function sendMessage() {
 
     const text =
         input.value.trim();
+
 
     if (!text) {
         return;
@@ -235,13 +213,16 @@ function sendMessage() {
     setTimeout(() => {
 
         const reply =
-            jarvisReply(text);
+            getResponse(text);
 
-        addMessage(reply);
+        addMessage(
+            reply,
+            "jarvis"
+        );
 
         speak(reply);
 
-    }, 400);
+    }, 350);
 }
 
 
@@ -265,14 +246,14 @@ input.addEventListener(
 );
 
 
-/* =====================================
+/* =========================
    TEXT TO SPEECH
-===================================== */
+========================= */
 
 function speak(text) {
 
     if (
-        !("speechSynthesis" in window)
+        !window.speechSynthesis
     ) {
         return;
     }
@@ -296,22 +277,23 @@ function speak(text) {
 }
 
 
-/* =====================================
-   SPEECH RECOGNITION
-===================================== */
+/* =========================
+   VOICE RECOGNITION
+========================= */
 
-const SpeechRecognition =
+const Recognition =
     window.SpeechRecognition ||
     window.webkitSpeechRecognition;
 
 
 let recognition = null;
+let listening = false;
 
 
-if (SpeechRecognition) {
+if (Recognition) {
 
     recognition =
-        new SpeechRecognition();
+        new Recognition();
 
 
     recognition.lang =
@@ -337,8 +319,7 @@ if (SpeechRecognition) {
             "ACTIVE";
 
         voiceState.className =
-            "online";
-
+            "green";
     };
 
 
@@ -354,20 +335,15 @@ if (SpeechRecognition) {
             input.value =
                 text;
 
-
             sendMessage();
-
         };
 
 
     recognition.onerror =
         () => {
 
-            listening = false;
-
             voiceStatus.textContent =
                 "VOICE ERROR";
-
         };
 
 
@@ -383,28 +359,23 @@ if (SpeechRecognition) {
                 "LOCKED";
 
             voiceState.className =
-                "yellow-text";
-
+                "yellow";
         };
-
-} else {
-
-    voiceStatus.textContent =
-        "VOICE NOT SUPPORTED";
 
 }
 
 
-/* =====================================
-   START VOICE
-===================================== */
+/* =========================
+   VOICE BUTTON
+========================= */
 
 function startVoice() {
 
     if (!recognition) {
 
         addMessage(
-            "Voice recognition is not supported by this browser."
+            "Voice recognition is not supported in this browser.",
+            "jarvis"
         );
 
         return;
@@ -437,127 +408,36 @@ voiceButton.addEventListener(
 );
 
 
-voiceTop.addEventListener(
+voiceHead.addEventListener(
     "click",
     startVoice
 );
 
 
-/* =====================================
-   UPTIME
-===================================== */
-
-function updateUptime() {
-
-    const totalSeconds =
-        Math.floor(
-            (Date.now() - startTime) / 1000
-        );
-
-
-    const hours =
-        Math.floor(
-            totalSeconds / 3600
-        );
-
-
-    const minutes =
-        Math.floor(
-            (totalSeconds % 3600) / 60
-        );
-
-
-    const seconds =
-        totalSeconds % 60;
-
-
-    uptimeElement.textContent =
-        String(hours).padStart(2, "0") +
-        ":" +
-        String(minutes).padStart(2, "0") +
-        ":" +
-        String(seconds).padStart(2, "0");
-}
-
-
-setInterval(
-    updateUptime,
-    1000
-);
-
-
-/* =====================================
-   NAVIGATION
-===================================== */
-
-function showSection(section) {
-
-    if (section === "chat") {
-
-        document
-            .querySelector(".chat-panel")
-            .scrollIntoView({
-                behavior: "smooth"
-            });
-
-        return;
-    }
-
-
-    if (section === "system") {
-
-        document
-            .querySelector(".system-panel")
-            .scrollIntoView({
-                behavior: "smooth"
-            });
-
-        return;
-    }
-
-
-    if (section === "memory") {
-
-        addMessage(
-            "Memory module is currently locked."
-        );
-
-        return;
-    }
-
-
-    if (section === "settings") {
-
-        addMessage(
-            "Settings module is ready."
-        );
-
-    }
-}
-
-
-/* =====================================
-   MAIN CORE BUTTON
-===================================== */
+/* =========================
+   CORE BUTTON
+========================= */
 
 coreButton.addEventListener(
     "click",
     () => {
 
         const message =
-            "J.A.R.V.I.S. core is active and awaiting your command.";
+            "J.A.R.V.I.S. core active. Awaiting your command.";
 
-        addMessage(message);
+        addMessage(
+            message,
+            "jarvis"
+        );
 
         speak(message);
-
     }
 );
 
 
-/* =====================================
+/* =========================
    STARTUP
-===================================== */
+========================= */
 
 window.addEventListener(
     "load",
@@ -566,7 +446,8 @@ window.addEventListener(
         setTimeout(() => {
 
             addMessage(
-                "All systems initialized. J.A.R.V.I.S. online."
+                "All systems initialized. J.A.R.V.I.S. online.",
+                "jarvis"
             );
 
         }, 500);
