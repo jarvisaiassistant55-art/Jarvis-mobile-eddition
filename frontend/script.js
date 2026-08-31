@@ -1,11 +1,11 @@
 /* =========================================================
    J.A.R.V.I.S. MOBILE EDITION
-   STABLE REPLACEMENT SCRIPT
+   COMPLETE STABLE REPLACEMENT SCRIPT
    ========================================================= */
 
 "use strict";
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", function () {
 
     /* =====================================================
        ELEMENTS
@@ -15,184 +15,81 @@ document.addEventListener("DOMContentLoaded", () => {
     const input = document.getElementById("msg");
     const send = document.getElementById("send");
 
-    const voiceButton =
-        document.getElementById("voiceButton");
+    const voiceButton = document.getElementById("voiceButton");
+    const voiceHead = document.getElementById("voiceHead");
+    const voiceStatus = document.getElementById("voiceStatus");
+    const voiceState = document.getElementById("voiceState");
 
-    const voiceHead =
-        document.getElementById("voiceHead");
-
-    const voiceStatus =
-        document.getElementById("voiceStatus");
-
-    const voiceState =
-        document.getElementById("voiceState");
-
-    const coreButton =
-        document.getElementById("coreButton");
-
-    const menuBtn =
-        document.getElementById("menuBtn");
+    const coreButton = document.getElementById("coreButton");
+    const menuBtn = document.getElementById("menuBtn");
 
 
     /* =====================================================
        STORAGE
     ===================================================== */
 
-    const MEMORY_KEY = "JARVIS_MEMORY_V3";
-    const CHAT_KEY = "JARVIS_CHAT_V3";
+    const MEMORY_KEY = "JARVIS_MEMORY_V4";
+    const CHAT_KEY = "JARVIS_CHAT_V4";
+    const MEMORY_UNLOCK_KEY = "JARVIS_MEMORY_UNLOCKED";
 
-    let memories =
-        load(MEMORY_KEY, []);
+    let memories = load(MEMORY_KEY, []);
+    let chatHistory = load(CHAT_KEY, []);
 
-    let chatHistory =
-        load(CHAT_KEY, []);
+    let memoryUnlocked =
+        localStorage.getItem(MEMORY_UNLOCK_KEY) !== "false";
 
-    let memoryUnlocked = true;
     let recognition = null;
     let listening = false;
-    let speaking = false;
-    let pendingQuestion = null;
 
 
     /* =====================================================
-       STORAGE FUNCTIONS
+       SAFE STORAGE
     ===================================================== */
 
     function load(key, fallback) {
-
         try {
+            const data = localStorage.getItem(key);
 
-            const data =
-                localStorage.getItem(key);
+            if (!data) {
+                return fallback;
+            }
 
-            if (!data) return fallback;
+            const parsed = JSON.parse(data);
 
-            return JSON.parse(data);
-
+            return parsed;
         } catch (error) {
-
-            console.error(
-                "JARVIS LOAD ERROR:",
-                error
-            );
-
+            console.error("JARVIS storage load error:", error);
             return fallback;
         }
     }
 
 
     function save(key, data) {
-
         try {
-
             localStorage.setItem(
                 key,
                 JSON.stringify(data)
             );
-
         } catch (error) {
-
-            console.error(
-                "JARVIS SAVE ERROR:",
-                error
-            );
+            console.error("JARVIS storage save error:", error);
         }
     }
 
 
     /* =====================================================
-       MEMORY STATUS
+       TIME
     ===================================================== */
 
-    function updateMemoryStatus() {
-
-        const boxes =
-            document.querySelectorAll(".status");
-
-        boxes.forEach(box => {
-
-            const small =
-                box.querySelector("small");
-
-            const strong =
-                box.querySelector("strong");
-
-            if (!small || !strong) return;
-
-            if (
-                small.textContent
-                    .trim()
-                    .toUpperCase() === "MEMORY"
-            ) {
-
-                if (memoryUnlocked) {
-
-                    strong.textContent = "ONLINE";
-
-                    strong.classList.remove(
-                        "yellow"
-                    );
-
-                    strong.classList.add(
-                        "green"
-                    );
-
-                } else {
-
-                    strong.textContent = "LOCKED";
-
-                    strong.classList.remove(
-                        "green"
-                    );
-
-                    strong.classList.add(
-                        "yellow"
-                    );
-                }
-            }
+    function getTime() {
+        return new Date().toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit"
         });
     }
 
 
     /* =====================================================
-       VOICE STATUS
-    ===================================================== */
-
-    function updateVoiceStatus() {
-
-        if (!voiceState) return;
-
-        if (recognition) {
-
-            voiceState.textContent =
-                "ONLINE";
-
-            voiceState.classList.remove(
-                "yellow"
-            );
-
-            voiceState.classList.add(
-                "green"
-            );
-
-        } else {
-
-            voiceState.textContent =
-                "UNAVAILABLE";
-
-            voiceState.classList.remove(
-                "green"
-            );
-
-            voiceState.classList.add(
-                "yellow"
-            );
-        }
-    }
-
-
-    /* =====================================================
-       ADD CHAT MESSAGE
+       CHAT
     ===================================================== */
 
     function addMessage(type, text) {
@@ -216,27 +113,30 @@ document.addEventListener("DOMContentLoaded", () => {
             avatar.className = "avatar";
             avatar.textContent = "◆";
 
+
             const bubble =
                 document.createElement("div");
 
             bubble.className = "bubble";
 
+
             const label =
                 document.createElement("label");
 
-            label.textContent =
-                "J.A.R.V.I.S.";
+            label.textContent = "J.A.R.V.I.S.";
+
 
             const p =
                 document.createElement("p");
 
             p.textContent = text;
 
+
             const time =
                 document.createElement("time");
 
-            time.textContent =
-                getTime();
+            time.textContent = getTime();
+
 
             bubble.appendChild(label);
             bubble.appendChild(p);
@@ -252,15 +152,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
             bubble.className = "bubble";
 
+
             const label =
                 document.createElement("label");
 
             label.textContent = "YOU";
 
+
             const p =
                 document.createElement("p");
 
             p.textContent = text;
+
 
             const time =
                 document.createElement("time");
@@ -268,12 +171,14 @@ document.addEventListener("DOMContentLoaded", () => {
             time.textContent =
                 getTime() + " ✓";
 
+
             bubble.appendChild(label);
             bubble.appendChild(p);
             bubble.appendChild(time);
 
             message.appendChild(bubble);
         }
+
 
         chat.appendChild(message);
 
@@ -283,16 +188,335 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     /* =====================================================
-       TIME
+       MEMORY STATUS
     ===================================================== */
 
-    function getTime() {
+    function updateMemoryStatus() {
 
-        return new Date()
-            .toLocaleTimeString([], {
-                hour: "2-digit",
-                minute: "2-digit"
-            });
+        const statuses =
+            document.querySelectorAll(".status");
+
+        statuses.forEach(function (box) {
+
+            const small =
+                box.querySelector("small");
+
+            const strong =
+                box.querySelector("strong");
+
+            if (!small || !strong) return;
+
+            if (
+                small.textContent
+                    .trim()
+                    .toUpperCase() === "MEMORY"
+            ) {
+
+                if (memoryUnlocked) {
+
+                    strong.textContent = "ONLINE";
+
+                    strong.classList.remove("yellow");
+                    strong.classList.add("green");
+
+                } else {
+
+                    strong.textContent = "LOCKED";
+
+                    strong.classList.remove("green");
+                    strong.classList.add("yellow");
+                }
+            }
+        });
+    }
+
+
+    /* =====================================================
+       VOICE SUPPORT
+    ===================================================== */
+
+    function setupVoice() {
+
+        const SpeechRecognition =
+            window.SpeechRecognition ||
+            window.webkitSpeechRecognition;
+
+
+        if (!SpeechRecognition) {
+
+            recognition = null;
+
+            if (voiceStatus) {
+                voiceStatus.textContent =
+                    "VOICE NOT SUPPORTED";
+            }
+
+            if (voiceState) {
+                voiceState.textContent =
+                    "UNAVAILABLE";
+
+                voiceState.classList.remove("green");
+                voiceState.classList.add("yellow");
+            }
+
+            return;
+        }
+
+
+        recognition =
+            new SpeechRecognition();
+
+
+        recognition.lang = "en-IN";
+
+        recognition.continuous = false;
+
+        recognition.interimResults = false;
+
+        recognition.maxAlternatives = 1;
+
+
+        recognition.onstart = function () {
+
+            listening = true;
+
+            if (voiceStatus) {
+                voiceStatus.textContent =
+                    "LISTENING...";
+            }
+
+            if (voiceState) {
+
+                voiceState.textContent =
+                    "LISTENING";
+
+                voiceState.classList.remove("yellow");
+                voiceState.classList.add("green");
+            }
+        };
+
+
+        recognition.onresult = function (event) {
+
+            const result =
+                event.results[0][0].transcript;
+
+            if (input) {
+                input.value = result;
+            }
+
+            if (voiceStatus) {
+                voiceStatus.textContent =
+                    "VOICE RECEIVED";
+            }
+
+            /* Automatically send voice command */
+            setTimeout(function () {
+
+                sendMessage();
+
+            }, 100);
+        };
+
+
+        recognition.onerror = function (event) {
+
+            console.error(
+                "Voice recognition error:",
+                event.error
+            );
+
+            listening = false;
+
+            if (voiceStatus) {
+                voiceStatus.textContent =
+                    "VOICE ERROR";
+            }
+
+            updateVoiceUI();
+        };
+
+
+        recognition.onend = function () {
+
+            listening = false;
+
+            updateVoiceUI();
+        };
+
+
+        if (voiceStatus) {
+            voiceStatus.textContent =
+                "VOICE READY";
+        }
+
+        if (voiceState) {
+
+            voiceState.textContent =
+                "ONLINE";
+
+            voiceState.classList.remove("yellow");
+            voiceState.classList.add("green");
+        }
+    }
+
+
+    function updateVoiceUI() {
+
+        if (!voiceState) return;
+
+        if (!recognition) {
+
+            voiceState.textContent =
+                "UNAVAILABLE";
+
+            voiceState.classList.remove("green");
+            voiceState.classList.add("yellow");
+
+            return;
+        }
+
+
+        if (listening) {
+
+            voiceState.textContent =
+                "LISTENING";
+
+            voiceState.classList.remove("yellow");
+            voiceState.classList.add("green");
+
+        } else {
+
+            voiceState.textContent =
+                "ONLINE";
+
+            voiceState.classList.remove("yellow");
+            voiceState.classList.add("green");
+        }
+    }
+
+
+    function toggleVoice() {
+
+        if (!recognition) {
+
+            if (voiceStatus) {
+                voiceStatus.textContent =
+                    "VOICE NOT SUPPORTED";
+            }
+
+            return;
+        }
+
+
+        try {
+
+            if (listening) {
+
+                recognition.stop();
+
+            } else {
+
+                recognition.start();
+            }
+
+        } catch (error) {
+
+            console.error(
+                "Voice start/stop error:",
+                error
+            );
+
+            listening = false;
+
+            updateVoiceUI();
+        }
+    }
+
+
+    /* =====================================================
+       TEXT TO SPEECH
+    ===================================================== */
+
+    function speak(text) {
+
+        if (
+            !window.speechSynthesis ||
+            typeof SpeechSynthesisUtterance === "undefined"
+        ) {
+            return;
+        }
+
+
+        try {
+
+            window.speechSynthesis.cancel();
+
+
+            const cleanText =
+                String(text)
+                    .replace(/\n/g, ". ")
+                    .trim();
+
+
+            if (!cleanText) return;
+
+
+            const utterance =
+                new SpeechSynthesisUtterance(
+                    cleanText
+                );
+
+
+            utterance.lang = "en-IN";
+
+            utterance.rate = 0.95;
+
+            utterance.pitch = 1.0;
+
+            utterance.volume = 1.0;
+
+
+            utterance.onstart = function () {
+
+                if (voiceStatus) {
+                    voiceStatus.textContent =
+                        "J.A.R.V.I.S. SPEAKING";
+                }
+            };
+
+
+            utterance.onend = function () {
+
+                if (voiceStatus) {
+                    voiceStatus.textContent =
+                        recognition
+                            ? "VOICE READY"
+                            : "VOICE STANDBY";
+                }
+            };
+
+
+            utterance.onerror = function () {
+
+                if (voiceStatus) {
+                    voiceStatus.textContent =
+                        "VOICE STANDBY";
+                }
+            };
+
+
+            window.speechSynthesis.speak(
+                utterance
+            );
+
+        } catch (error) {
+
+            console.error(
+                "Speech synthesis error:",
+                error
+            );
+        }
     }
 
 
@@ -303,9 +527,9 @@ document.addEventListener("DOMContentLoaded", () => {
     function remember(text) {
 
         if (!memoryUnlocked) {
-
-            return "Memory is locked. Say Memory unlock.";
+            return "Memory is locked.";
         }
+
 
         let value =
             text
@@ -315,17 +539,19 @@ document.addEventListener("DOMContentLoaded", () => {
                 .replace(/^save\s+/i, "")
                 .trim();
 
-        if (!value) {
 
+        if (!value) {
             return "Tell me what you want me to remember.";
         }
 
+
         const exists =
-            memories.some(
-                item =>
-                    item.toLowerCase() ===
-                    value.toLowerCase()
-            );
+            memories.some(function (item) {
+
+                return item.toLowerCase() ===
+                    value.toLowerCase();
+            });
+
 
         if (!exists) {
 
@@ -337,6 +563,9 @@ document.addEventListener("DOMContentLoaded", () => {
             );
         }
 
+
+        updateMemoryStatus();
+
         return "Memory saved: " + value;
     }
 
@@ -344,22 +573,25 @@ document.addEventListener("DOMContentLoaded", () => {
     function recall() {
 
         if (!memoryUnlocked) {
-
             return "Memory is locked.";
         }
 
-        if (!memories.length) {
 
+        if (!memories.length) {
             return "My memory database is empty.";
         }
+
 
         return (
             "Here is what I remember:\n\n" +
             memories
-                .map(
-                    (item, index) =>
-                        `${index + 1}. ${item}`
-                )
+                .map(function (item, index) {
+                    return (
+                        (index + 1) +
+                        ". " +
+                        item
+                    );
+                })
                 .join("\n")
         );
     }
@@ -368,50 +600,53 @@ document.addEventListener("DOMContentLoaded", () => {
     function forget(text) {
 
         if (!memoryUnlocked) {
-
             return "Memory is locked.";
         }
 
+
         const query =
             text
-                .replace(/^forget\s+/i, "")
                 .replace(/^forget that\s+/i, "")
+                .replace(/^forget\s+/i, "")
                 .trim()
                 .toLowerCase();
 
-        if (!query) {
 
+        if (!query) {
             return "Tell me which memory to forget.";
         }
 
-        const old =
+
+        const oldLength =
             memories.length;
 
+
         memories =
-            memories.filter(
-                item =>
-                    !item
-                        .toLowerCase()
-                        .includes(query)
-            );
+            memories.filter(function (item) {
+
+                return !item
+                    .toLowerCase()
+                    .includes(query);
+            });
+
 
         save(
             MEMORY_KEY,
             memories
         );
 
-        if (memories.length < old) {
 
+        if (
+            memories.length <
+            oldLength
+        ) {
             return "Memory forgotten.";
         }
+
 
         return "I couldn't find that memory.";
     }
 
-
-    /* =====================================================
-       MEMORY QUESTION
-    ===================================================== */
 
     function memoryQuestion(text) {
 
@@ -427,64 +662,54 @@ document.addEventListener("DOMContentLoaded", () => {
         ) {
 
             const found =
-                memories.filter(
-                    item =>
+                memories.filter(function (item) {
+
+                    return (
                         /^my name is /i.test(item) ||
                         /^call me /i.test(item)
-                );
+                    );
+                });
+
 
             if (!found.length) {
-
                 return "You haven't told me your name yet.";
             }
+
 
             const latest =
                 found[found.length - 1];
 
+
             const name =
                 latest
-                    .replace(
-                        /^my name is /i,
-                        ""
-                    )
-                    .replace(
-                        /^call me /i,
-                        ""
-                    );
+                    .replace(/^my name is /i, "")
+                    .replace(/^call me /i, "");
+
 
             return "Your name is " + name + ".";
         }
 
 
-        /* COLOUR */
+        /* FAVOURITE COLOUR */
 
         if (
-            lower.includes(
-                "what is my favourite colour"
-            ) ||
-            lower.includes(
-                "what is my favorite colour"
-            ) ||
-            lower.includes(
-                "what is my favourite color"
-            ) ||
-            lower.includes(
-                "what is my favorite color"
-            )
+            lower.includes("what is my favourite colour") ||
+            lower.includes("what is my favorite colour") ||
+            lower.includes("what is my favourite color") ||
+            lower.includes("what is my favorite color")
         ) {
 
             const found =
-                memories.filter(
-                    item =>
-                        /my favourite colour is /i
-                            .test(item) ||
-                        /my favorite colour is /i
-                            .test(item) ||
-                        /my favourite color is /i
-                            .test(item) ||
-                        /my favorite color is /i
-                            .test(item)
-                );
+                memories.filter(function (item) {
+
+                    return (
+                        /my favourite colour is /i.test(item) ||
+                        /my favorite colour is /i.test(item) ||
+                        /my favourite color is /i.test(item) ||
+                        /my favorite color is /i.test(item)
+                    );
+                });
+
 
             if (!found.length) {
 
@@ -493,14 +718,17 @@ document.addEventListener("DOMContentLoaded", () => {
                 );
             }
 
+
             const latest =
                 found[found.length - 1];
+
 
             const colour =
                 latest.replace(
                     /^my favou?rite colou?r is /i,
                     ""
                 );
+
 
             return (
                 "Your favourite colour is " +
@@ -510,25 +738,22 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
 
-        /* FOOD */
+        /* FAVOURITE FOOD */
 
         if (
-            lower.includes(
-                "what is my favourite food"
-            ) ||
-            lower.includes(
-                "what is my favorite food"
-            )
+            lower.includes("what is my favourite food") ||
+            lower.includes("what is my favorite food")
         ) {
 
             const found =
-                memories.filter(
-                    item =>
-                        /my favourite food is /i
-                            .test(item) ||
-                        /my favorite food is /i
-                            .test(item)
-                );
+                memories.filter(function (item) {
+
+                    return (
+                        /my favourite food is /i.test(item) ||
+                        /my favorite food is /i.test(item)
+                    );
+                });
+
 
             if (!found.length) {
 
@@ -537,14 +762,17 @@ document.addEventListener("DOMContentLoaded", () => {
                 );
             }
 
+
             const latest =
                 found[found.length - 1];
+
 
             const food =
                 latest.replace(
                     /^my favou?rite food is /i,
                     ""
                 );
+
 
             return (
                 "Your favourite food is " +
@@ -553,37 +781,8 @@ document.addEventListener("DOMContentLoaded", () => {
             );
         }
 
+
         return null;
-    }
-
-
-    /* =====================================================
-       TIME / DATE
-    ===================================================== */
-
-    function currentTime() {
-
-        return (
-            "The current time is " +
-            new Date().toLocaleTimeString()
-        );
-    }
-
-
-    function currentDate() {
-
-        return (
-            "Today is " +
-            new Date().toLocaleDateString(
-                [],
-                {
-                    weekday: "long",
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric"
-                }
-            )
-        );
     }
 
 
@@ -596,12 +795,12 @@ document.addEventListener("DOMContentLoaded", () => {
         const command =
             text.trim();
 
+
         const lower =
             command.toLowerCase();
 
 
         if (!command) {
-
             return "Please say something.";
         }
 
@@ -617,7 +816,7 @@ document.addEventListener("DOMContentLoaded", () => {
             memoryUnlocked = true;
 
             localStorage.setItem(
-                "JARVIS_MEMORY_UNLOCKED",
+                MEMORY_UNLOCK_KEY,
                 "true"
             );
 
@@ -639,7 +838,7 @@ document.addEventListener("DOMContentLoaded", () => {
             memoryUnlocked = false;
 
             localStorage.setItem(
-                "JARVIS_MEMORY_UNLOCKED",
+                MEMORY_UNLOCK_KEY,
                 "false"
             );
 
@@ -693,29 +892,31 @@ document.addEventListener("DOMContentLoaded", () => {
         ) {
 
             if (!memoryUnlocked) {
-
                 return "Memory is locked.";
             }
 
+
             memories = [];
+
 
             save(
                 MEMORY_KEY,
                 memories
             );
 
+
             return "All memories have been cleared.";
         }
 
 
-        /* MEMORY QUESTION */
+        /* MEMORY QUESTIONS */
 
-        const answer =
+        const memoryAnswer =
             memoryQuestion(command);
 
-        if (answer) {
 
-            return answer;
+        if (memoryAnswer) {
+            return memoryAnswer;
         }
 
 
@@ -727,7 +928,10 @@ document.addEventListener("DOMContentLoaded", () => {
             lower === "what's the time"
         ) {
 
-            return currentTime();
+            return (
+                "The current time is " +
+                new Date().toLocaleTimeString()
+            );
         }
 
 
@@ -739,7 +943,15 @@ document.addEventListener("DOMContentLoaded", () => {
             lower === "what's today's date"
         ) {
 
-            return currentDate();
+            return (
+                "Today is " +
+                new Date().toLocaleDateString([], {
+                    weekday: "long",
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric"
+                })
+            );
         }
 
 
@@ -770,14 +982,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
             chatHistory = [];
 
+
             save(
                 CHAT_KEY,
                 chatHistory
             );
 
+
             if (chat) {
                 chat.innerHTML = "";
             }
+
 
             return "Chat history cleared.";
         }
@@ -809,7 +1024,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
 
-        /* GREETING */
+        /* GREETINGS */
 
         if (
             lower === "hello" ||
@@ -850,80 +1065,108 @@ document.addEventListener("DOMContentLoaded", () => {
        SEND MESSAGE
     ===================================================== */
 
-    async function sendMessage() {
+    function sendMessage() {
 
         if (!input) return;
+
 
         const text =
             input.value.trim();
 
+
         if (!text) return;
+
 
         addMessage(
             "user",
             text
         );
 
+
         chatHistory.push({
             role: "user",
-            text: text
+            text: text,
+            time: getTime()
         });
+
 
         save(
             CHAT_KEY,
             chatHistory
         );
 
+
         input.value = "";
 
-        const response =
-            getResponse(text);
+
+        let response;
+
+
+        try {
+
+            response =
+                getResponse(text);
+
+        } catch (error) {
+
+            console.error(
+                "JARVIS response error:",
+                error
+            );
+
+            response =
+                "Sorry, Sir. I encountered an internal error.";
+        }
+
 
         addMessage(
             "jarvis",
             response
         );
 
+
         chatHistory.push({
             role: "jarvis",
-            text: response
+            text: response,
+            time: getTime()
         });
+
 
         save(
             CHAT_KEY,
             chatHistory
         );
 
+
         speak(response);
     }
 
 
     /* =====================================================
-       SEND BUTTON
+       BUTTON EVENTS
     ===================================================== */
 
     if (send) {
 
         send.addEventListener(
             "click",
-            sendMessage
+            function (event) {
+
+                event.preventDefault();
+
+                sendMessage();
+            }
         );
     }
 
-
-    /* =====================================================
-       ENTER KEY
-    ===================================================== */
 
     if (input) {
 
         input.addEventListener(
             "keydown",
-            event => {
+            function (event) {
 
-                if (
-                    event.key === "Enter"
-                ) {
+                if (event.key === "Enter") {
 
                     event.preventDefault();
 
@@ -934,20 +1177,130 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
 
+    if (voiceButton) {
+
+        voiceButton.addEventListener(
+            "click",
+            function (event) {
+
+                event.preventDefault();
+
+                toggleVoice();
+            }
+        );
+    }
+
+
+    if (voiceHead) {
+
+        voiceHead.addEventListener(
+            "click",
+            function (event) {
+
+                event.preventDefault();
+
+                toggleVoice();
+            }
+        );
+    }
+
+
     /* =====================================================
-       TEXT TO SPEECH
+       CORE BUTTON
     ===================================================== */
 
-    function speak(text) {
+    if (coreButton) {
 
-        if (
-            !window.speechSynthesis
-        ) return;
+        coreButton.addEventListener(
+            "click",
+            function () {
 
-        try {
+                if (voiceStatus) {
 
-            window.speechSynthesis.cancel();
+                    voiceStatus.textContent =
+                        "J.A.R.V.I.S. CORE ACTIVE";
+                }
 
-            const utterance =
-                new SpeechSynthesisUtterance(
-                
+                addMessage(
+                    "jarvis",
+                    "Core systems are active. How may I assist you?"
+                );
+
+                speak(
+                    "Core systems are active. How may I assist you?"
+                );
+            }
+        );
+    }
+
+
+    /* =====================================================
+       MENU BUTTON
+    ===================================================== */
+
+    if (menuBtn) {
+
+        menuBtn.addEventListener(
+            "click",
+            function () {
+
+                addMessage(
+                    "jarvis",
+                    "System menu is ready. Try saying 'help' for available commands."
+                );
+            }
+        );
+    }
+
+
+    /* =====================================================
+       RESTORE CHAT
+    ===================================================== */
+
+    function restoreChat() {
+
+        if (!chat) return;
+
+
+        /*
+         * Keep the original HTML welcome messages.
+         * Restore saved messages after them.
+         */
+
+        chatHistory.forEach(function (item) {
+
+            if (!item || !item.text) return;
+
+            addMessage(
+                item.role === "user"
+                    ? "user"
+                    : "jarvis",
+                item.text
+            );
+        });
+    }
+
+
+    /* =====================================================
+       INITIALIZE
+    ===================================================== */
+
+    updateMemoryStatus();
+
+    setupVoice();
+
+    /*
+     * Focus input after startup.
+     */
+    if (input) {
+        setTimeout(function () {
+            input.focus();
+        }, 300);
+    }
+
+
+    console.log(
+        "J.A.R.V.I.S. initialized successfully."
+    );
+
+});
