@@ -1,598 +1,232 @@
-"use strict";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
 
-document.addEventListener("DOMContentLoaded", () => {
+    <meta
+        name="viewport"
+        content="width=device-width,
+        initial-scale=1.0,
+        maximum-scale=1.0,
+        user-scalable=no"
+    >
+
+    <title>J.A.R.V.I.S.</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="app">
 
-    /* =========================================================
-       J.A.R.V.I.S. MOBILE EDITION
-       CLEAN REPLACEMENT SCRIPT
-       CHAT + MEMORY + VOICE
-       ========================================================= */
+    <!-- HEADER -->
+    <header class="header">
 
-    const input = document.getElementById("msg");
-    const send = document.getElementById("send");
-    const chat = document.getElementById("chat");
+        <button class="icon-btn" id="menuBtn">☰</button>
 
-    const voiceButton = document.getElementById("voiceButton");
-    const voiceStatus = document.getElementById("voiceStatus");
+        <div class="logo">
+            <div>J.A.R.V.I.S.</div>
+            <small>MOBILE EDITION</small>
+        </div>
 
-    /* =========================================================
-       MEMORY
-       ========================================================= */
+        <button class="icon-btn voice-head" id="voiceHead">
+            ◉
+        </button>
 
-    const MEMORY_KEY = "jarvis_memory";
+    </header>
 
-    function getMemory() {
-        try {
-            return JSON.parse(localStorage.getItem(MEMORY_KEY)) || [];
-        } catch (e) {
-            return [];
-        }
-    }
 
-    function saveMemory(text) {
-        const memories = getMemory();
+    <!-- CORE -->
+    <div class="core-active">
+        <span></span>
+        CORE ACTIVE
+        <span></span>
+    </div>
 
-        memories.push({
-            text: text,
-            time: new Date().toISOString()
-        });
 
-        localStorage.setItem(
-            MEMORY_KEY,
-            JSON.stringify(memories)
-        );
-    }
+    <!-- MAIN CORE -->
+    <section class="main-core">
 
-    function clearMemory() {
-        localStorage.removeItem(MEMORY_KEY);
-    }
+        <div class="reactor">
 
-    function showMemory() {
-        const memories = getMemory();
+            <div class="reactor-ring r1"></div>
+            <div class="reactor-ring r2"></div>
+            <div class="reactor-ring r3"></div>
+            <div class="reactor-ring r4"></div>
 
-        if (memories.length === 0) {
-            return "My memory is currently empty.";
-        }
+            <div class="reactor-core">
+                ◆
+            </div>
 
-        let result = "I remember:\n";
+        </div>
 
-        memories.forEach((item, index) => {
-            result += (index + 1) + ". " + item.text + "\n";
-        });
+    </section>
 
-        return result.trim();
-    }
 
-    /* =========================================================
-       TIME
-       ========================================================= */
+    <!-- STATUS -->
+    <section class="status-panel">
 
-    function getTime() {
-        return new Date().toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit"
-        });
-    }
+        <div class="section-title">
+            SYSTEM STATUS
+            <i></i>
+        </div>
 
-    /* =========================================================
-       ADD CHAT MESSAGE
-       ========================================================= */
+        <div class="status-grid">
 
-    function addMessage(type, text) {
+            <div class="status">
+                <b>AI</b>
+                <div>
+                    <small>AI CORE</small>
+                    <strong>ONLINE</strong>
+                </div>
+                <em class="green"></em>
+            </div>
 
-        if (!chat) return;
+            <div class="status">
+                <b>⌁</b>
+                <div>
+                    <small>NETWORK</small>
+                    <strong>ONLINE</strong>
+                </div>
+                <em class="green"></em>
+            </div>
 
-        const message = document.createElement("div");
+            <div class="status">
+                <b>♩</b>
+                <div>
+                    <small>VOICE</small>
+                    <strong class="yellow" id="voiceState">
+                        LOCKED
+                    </strong>
+                </div>
+                <em class="yellow-dot"></em>
+            </div>
 
-        message.className =
-            type === "user"
-                ? "message user"
-                : "message jarvis";
+            <div class="status">
+                <b>▣</b>
+                <div>
+                    <small>MEMORY</small>
+                    <strong class="yellow">
+                        LOCKED
+                    </strong>
+                </div>
+                <em class="yellow-dot"></em>
+            </div>
 
-        const bubble = document.createElement("div");
-        bubble.className = "bubble";
+        </div>
 
-        const label = document.createElement("label");
+    </section>
 
-        label.textContent =
-            type === "user"
-                ? "YOU"
-                : "J.A.R.V.I.S.";
 
-        const p = document.createElement("p");
+    <!-- CHAT -->
+    <section class="chat-panel">
 
-        // Preserve line breaks
-        p.textContent = text;
+        <div class="section-title">
+            HOW CAN I HELP YOU, SIR?
+            <i></i>
+        </div>
 
-        const t = document.createElement("time");
-        t.textContent = getTime();
+        <div class="chat" id="chat">
 
-        bubble.appendChild(label);
-        bubble.appendChild(p);
-        bubble.appendChild(t);
+            <div class="message jarvis">
 
-        if (type === "jarvis") {
+                <div class="avatar">◆</div>
 
-            const avatar = document.createElement("div");
+                <div class="bubble">
 
-            avatar.className = "avatar";
-            avatar.textContent = "◆";
+                    <label>J.A.R.V.I.S.</label>
 
-            message.appendChild(avatar);
-        }
+                    <p>
+                        J.A.R.V.I.S. online.<br>
+                        Systems initialized.
+                    </p>
 
-        message.appendChild(bubble);
-        chat.appendChild(message);
+                    <time>09:40 PM</time>
 
-        chat.scrollTop = chat.scrollHeight;
-    }
+                </div>
 
-    /* =========================================================
-       VOICE OUTPUT
-       ========================================================= */
+            </div>
 
-    function speak(text) {
+            <div class="message user">
 
-        if (
-            !window.speechSynthesis ||
-            typeof SpeechSynthesisUtterance === "undefined"
-        ) {
-            return;
-        }
+                <div class="bubble">
 
-        try {
+                    <label>YOU</label>
 
-            window.speechSynthesis.cancel();
+                    <p>Hello J.A.R.V.I.S.</p>
 
-            const speech =
-                new SpeechSynthesisUtterance(text);
+                    <time>09:41 PM ✓</time>
 
-            speech.lang = "en-IN";
-            speech.rate = 0.95;
-            speech.pitch = 1.0;
-            speech.volume = 1.0;
+                </div>
 
-            window.speechSynthesis.speak(speech);
+            </div>
 
-        } catch (error) {
-            console.log("Speech error:", error);
-        }
-    }
+        </div>
 
-    /* =========================================================
-       UPDATE VOICE STATUS
-       ========================================================= */
 
-    function setVoiceStatus(text) {
+        <!-- INPUT -->
+        <div class="input-area">
 
-        if (voiceStatus) {
-            voiceStatus.textContent = text;
-        }
+            <input
+                id="msg"
+                type="text"
+                placeholder="Ask J.A.R.V.I.S..."
+                autocomplete="off"
+            >
 
-        // Also update common status elements if present
-        const possibleStatus =
-            document.querySelectorAll(
-                "#voiceStatus, .voice-status, [data-voice-status]"
-            );
+            <button id="send">
+                ➤
+            </button>
 
-        possibleStatus.forEach(el => {
-            el.textContent = text;
-        });
-    }
+            <button id="voiceButton">
+                ♩
+            </button>
 
-    /* =========================================================
-       VOICE RECOGNITION
-       ========================================================= */
+        </div>
 
-    const SpeechRecognition =
-        window.SpeechRecognition ||
-        window.webkitSpeechRecognition;
+        <div id="voiceStatus">
+            VOICE STANDBY
+        </div>
 
-    let recognition = null;
-    let listening = false;
+    </section>
 
-    if (SpeechRecognition) {
 
-        recognition = new SpeechRecognition();
+    <!-- NAVIGATION -->
+    <nav class="bottom-nav">
 
-        recognition.lang = "en-IN";
-        recognition.continuous = false;
-        recognition.interimResults = false;
+        <button>
+            <span>▣</span>
+            <small>CHAT</small>
+        </button>
 
-        recognition.onstart = () => {
+        <button>
+            <span>♧</span>
+            <small>MEMORY</small>
+        </button>
 
-            listening = true;
+        <button
+            class="core-button"
+            id="coreButton"
+        >
+            <div></div>
+        </button>
 
-            setVoiceStatus("LISTENING");
+        <button>
+            <span>▤</span>
+            <small>SYSTEM</small>
+        </button>
 
-            if (voiceButton) {
-                voiceButton.classList.add("active");
-            }
-        };
+        <button>
+            <span>⚙</span>
+            <small>SETTINGS</small>
+        </button>
 
-        recognition.onresult = (event) => {
+    </nav>
 
-            const transcript =
-                event.results[0][0].transcript.trim();
+</div>
 
-            if (!transcript) return;
+<script src="script.js"></script>
 
-            if (input) {
-                input.value = transcript;
-            }
-
-            sendMessage();
-        };
-
-        recognition.onerror = (event) => {
-
-            console.log(
-                "Voice recognition:",
-                event.error
-            );
-
-            listening = false;
-
-            setVoiceStatus("VOICE READY");
-
-            if (voiceButton) {
-                voiceButton.classList.remove("active");
-            }
-        };
-
-        recognition.onend = () => {
-
-            listening = false;
-
-            setVoiceStatus("VOICE READY");
-
-            if (voiceButton) {
-                voiceButton.classList.remove("active");
-            }
-        };
-
-    } else {
-
-        setVoiceStatus("VOICE READY");
-    }
-
-    /* =========================================================
-       START VOICE
-       ========================================================= */
-
-    function startVoice() {
-
-        if (!recognition) {
-
-            addMessage(
-                "jarvis",
-                "Voice recognition is not supported by this browser."
-            );
-
-            return;
-        }
-
-        if (listening) {
-
-            try {
-                recognition.stop();
-            } catch (e) {}
-
-            return;
-        }
-
-        try {
-
-            recognition.start();
-
-        } catch (error) {
-
-            console.log(
-                "Unable to start voice:",
-                error
-            );
-        }
-    }
-
-    if (voiceButton) {
-
-        voiceButton.addEventListener("click", (event) => {
-
-            event.preventDefault();
-            startVoice();
-
-        });
-    }
-
-    /* =========================================================
-       J.A.R.V.I.S. RESPONSE ENGINE
-       ========================================================= */
-
-    function reply(text) {
-
-        const original = text.trim();
-        const q = original.toLowerCase();
-
-        /* -------------------------
-           GREETING
-           ------------------------- */
-
-        if (
-            q === "hello" ||
-            q === "hi" ||
-            q === "hey" ||
-            q.includes("hello jarvis")
-        ) {
-            return "Hello, Sir. J.A.R.V.I.S. is online and ready.";
-        }
-
-        /* -------------------------
-           TIME
-           ------------------------- */
-
-        if (
-            q === "time" ||
-            q.includes("what time") ||
-            q.includes("current time")
-        ) {
-            return "The current time is " + getTime() + ".";
-        }
-
-        /* -------------------------
-           DATE
-           ------------------------- */
-
-        if (
-            q === "date" ||
-            q.includes("today's date") ||
-            q.includes("what is the date") ||
-            q.includes("what's the date")
-        ) {
-
-            return "Today is " +
-                new Date().toLocaleDateString([], {
-                    weekday: "long",
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric"
-                }) + ".";
-        }
-
-        /* -------------------------
-           IDENTITY
-           ------------------------- */
-
-        if (
-            q.includes("who are you") ||
-            q.includes("your name")
-        ) {
-            return "I am J.A.R.V.I.S., your personal AI assistant.";
-        }
-
-        /* -------------------------
-           STATUS
-           ------------------------- */
-
-        if (
-            q === "status" ||
-            q.includes("system status")
-        ) {
-            return "All primary systems are online. Voice is ready. Memory is active.";
-        }
-
-        /* -------------------------
-           HELP
-           ------------------------- */
-
-        if (
-            q === "help" ||
-            q.includes("what can you do")
-        ) {
-            return "I can chat with you, tell the time and date, remember information, recall memories, speak responses, and accept voice commands.";
-        }
-
-        /* =====================================================
-           MEMORY COMMANDS
-           ===================================================== */
-
-        if (
-            q.startsWith("remember ")
-        ) {
-
-            const memoryText =
-                original.substring(9).trim();
-
-            if (!memoryText) {
-                return "What would you like me to remember?";
-            }
-
-            saveMemory(memoryText);
-
-            return "Understood, Sir. I have saved that to my memory.";
-        }
-
-        if (
-            q.startsWith("remember that ")
-        ) {
-
-            const memoryText =
-                original.substring(14).trim();
-
-            if (!memoryText) {
-                return "What would you like me to remember?";
-            }
-
-            saveMemory(memoryText);
-
-            return "Understood, Sir. I have saved that to my memory.";
-        }
-
-        if (
-            q.includes("show my memories") ||
-            q.includes("show memories") ||
-            q.includes("what do you remember") ||
-            q.includes("my memory")
-        ) {
-            return showMemory();
-        }
-
-        if (
-            q.includes("clear memory") ||
-            q.includes("delete memory") ||
-            q.includes("forget everything")
-        ) {
-
-            clearMemory();
-
-            return "Memory has been cleared.";
-        }
-
-        /* -------------------------
-           VOICE STATUS
-           ------------------------- */
-
-        if (
-            q.includes("voice status") ||
-            q.includes("is voice active")
-        ) {
-            return "Voice system is ready.";
-        }
-
-        /* -------------------------
-           DEFAULT
-           ------------------------- */
-
-        return 'I received: "' + original + '"';
-    }
-
-    /* =========================================================
-       SEND MESSAGE
-       ========================================================= */
-
-    function sendMessage() {
-
-        if (!input || !chat) return;
-
-        const text =
-            input.value.trim();
-
-        if (!text) return;
-
-        addMessage(
-            "user",
-            text
-        );
-
-        input.value = "";
-
-        setTimeout(() => {
-
-            const answer =
-                reply(text);
-
-            addMessage(
-                "jarvis",
-                answer
-            );
-
-            speak(answer);
-
-        }, 250);
-    }
-
-    /* =========================================================
-       SEND BUTTON
-       ========================================================= */
-
-    if (send) {
-
-        send.addEventListener(
-            "click",
-            (event) => {
-
-                event.preventDefault();
-
-                sendMessage();
-            }
-        );
-    }
-
-    /* =========================================================
-       ENTER KEY
-       ========================================================= */
-
-    if (input) {
-
-        input.addEventListener(
-            "keydown",
-            (event) => {
-
-                if (event.key === "Enter") {
-
-                    event.preventDefault();
-
-                    sendMessage();
-                }
-            }
-        );
-    }
-
-    /* =========================================================
-       REMOVE OLD LOCKED STATES
-       ========================================================= */
-
-    function activateSystems() {
-
-        // Voice
-        setVoiceStatus("VOICE READY");
-
-        // Find elements that may contain LOCKED
-        const elements =
-            document.querySelectorAll(
-                "*"
-            );
-
-        elements.forEach(el => {
-
-            const text =
-                el.textContent.trim();
-
-            if (
-                text === "VOICE LOCKED" ||
-                text === "MEMORY LOCKED"
-            ) {
-
-                if (
-                    text === "VOICE LOCKED"
-                ) {
-                    el.textContent =
-                        "VOICE READY";
-                }
-
-                if (
-                    text === "MEMORY LOCKED"
-                ) {
-                    el.textContent =
-                        "MEMORY ACTIVE";
-                }
-            }
-        });
-    }
-
-    /* =========================================================
-       STARTUP
-       ========================================================= */
-
-    activateSystems();
-
-    console.log(
-        "J.A.R.V.I.S. CORE ACTIVE"
-    );
-
-    console.log(
-        "Memory:",
-        getMemory().length,
-        "items"
-    );
-
-});
+</body>
+</html>
