@@ -1,31 +1,326 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>J.A.R.V.I.S</title>
-<link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <title>J.A.R.V.I.S. Mobile</title>
+
+    <!-- IMPORTANT -->
+    <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
- <header><h1>J.A.R.V.I.S</h1><p>MOBILE EDITION</p></header>
- <div class="core">
- <div class="ring r1"></div>
- <div class="ring r2"></div>
- <div class="center"></div>
- </div>
- <p class="core-text">CORE ACTIVE</p>
- <div class="status">
- <h2>SYSTEM STATUS</h2>
- <div class="row"><span>AI CORE</span><b class="on">● ONLINE</b></div>
- <div class="row"><span>NETWORK</span><b class="on">● ONLINE</b></div>
- <div class="row"><span>VOICE</span><b class="off">○ LOCKED</b></div>
- <div class="row"><span>MEMORY</span><b class="off">○ LOCKED</b></div>
- </div>
- <div class="chat" id="chat"></div>
- <div class="input-area">
- <input id="msg" placeholder="Ask J.A.R.V.I.S...">
- <button id="send">SEND</button>
- </div>
- <script src="script.js"></script>
+
+<div class="app">
+
+    <!-- ================= HEADER ================= -->
+
+    <header class="topbar">
+
+        <button class="menu-btn">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+
+        <div class="brand">
+            <h1>J.A.R.V.I.S.</h1>
+            <p>MOBILE EDITION</p>
+        </div>
+
+        <button class="voice-top" id="voiceTop">
+            <span class="voice-wave"></span>
+            <span class="voice-wave"></span>
+            <span class="voice-wave"></span>
+            <span class="voice-wave"></span>
+        </button>
+
+    </header>
+
+
+    <!-- ================= CORE ACTIVE ================= -->
+
+    <div class="core-active">
+        <i></i>
+        CORE ACTIVE
+        <i></i>
+    </div>
+
+
+    <!-- ================= SYSTEM STATUS ================= -->
+
+    <section class="hud-panel system-panel">
+
+        <div class="panel-title">
+            <h2>SYSTEM STATUS</h2>
+            <div class="panel-lines"></div>
+        </div>
+
+        <div class="system-layout">
+
+            <!-- LEFT STATUS -->
+
+            <div class="status-column">
+
+                <div class="status-card">
+
+                    <div class="status-icon">AI</div>
+
+                    <div class="status-text">
+                        <span>AI CORE</span>
+                        <strong>ONLINE</strong>
+                    </div>
+
+                    <b class="status-dot online"></b>
+
+                </div>
+
+
+                <div class="status-card">
+
+                    <div class="status-icon network">⌁</div>
+
+                    <div class="status-text">
+                        <span>NETWORK</span>
+                        <strong>ONLINE</strong>
+                    </div>
+
+                    <b class="status-dot online"></b>
+
+                </div>
+
+
+                <div class="status-card">
+
+                    <div class="status-icon">♩</div>
+
+                    <div class="status-text">
+                        <span>VOICE</span>
+                        <strong class="yellow-text" id="voiceState">
+                            LOCKED
+                        </strong>
+                    </div>
+
+                    <b class="status-dot locked"></b>
+
+                </div>
+
+
+                <div class="status-card">
+
+                    <div class="status-icon">▣</div>
+
+                    <div class="status-text">
+                        <span>MEMORY</span>
+                        <strong class="yellow-text">
+                            LOCKED
+                        </strong>
+                    </div>
+
+                    <b class="status-dot locked"></b>
+
+                </div>
+
+            </div>
+
+
+            <!-- REACTOR -->
+
+            <div class="reactor-container">
+
+                <div class="reactor-ring ring-one"></div>
+                <div class="reactor-ring ring-two"></div>
+                <div class="reactor-ring ring-three"></div>
+                <div class="reactor-ring ring-four"></div>
+
+                <div class="reactor-lines"></div>
+
+                <div class="reactor-core">
+                    <div class="core-symbol">◆</div>
+                </div>
+
+            </div>
+
+
+            <!-- RIGHT INFO -->
+
+            <div class="info-column">
+
+                <div class="info-card">
+                    <span>JARVIS OS</span>
+                    <strong>v2.0.0</strong>
+                    <div class="progress">
+                        <i></i>
+                    </div>
+                </div>
+
+                <div class="info-card">
+                    <span>UPTIME</span>
+                    <strong id="uptime">00:00:00</strong>
+                    <div class="progress">
+                        <i></i>
+                    </div>
+                </div>
+
+                <div class="info-card">
+                    <span>SYSTEM</span>
+                    <strong>STABLE</strong>
+                    <div class="progress">
+                        <i></i>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- ================= CHAT ================= -->
+
+    <section class="hud-panel chat-panel">
+
+        <div class="panel-title">
+            <h2>HOW CAN I HELP YOU, SIR?</h2>
+            <div class="panel-lines"></div>
+        </div>
+
+
+        <div class="chat-background">
+
+            <div id="chat" class="chat">
+
+                <div class="chat-row jarvis-row">
+
+                    <div class="mini-avatar">
+                        <div></div>
+                    </div>
+
+                    <div class="bubble jarvis-bubble">
+
+                        <label>J.A.R.V.I.S.</label>
+
+                        <p>
+                            J.A.R.V.I.S. online.<br>
+                            Systems initialized.
+                        </p>
+
+                        <small>06:31 PM</small>
+
+                    </div>
+
+                </div>
+
+
+                <div class="chat-row user-row">
+
+                    <div class="bubble user-bubble">
+
+                        <label>YOU</label>
+
+                        <p>Hello J.A.R.V.I.S.</p>
+
+                        <small>
+                            06:32 PM ✓
+                        </small>
+
+                    </div>
+
+                </div>
+
+
+                <div class="chat-row jarvis-row">
+
+                    <div class="mini-avatar">
+                        <div></div>
+                    </div>
+
+                    <div class="bubble jarvis-bubble">
+
+                        <label>J.A.R.V.I.S.</label>
+
+                        <p>
+                            Hello, sir.<br>
+                            How can I assist you today?
+                        </p>
+
+                        <small>06:32 PM</small>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- INPUT -->
+
+        <div class="command-area">
+
+            <input
+                type="text"
+                id="msg"
+                placeholder="Ask J.A.R.V.I.S..."
+                autocomplete="off"
+            >
+
+            <button id="send" class="send-button">
+                ➤
+            </button>
+
+            <button id="voiceButton" class="mic-button">
+                ♩
+            </button>
+
+        </div>
+
+        <div id="voiceStatus" class="voice-status">
+            VOICE STANDBY
+        </div>
+
+    </section>
+
+
+    <!-- ================= BOTTOM NAV ================= -->
+
+    <nav class="bottom-nav">
+
+        <button onclick="showSection('chat')">
+            <span>💬</span>
+            <label>CHAT</label>
+        </button>
+
+        <button onclick="showSection('memory')">
+            <span>♧</span>
+            <label>MEMORY</label>
+        </button>
+
+        <button class="main-core" id="coreButton">
+            <div class="small-reactor">
+                <i></i>
+            </div>
+        </button>
+
+        <button onclick="showSection('system')">
+            <span>▣</span>
+            <label>SYSTEM</label>
+        </button>
+
+        <button onclick="showSection('settings')">
+            <span>⚙</span>
+            <label>SETTINGS</label>
+        </button>
+
+    </nav>
+
+</div>
+
+<script src="script.js"></script>
+
 </body>
 </html>
