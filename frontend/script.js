@@ -1,26 +1,16 @@
-const chat =
-    document.getElementById("chat");
+const chat = document.getElementById("chat");
+const input = document.getElementById("msg");
+const send = document.getElementById("send");
 
-const input =
-    document.getElementById("msg");
+const voiceButton = document.getElementById("voiceButton");
+const voiceHead = document.getElementById("voiceHead");
+const voiceStatus = document.getElementById("voiceStatus");
+const voiceState = document.getElementById("voiceState");
+const coreButton = document.getElementById("coreButton");
 
-const send =
-    document.getElementById("send");
-
-const voiceButton =
-    document.getElementById("voiceButton");
-
-const voiceHead =
-    document.getElementById("voiceHead");
-
-const voiceStatus =
-    document.getElementById("voiceStatus");
-
-const voiceState =
-    document.getElementById("voiceState");
-
-const coreButton =
-    document.getElementById("coreButton");
+let recognition = null;
+let listening = false;
+let voiceUnlocked = false;
 
 
 /* =========================
@@ -28,82 +18,54 @@ const coreButton =
 ========================= */
 
 function currentTime() {
-
-    return new Date().toLocaleTimeString(
-        [],
-        {
-            hour: "2-digit",
-            minute: "2-digit"
-        }
-    );
+    return new Date().toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit"
+    });
 }
 
 
 /* =========================
-   ADD MESSAGE
+   CHAT MESSAGE
 ========================= */
 
 function addMessage(text, type) {
 
-    const message =
-        document.createElement("div");
+    if (!chat) return;
 
-    message.className =
-        "message " + type;
-
+    const message = document.createElement("div");
+    message.className = "message " + type;
 
     if (type === "jarvis") {
 
-        const avatar =
-            document.createElement("div");
-
-        avatar.className =
-            "avatar";
-
+        const avatar = document.createElement("div");
+        avatar.className = "avatar";
         avatar.textContent = "◆";
 
         message.appendChild(avatar);
     }
 
-
-    const bubble =
-        document.createElement("div");
-
+    const bubble = document.createElement("div");
     bubble.className = "bubble";
 
-
-    const label =
-        document.createElement("label");
-
+    const label = document.createElement("label");
     label.textContent =
-        type === "user"
-            ? "YOU"
-            : "J.A.R.V.I.S.";
+        type === "user" ? "YOU" : "J.A.R.V.I.S.";
 
-
-    const paragraph =
-        document.createElement("p");
-
+    const paragraph = document.createElement("p");
     paragraph.textContent = text;
 
-
-    const time =
-        document.createElement("time");
-
-    time.textContent =
-        currentTime();
-
+    const time = document.createElement("time");
+    time.textContent = currentTime();
 
     bubble.appendChild(label);
     bubble.appendChild(paragraph);
     bubble.appendChild(time);
 
     message.appendChild(bubble);
-
     chat.appendChild(message);
 
-    chat.scrollTop =
-        chat.scrollHeight;
+    chat.scrollTop = chat.scrollHeight;
 }
 
 
@@ -113,112 +75,65 @@ function addMessage(text, type) {
 
 function getResponse(text) {
 
-    const command =
-        text.toLowerCase();
-
+    const command = text.toLowerCase().trim();
 
     if (
         command.includes("hello") ||
         command.includes("hi") ||
         command.includes("hey")
     ) {
-
         return "Hello, sir. How can I assist you?";
     }
 
-
-    if (
-        command.includes("how are you")
-    ) {
-
+    if (command.includes("how are you")) {
         return "All systems are operational, sir.";
     }
 
-
-    if (
-        command.includes("status")
-    ) {
-
-        return (
-            "System status: AI core online, " +
-            "network connected, system stable."
-        );
+    if (command.includes("status")) {
+        return "System status: AI core online, network connected, system stable.";
     }
 
-
-    if (
-        command.includes("time")
-    ) {
-
-        return (
-            "The current time is " +
-            new Date().toLocaleTimeString()
-        );
+    if (command.includes("time")) {
+        return "The current time is " +
+            new Date().toLocaleTimeString();
     }
 
-
-    if (
-        command.includes("memory")
-    ) {
-
-        return (
-            "Memory module is ready. " +
-            "Access is currently locked."
-        );
+    if (command.includes("memory")) {
+        return "Memory module is ready.";
     }
 
-
     if (
-        command.includes("who are you")
+        command.includes("who are you") ||
+        command.includes("your name")
     ) {
-
-        return (
-            "I am J.A.R.V.I.S., " +
-            "your personal AI assistant."
-        );
+        return "I am J.A.R.V.I.S., your personal AI assistant.";
     }
 
-
-    return (
-        "Command received, sir. " +
-        "J.A.R.V.I.S. is ready."
-    );
+    return "Command received, sir. J.A.R.V.I.S. is ready.";
 }
 
 
 /* =========================
-   SEND
+   SEND MESSAGE
 ========================= */
 
 function sendMessage() {
 
-    const text =
-        input.value.trim();
+    if (!input) return;
 
+    const text = input.value.trim();
 
-    if (!text) {
-        return;
-    }
+    if (!text) return;
 
-
-    addMessage(
-        text,
-        "user"
-    );
-
+    addMessage(text, "user");
 
     input.value = "";
 
-
     setTimeout(() => {
 
-        const reply =
-            getResponse(text);
+        const reply = getResponse(text);
 
-        addMessage(
-            reply,
-            "jarvis"
-        );
+        addMessage(reply, "jarvis");
 
         speak(reply);
 
@@ -226,24 +141,21 @@ function sendMessage() {
 }
 
 
-send.addEventListener(
-    "click",
-    sendMessage
-);
+if (send) {
+    send.addEventListener("click", sendMessage);
+}
 
 
-input.addEventListener(
-    "keydown",
-    event => {
+if (input) {
+    input.addEventListener("keydown", function(event) {
 
         if (event.key === "Enter") {
-
+            event.preventDefault();
             sendMessage();
-
         }
 
-    }
-);
+    });
+}
 
 
 /* =========================
@@ -252,121 +164,170 @@ input.addEventListener(
 
 function speak(text) {
 
-    if (
-        !window.speechSynthesis
-    ) {
+    if (!("speechSynthesis" in window)) {
         return;
     }
 
-
     speechSynthesis.cancel();
-
 
     const speech =
         new SpeechSynthesisUtterance(text);
 
-
-    speech.rate = .95;
+    speech.lang = "en-IN";
+    speech.rate = 0.95;
     speech.pitch = 1;
     speech.volume = 1;
 
-
-    speechSynthesis.speak(
-        speech
-    );
+    speechSynthesis.speak(speech);
 }
 
 
 /* =========================
-   VOICE RECOGNITION
+   VOICE UI
 ========================= */
 
-const Recognition =
+function setVoiceState(state) {
+
+    if (!voiceState) return;
+
+    voiceState.textContent = state;
+
+    if (
+        state === "UNLOCKED" ||
+        state === "ACTIVE"
+    ) {
+
+        voiceState.className = "green";
+
+    } else {
+
+        voiceState.className = "yellow";
+    }
+}
+
+
+function setVoiceStatus(text) {
+
+    if (voiceStatus) {
+        voiceStatus.textContent = text;
+    }
+}
+
+
+/* =========================
+   VOICE UNLOCK
+========================= */
+
+function unlockVoice() {
+
+    if (voiceUnlocked) {
+        return;
+    }
+
+    voiceUnlocked = true;
+
+    setVoiceState("UNLOCKED");
+
+    setVoiceStatus("VOICE UNLOCKED");
+}
+
+
+/* =========================
+   SPEECH RECOGNITION
+========================= */
+
+const SpeechRecognition =
     window.SpeechRecognition ||
     window.webkitSpeechRecognition;
 
 
-let recognition = null;
-let listening = false;
+if (SpeechRecognition) {
+
+    recognition = new SpeechRecognition();
+
+    recognition.lang = "en-IN";
+
+    recognition.continuous = false;
+
+    recognition.interimResults = false;
+
+    recognition.maxAlternatives = 1;
 
 
-if (Recognition) {
-
-    recognition =
-        new Recognition();
-
-
-    recognition.lang =
-        "en-IN";
-
-
-    recognition.continuous =
-        false;
-
-
-    recognition.interimResults =
-        false;
-
-
-    recognition.onstart = () => {
+    recognition.onstart = function() {
 
         listening = true;
 
-        voiceStatus.textContent =
-            "● LISTENING...";
+        unlockVoice();
 
-        voiceState.textContent =
-            "ACTIVE";
+        setVoiceState("ACTIVE");
 
-        voiceState.className =
-            "green";
+        setVoiceStatus("● LISTENING...");
     };
 
 
-    recognition.onresult =
-        event => {
+    recognition.onresult = function(event) {
 
-            const text =
-                event
-                    .results[0][0]
-                    .transcript;
+        const result =
+            event.results[0][0];
 
+        if (!result) return;
 
-            input.value =
-                text;
+        const text =
+            result.transcript.trim();
 
-            sendMessage();
-        };
+        if (!text) return;
 
+        input.value = text;
 
-    recognition.onerror =
-        () => {
-
-            voiceStatus.textContent =
-                "VOICE ERROR";
-        };
+        sendMessage();
+    };
 
 
-    recognition.onend =
-        () => {
+    recognition.onerror = function(event) {
 
-            listening = false;
+        console.log(
+            "Voice error:",
+            event.error
+        );
 
-            voiceStatus.textContent =
-                "VOICE STANDBY";
+        listening = false;
 
-            voiceState.textContent =
-                "LOCKED";
+        setVoiceState(
+            voiceUnlocked
+                ? "UNLOCKED"
+                : "LOCKED"
+        );
 
-            voiceState.className =
-                "yellow";
-        };
+        setVoiceStatus(
+            event.error === "not-allowed"
+                ? "MIC PERMISSION REQUIRED"
+                : "VOICE ERROR"
+        );
+    };
 
+
+    recognition.onend = function() {
+
+        listening = false;
+
+        setVoiceState(
+            voiceUnlocked
+                ? "UNLOCKED"
+                : "LOCKED"
+        );
+
+        setVoiceStatus(
+            voiceUnlocked
+                ? "VOICE UNLOCKED"
+                : "VOICE STANDBY"
+        );
+    };
 }
 
 
 /* =========================
-   VOICE BUTTON
+   START VOICE
 ========================= */
 
 function startVoice() {
@@ -374,8 +335,12 @@ function startVoice() {
     if (!recognition) {
 
         addMessage(
-            "Voice recognition is not supported in this browser.",
+            "Voice recognition is not supported on this device/browser.",
             "jarvis"
+        );
+
+        setVoiceStatus(
+            "VOICE NOT SUPPORTED"
         );
 
         return;
@@ -390,6 +355,13 @@ function startVoice() {
     }
 
 
+    unlockVoice();
+
+    setVoiceStatus(
+        "STARTING VOICE..."
+    );
+
+
     try {
 
         recognition.start();
@@ -398,41 +370,57 @@ function startVoice() {
 
         console.log(error);
 
+        setVoiceStatus(
+            "VOICE READY"
+        );
     }
 }
 
 
-voiceButton.addEventListener(
-    "click",
-    startVoice
-);
+/* =========================
+   VOICE BUTTONS
+========================= */
+
+if (voiceButton) {
+
+    voiceButton.addEventListener(
+        "click",
+        startVoice
+    );
+}
 
 
-voiceHead.addEventListener(
-    "click",
-    startVoice
-);
+if (voiceHead) {
+
+    voiceHead.addEventListener(
+        "click",
+        startVoice
+    );
+}
 
 
 /* =========================
    CORE BUTTON
 ========================= */
 
-coreButton.addEventListener(
-    "click",
-    () => {
+if (coreButton) {
 
-        const message =
-            "J.A.R.V.I.S. core active. Awaiting your command.";
+    coreButton.addEventListener(
+        "click",
+        function() {
 
-        addMessage(
-            message,
-            "jarvis"
-        );
+            const message =
+                "J.A.R.V.I.S. core active. Awaiting your command.";
 
-        speak(message);
-    }
-);
+            addMessage(
+                message,
+                "jarvis"
+            );
+
+            speak(message);
+        }
+    );
+}
 
 
 /* =========================
@@ -441,9 +429,15 @@ coreButton.addEventListener(
 
 window.addEventListener(
     "load",
-    () => {
+    function() {
 
-        setTimeout(() => {
+        setVoiceState("LOCKED");
+
+        setVoiceStatus(
+            "VOICE STANDBY"
+        );
+
+        setTimeout(function() {
 
             addMessage(
                 "All systems initialized. J.A.R.V.I.S. online.",
