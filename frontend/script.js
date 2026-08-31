@@ -1,1093 +1,953 @@
 /* =========================================================
    J.A.R.V.I.S. MOBILE EDITION
-   ADVANCED FUNCTION SCRIPT
-   MEMORY + VOICE + CHAT + SYSTEM + TIME + DATE
+   STABLE REPLACEMENT SCRIPT
    ========================================================= */
 
 "use strict";
 
-/* =========================================================
-   ELEMENTS
-========================================================= */
+document.addEventListener("DOMContentLoaded", () => {
 
-const chat = document.getElementById("chat");
-const input = document.getElementById("msg");
-const send = document.getElementById("send");
+    /* =====================================================
+       ELEMENTS
+    ===================================================== */
 
-const voiceButton = document.getElementById("voiceButton");
-const voiceHead = document.getElementById("voiceHead");
-const voiceStatus = document.getElementById("voiceStatus");
+    const chat = document.getElementById("chat");
+    const input = document.getElementById("msg");
+    const send = document.getElementById("send");
 
-const voiceState = document.getElementById("voiceState");
-const coreButton = document.getElementById("coreButton");
-const menuBtn = document.getElementById("menuBtn");
+    const voiceButton =
+        document.getElementById("voiceButton");
 
+    const voiceHead =
+        document.getElementById("voiceHead");
 
-/* =========================================================
-   STORAGE
-========================================================= */
+    const voiceStatus =
+        document.getElementById("voiceStatus");
 
-const MEMORY_KEY = "JARVIS_MEMORY_V2";
-const CHAT_KEY = "JARVIS_CHAT_V2";
-const SETTINGS_KEY = "JARVIS_SETTINGS_V2";
-const UNLOCK_KEY = "JARVIS_MEMORY_UNLOCKED";
+    const voiceState =
+        document.getElementById("voiceState");
 
+    const coreButton =
+        document.getElementById("coreButton");
 
-/* =========================================================
-   STATE
-========================================================= */
+    const menuBtn =
+        document.getElementById("menuBtn");
 
-let memories = loadData(MEMORY_KEY, []);
-let chatHistory = loadData(CHAT_KEY, []);
 
-let memoryUnlocked = true;
+    /* =====================================================
+       STORAGE
+    ===================================================== */
 
-localStorage.setItem(
-    UNLOCK_KEY,
-    "true"
-);
+    const MEMORY_KEY = "JARVIS_MEMORY_V3";
+    const CHAT_KEY = "JARVIS_CHAT_V3";
 
-let voiceEnabled = true;
-let listening = false;
-let processing = false;
-let recognition = null;
+    let memories =
+        load(MEMORY_KEY, []);
 
-let pendingQuestion = null;
+    let chatHistory =
+        load(CHAT_KEY, []);
 
+    let memoryUnlocked = true;
+    let recognition = null;
+    let listening = false;
+    let speaking = false;
+    let pendingQuestion = null;
 
-/* =========================================================
-   STORAGE
-========================================================= */
 
-function loadData(key, fallback) {
+    /* =====================================================
+       STORAGE FUNCTIONS
+    ===================================================== */
 
-    try {
+    function load(key, fallback) {
 
-        const data =
-            localStorage.getItem(key);
+        try {
 
-        if (!data) return fallback;
+            const data =
+                localStorage.getItem(key);
 
-        const parsed =
-            JSON.parse(data);
+            if (!data) return fallback;
 
-        return parsed;
+            return JSON.parse(data);
 
-    } catch (error) {
+        } catch (error) {
 
-        console.error(
-            "Storage error:",
-            error
-        );
-
-        return fallback;
-    }
-}
-
-
-function saveData(key, data) {
-
-    try {
-
-        localStorage.setItem(
-            key,
-            JSON.stringify(data)
-        );
-
-    } catch (error) {
-
-        console.error(
-            "Save error:",
-            error
-        );
-    }
-}
-
-
-/* =========================================================
-   TEXT
-========================================================= */
-
-function cleanText(text) {
-
-    return String(text || "")
-        .replace(/\s+/g, " ")
-        .trim();
-}
-
-
-/* =========================================================
-   MEMORY STATUS
-========================================================= */
-
-function getMemoryStatusElement() {
-
-    const boxes =
-        document.querySelectorAll(".status");
-
-    for (const box of boxes) {
-
-        const small =
-            box.querySelector("small");
-
-        if (
-            small &&
-            small.textContent
-                .trim()
-                .toUpperCase() === "MEMORY"
-        ) {
-
-            return box.querySelector("strong");
-        }
-    }
-
-    return null;
-}
-
-
-function updateMemoryStatus() {
-
-    const element =
-        getMemoryStatusElement();
-
-    if (!element) return;
-
-    if (memoryUnlocked) {
-
-        element.textContent = "ONLINE";
-
-        element.classList.remove("yellow");
-        element.classList.add("green");
-
-    } else {
-
-        element.textContent = "LOCKED";
-
-        element.classList.remove("green");
-        element.classList.add("yellow");
-    }
-}
-
-
-/* =========================================================
-   MEMORY
-========================================================= */
-
-function unlockMemory() {
-
-    memoryUnlocked = true;
-
-    localStorage.setItem(
-        UNLOCK_KEY,
-        "true"
-    );
-
-    updateMemoryStatus();
-
-    return (
-        "Memory system unlocked. " +
-        "I am ready to remember."
-    );
-}
-
-
-function lockMemory() {
-
-    memoryUnlocked = false;
-
-    localStorage.setItem(
-        UNLOCK_KEY,
-        "false"
-    );
-
-    updateMemoryStatus();
-
-    return "Memory system locked.";
-}
-
-
-function getCategory(text) {
-
-    const lower =
-        text.toLowerCase();
-
-    if (
-        lower.includes("name") ||
-        lower.includes("call me")
-    ) {
-        return "identity";
-    }
-
-    if (
-        lower.includes("favorite") ||
-        lower.includes("favourite") ||
-        lower.includes("like") ||
-        lower.includes("love") ||
-        lower.includes("prefer")
-    ) {
-        return "preference";
-    }
-
-    if (
-        lower.includes("project") ||
-        lower.includes("jarvis")
-    ) {
-        return "project";
-    }
-
-    return "general";
-}
-
-
-function addMemory(
-    text,
-    category = "general"
-) {
-
-    text =
-        cleanText(text);
-
-    if (!text) return false;
-
-    const duplicate =
-        memories.some(
-            item =>
-                item.text &&
-                item.text.toLowerCase() ===
-                text.toLowerCase()
-        );
-
-    if (duplicate) {
-
-        return true;
-    }
-
-    memories.push({
-
-        id:
-            Date.now() +
-            "-" +
-            Math.random(),
-
-        text,
-
-        category,
-
-        created:
-            new Date().toISOString()
-    });
-
-    saveData(
-        MEMORY_KEY,
-        memories
-    );
-
-    return true;
-}
-
-
-function removeMemory(query) {
-
-    query =
-        cleanText(query).toLowerCase();
-
-    const oldLength =
-        memories.length;
-
-    memories =
-        memories.filter(
-            item =>
-                !item.text
-                    .toLowerCase()
-                    .includes(query)
-        );
-
-    saveData(
-        MEMORY_KEY,
-        memories
-    );
-
-    return (
-        oldLength !== memories.length
-    );
-}
-
-
-function searchMemory(query) {
-
-    query =
-        cleanText(query).toLowerCase();
-
-    return memories.filter(
-        item =>
-            item.text
-                .toLowerCase()
-                .includes(query)
-    );
-}
-
-
-function clearMemories() {
-
-    memories = [];
-
-    saveData(
-        MEMORY_KEY,
-        memories
-    );
-}
-
-
-/* =========================================================
-   REMEMBER
-========================================================= */
-
-function rememberInformation(text) {
-
-    if (!memoryUnlocked) {
-
-        return (
-            "Memory is locked."
-        );
-    }
-
-    let memory =
-        cleanText(text);
-
-    memory =
-        memory
-            .replace(
-                /^remember that\s+/i,
-                ""
-            )
-            .replace(
-                /^remember\s+/i,
-                ""
-            )
-            .replace(
-                /^save that\s+/i,
-                ""
-            )
-            .replace(
-                /^save\s+/i,
-                ""
-            )
-            .trim();
-
-    if (!memory) {
-
-        return (
-            "Tell me what you want me to remember."
-        );
-    }
-
-    addMemory(
-        memory,
-        getCategory(memory)
-    );
-
-    return (
-        `Memory saved: ${memory}`
-    );
-}
-
-
-/* =========================================================
-   RECALL
-========================================================= */
-
-function recallMemory() {
-
-    if (!memoryUnlocked) {
-
-        return "Memory is locked.";
-    }
-
-    if (!memories.length) {
-
-        return (
-            "My memory database is empty."
-        );
-    }
-
-    let result =
-        "Here is what I remember:\n\n";
-
-    memories.forEach(
-        (memory, index) => {
-
-            result +=
-                `${index + 1}. ${memory.text}\n`;
-        }
-    );
-
-    return result;
-}
-
-
-/* =========================================================
-   MEMORY SEARCH COMMAND
-========================================================= */
-
-function memorySearchCommand(text) {
-
-    const query =
-        text
-            .replace(
-                /^search my memories for\s+/i,
-                ""
-            )
-            .replace(
-                /^search memories for\s+/i,
-                ""
-            )
-            .trim();
-
-    if (!query) {
-
-        return (
-            "Tell me what you want me to search for."
-        );
-    }
-
-    const results =
-        searchMemory(query);
-
-    if (!results.length) {
-
-        return (
-            `I couldn't find any memory matching "${query}".`
-        );
-    }
-
-    let response =
-        `Memory search results for "${query}":\n\n`;
-
-    results.forEach(
-        (item, index) => {
-
-            response +=
-                `${index + 1}. ${item.text}\n`;
-        }
-    );
-
-    return response;
-}
-
-
-/* =========================================================
-   FORGET
-========================================================= */
-
-function forgetInformation(text) {
-
-    if (!memoryUnlocked) {
-
-        return "Memory is locked.";
-    }
-
-    let query =
-        cleanText(text);
-
-    query =
-        query
-            .replace(
-                /^forget that\s+/i,
-                ""
-            )
-            .replace(
-                /^forget\s+/i,
-                ""
-            )
-            .replace(
-                /^delete memory\s+/i,
-                ""
-            )
-            .replace(
-                /^remove memory\s+/i,
-                ""
-            )
-            .trim();
-
-    if (!query) {
-
-        return (
-            "Tell me which memory to forget."
-        );
-    }
-
-    if (
-        removeMemory(query)
-    ) {
-
-        return (
-            `I've forgotten the memory matching "${query}".`
-        );
-    }
-
-    return (
-        `I couldn't find a memory matching "${query}".`
-    );
-}
-
-
-/* =========================================================
-   TIME
-========================================================= */
-
-function getCurrentTime() {
-
-    return new Date()
-        .toLocaleTimeString(
-            [],
-            {
-                hour: "2-digit",
-                minute: "2-digit",
-                second: "2-digit"
-            }
-        );
-}
-
-
-/* =========================================================
-   DATE
-========================================================= */
-
-function getCurrentDate() {
-
-    return new Date()
-        .toLocaleDateString(
-            [],
-            {
-                weekday: "long",
-                year: "numeric",
-                month: "long",
-                day: "numeric"
-            }
-        );
-}
-
-
-/* =========================================================
-   BATTERY
-========================================================= */
-
-async function getBatteryStatus() {
-
-    if (
-        !navigator.getBattery
-    ) {
-
-        return (
-            "Battery information is not available on this device."
-        );
-    }
-
-    try {
-
-        const battery =
-            await navigator.getBattery();
-
-        const percentage =
-            Math.round(
-                battery.level * 100
+            console.error(
+                "JARVIS LOAD ERROR:",
+                error
             );
 
-        const charging =
-            battery.charging
-                ? "charging"
-                : "not charging";
-
-        return (
-            `Battery level is ${percentage} percent and ${charging}.`
-        );
-
-    } catch (error) {
-
-        return (
-            "I couldn't access the battery information."
-        );
-    }
-}
-
-
-/* =========================================================
-   NETWORK
-========================================================= */
-
-function getNetworkStatus() {
-
-    if (
-        navigator.onLine
-    ) {
-
-        return (
-            "Network connection is online."
-        );
+            return fallback;
+        }
     }
 
-    return (
-        "Network connection is offline."
-    );
-}
 
+    function save(key, data) {
 
-/* =========================================================
-   SYSTEM STATUS
-========================================================= */
+        try {
 
-async function getSystemStatus() {
+            localStorage.setItem(
+                key,
+                JSON.stringify(data)
+            );
 
-    const battery =
-        await getBatteryStatus();
+        } catch (error) {
 
-    const network =
-        getNetworkStatus();
-
-    return (
-        "J.A.R.V.I.S. SYSTEM STATUS\n\n" +
-        "Memory: ONLINE\n" +
-        `Memories: ${memories.length}\n` +
-        "Voice: " +
-        (
-            recognition
-                ? "AVAILABLE"
-                : "UNAVAILABLE"
-        ) +
-        "\n" +
-        `Network: ${network.includes("online") ? "ONLINE" : "OFFLINE"}\n` +
-        battery
-    );
-}
-
-
-/* =========================================================
-   CHAT HISTORY
-========================================================= */
-
-function saveChat(
-    role,
-    text
-) {
-
-    chatHistory.push({
-
-        role,
-
-        text,
-
-        time:
-            new Date().toISOString()
-    });
-
-    if (
-        chatHistory.length > 100
-    ) {
-
-        chatHistory =
-            chatHistory.slice(-100);
+            console.error(
+                "JARVIS SAVE ERROR:",
+                error
+            );
+        }
     }
 
-    saveData(
-        CHAT_KEY,
-        chatHistory
-    );
-}
 
+    /* =====================================================
+       MEMORY STATUS
+    ===================================================== */
 
-function clearChat() {
+    function updateMemoryStatus() {
 
-    chatHistory = [];
+        const boxes =
+            document.querySelectorAll(".status");
 
-    saveData(
-        CHAT_KEY,
-        chatHistory
-    );
+        boxes.forEach(box => {
 
-    if (chat) {
+            const small =
+                box.querySelector("small");
 
-        chat.innerHTML = "";
+            const strong =
+                box.querySelector("strong");
+
+            if (!small || !strong) return;
+
+            if (
+                small.textContent
+                    .trim()
+                    .toUpperCase() === "MEMORY"
+            ) {
+
+                if (memoryUnlocked) {
+
+                    strong.textContent = "ONLINE";
+
+                    strong.classList.remove(
+                        "yellow"
+                    );
+
+                    strong.classList.add(
+                        "green"
+                    );
+
+                } else {
+
+                    strong.textContent = "LOCKED";
+
+                    strong.classList.remove(
+                        "green"
+                    );
+
+                    strong.classList.add(
+                        "yellow"
+                    );
+                }
+            }
+        });
     }
 
-    return (
-        "Chat history cleared."
-    );
-}
+
+    /* =====================================================
+       VOICE STATUS
+    ===================================================== */
+
+    function updateVoiceStatus() {
+
+        if (!voiceState) return;
+
+        if (recognition) {
+
+            voiceState.textContent =
+                "ONLINE";
+
+            voiceState.classList.remove(
+                "yellow"
+            );
+
+            voiceState.classList.add(
+                "green"
+            );
+
+        } else {
+
+            voiceState.textContent =
+                "UNAVAILABLE";
+
+            voiceState.classList.remove(
+                "green"
+            );
+
+            voiceState.classList.add(
+                "yellow"
+            );
+        }
+    }
 
 
-/* =========================================================
-   CHAT UI
-========================================================= */
+    /* =====================================================
+       ADD CHAT MESSAGE
+    ===================================================== */
 
-function getTime() {
+    function addMessage(type, text) {
 
-    return new Date()
-        .toLocaleTimeString(
-            [],
-            {
+        if (!chat) return;
+
+        const message =
+            document.createElement("div");
+
+        message.className =
+            type === "user"
+                ? "message user"
+                : "message jarvis";
+
+
+        if (type === "jarvis") {
+
+            const avatar =
+                document.createElement("div");
+
+            avatar.className = "avatar";
+            avatar.textContent = "◆";
+
+            const bubble =
+                document.createElement("div");
+
+            bubble.className = "bubble";
+
+            const label =
+                document.createElement("label");
+
+            label.textContent =
+                "J.A.R.V.I.S.";
+
+            const p =
+                document.createElement("p");
+
+            p.textContent = text;
+
+            const time =
+                document.createElement("time");
+
+            time.textContent =
+                getTime();
+
+            bubble.appendChild(label);
+            bubble.appendChild(p);
+            bubble.appendChild(time);
+
+            message.appendChild(avatar);
+            message.appendChild(bubble);
+
+        } else {
+
+            const bubble =
+                document.createElement("div");
+
+            bubble.className = "bubble";
+
+            const label =
+                document.createElement("label");
+
+            label.textContent = "YOU";
+
+            const p =
+                document.createElement("p");
+
+            p.textContent = text;
+
+            const time =
+                document.createElement("time");
+
+            time.textContent =
+                getTime() + " ✓";
+
+            bubble.appendChild(label);
+            bubble.appendChild(p);
+            bubble.appendChild(time);
+
+            message.appendChild(bubble);
+        }
+
+        chat.appendChild(message);
+
+        chat.scrollTop =
+            chat.scrollHeight;
+    }
+
+
+    /* =====================================================
+       TIME
+    ===================================================== */
+
+    function getTime() {
+
+        return new Date()
+            .toLocaleTimeString([], {
                 hour: "2-digit",
                 minute: "2-digit"
-            }
+            });
+    }
+
+
+    /* =====================================================
+       MEMORY
+    ===================================================== */
+
+    function remember(text) {
+
+        if (!memoryUnlocked) {
+
+            return "Memory is locked. Say Memory unlock.";
+        }
+
+        let value =
+            text
+                .replace(/^remember that\s+/i, "")
+                .replace(/^remember\s+/i, "")
+                .replace(/^save that\s+/i, "")
+                .replace(/^save\s+/i, "")
+                .trim();
+
+        if (!value) {
+
+            return "Tell me what you want me to remember.";
+        }
+
+        const exists =
+            memories.some(
+                item =>
+                    item.toLowerCase() ===
+                    value.toLowerCase()
+            );
+
+        if (!exists) {
+
+            memories.push(value);
+
+            save(
+                MEMORY_KEY,
+                memories
+            );
+        }
+
+        return "Memory saved: " + value;
+    }
+
+
+    function recall() {
+
+        if (!memoryUnlocked) {
+
+            return "Memory is locked.";
+        }
+
+        if (!memories.length) {
+
+            return "My memory database is empty.";
+        }
+
+        return (
+            "Here is what I remember:\n\n" +
+            memories
+                .map(
+                    (item, index) =>
+                        `${index + 1}. ${item}`
+                )
+                .join("\n")
         );
-}
-
-
-function addMessage(
-    type,
-    text
-) {
-
-    if (!chat) return;
-
-    const message =
-        document.createElement("div");
-
-    message.className =
-        type === "user"
-            ? "message user"
-            : "message jarvis";
-
-
-    if (type === "jarvis") {
-
-        message.innerHTML = `
-            <div class="avatar">◆</div>
-
-            <div class="bubble">
-
-                <label>J.A.R.V.I.S.</label>
-
-                <p></p>
-
-                <time>${getTime()}</time>
-
-            </div>
-        `;
-
-    } else {
-
-        message.innerHTML = `
-            <div class="bubble">
-
-                <label>YOU</label>
-
-                <p></p>
-
-                <time>${getTime()} ✓</time>
-
-            </div>
-        `;
     }
 
-    const paragraph =
-        message.querySelector("p");
 
-    paragraph.textContent =
-        text;
+    function forget(text) {
 
-    chat.appendChild(
-        message
-    );
+        if (!memoryUnlocked) {
 
-    chat.scrollTop =
-        chat.scrollHeight;
-}
+            return "Memory is locked.";
+        }
 
+        const query =
+            text
+                .replace(/^forget\s+/i, "")
+                .replace(/^forget that\s+/i, "")
+                .trim()
+                .toLowerCase();
 
-/* =========================================================
-   THINKING STATUS
-========================================================= */
+        if (!query) {
 
-function setProcessing(state) {
+            return "Tell me which memory to forget.";
+        }
 
-    processing = state;
+        const old =
+            memories.length;
 
-    if (!voiceStatus) return;
+        memories =
+            memories.filter(
+                item =>
+                    !item
+                        .toLowerCase()
+                        .includes(query)
+            );
 
-    if (state) {
+        save(
+            MEMORY_KEY,
+            memories
+        );
 
-        voiceStatus.textContent =
-            "PROCESSING...";
+        if (memories.length < old) {
 
-    } else if (!listening) {
+            return "Memory forgotten.";
+        }
 
-        voiceStatus.textContent =
-            "READY";
+        return "I couldn't find that memory.";
     }
-}
 
 
-/* =========================================================
-   MEMORY QUESTIONS
-========================================================= */
+    /* =====================================================
+       MEMORY QUESTION
+    ===================================================== */
 
-function answerMemoryQuestion(text) {
+    function memoryQuestion(text) {
 
-    if (!memoryUnlocked) {
+        const lower =
+            text.toLowerCase();
+
+
+        /* NAME */
+
+        if (
+            lower === "what is my name" ||
+            lower === "what's my name"
+        ) {
+
+            const found =
+                memories.filter(
+                    item =>
+                        /^my name is /i.test(item) ||
+                        /^call me /i.test(item)
+                );
+
+            if (!found.length) {
+
+                return "You haven't told me your name yet.";
+            }
+
+            const latest =
+                found[found.length - 1];
+
+            const name =
+                latest
+                    .replace(
+                        /^my name is /i,
+                        ""
+                    )
+                    .replace(
+                        /^call me /i,
+                        ""
+                    );
+
+            return "Your name is " + name + ".";
+        }
+
+
+        /* COLOUR */
+
+        if (
+            lower.includes(
+                "what is my favourite colour"
+            ) ||
+            lower.includes(
+                "what is my favorite colour"
+            ) ||
+            lower.includes(
+                "what is my favourite color"
+            ) ||
+            lower.includes(
+                "what is my favorite color"
+            )
+        ) {
+
+            const found =
+                memories.filter(
+                    item =>
+                        /my favourite colour is /i
+                            .test(item) ||
+                        /my favorite colour is /i
+                            .test(item) ||
+                        /my favourite color is /i
+                            .test(item) ||
+                        /my favorite color is /i
+                            .test(item)
+                );
+
+            if (!found.length) {
+
+                return (
+                    "I don't have your favourite colour saved yet."
+                );
+            }
+
+            const latest =
+                found[found.length - 1];
+
+            const colour =
+                latest.replace(
+                    /^my favou?rite colou?r is /i,
+                    ""
+                );
+
+            return (
+                "Your favourite colour is " +
+                colour +
+                "."
+            );
+        }
+
+
+        /* FOOD */
+
+        if (
+            lower.includes(
+                "what is my favourite food"
+            ) ||
+            lower.includes(
+                "what is my favorite food"
+            )
+        ) {
+
+            const found =
+                memories.filter(
+                    item =>
+                        /my favourite food is /i
+                            .test(item) ||
+                        /my favorite food is /i
+                            .test(item)
+                );
+
+            if (!found.length) {
+
+                return (
+                    "I don't have your favourite food saved yet."
+                );
+            }
+
+            const latest =
+                found[found.length - 1];
+
+            const food =
+                latest.replace(
+                    /^my favou?rite food is /i,
+                    ""
+                );
+
+            return (
+                "Your favourite food is " +
+                food +
+                "."
+            );
+        }
 
         return null;
     }
 
-    const lower =
-        text.toLowerCase();
 
+    /* =====================================================
+       TIME / DATE
+    ===================================================== */
 
-    /* NAME */
-
-    if (
-        lower === "what is my name" ||
-        lower === "what's my name" ||
-        lower.includes("do you know my name")
-    ) {
-
-        const matches =
-            memories.filter(
-                item =>
-                    /my name is/i
-                        .test(item.text) ||
-                    /call me/i
-                        .test(item.text)
-            );
-
-        if (!matches.length) {
-
-            return (
-                "You haven't told me your name yet."
-            );
-        }
-
-        const value =
-            matches[
-                matches.length - 1
-            ].text
-                .replace(
-                    /^my name is\s+/i,
-                    ""
-                )
-                .replace(
-                    /^call me\s+/i,
-                    ""
-                );
+    function currentTime() {
 
         return (
-            `Your name is ${value}.`
+            "The current time is " +
+            new Date().toLocaleTimeString()
         );
     }
 
 
-    /* FAVOURITE COLOUR */
-
-    if (
-        lower.includes(
-            "what is my favourite colour"
-        ) ||
-        lower.includes(
-            "what is my favorite colour"
-        ) ||
-        lower.includes(
-            "what is my favourite color"
-        ) ||
-        lower.includes(
-            "what is my favorite color"
-        ) ||
-        lower.includes(
-            "what's my favourite colour"
-        ) ||
-        lower.includes(
-            "what's my favorite colour"
-        )
-    ) {
-
-        const matches =
-            memories.filter(
-                item =>
-                    /favou?rite\s+colou?r/i
-                        .test(item.text)
-            );
-
-        if (!matches.length) {
-
-            return (
-                "I don't have your favourite colour saved yet."
-            );
-        }
-
-        const latest =
-            matches[
-                matches.length - 1
-            ].text;
-
-        const match =
-            latest.match(
-                /favou?rite\s+colou?r\s+(?:is|=)\s+(.+)/i
-            );
-
-        return match
-            ? `Your favourite colour is ${match[1].trim()}.`
-            : latest;
-    }
-
-
-    /* FAVOURITE FOOD */
-
-    if (
-        lower.includes(
-            "what is my favourite food"
-        ) ||
-        lower.includes(
-            "what is my favorite food"
-        ) ||
-        lower.includes(
-            "what's my favourite food"
-        ) ||
-        lower.includes(
-            "what's my favorite food"
-        )
-    ) {
-
-        const matches =
-            memories.filter(
-                item =>
-                    /favou?rite\s+food/i
-                        .test(item.text)
-            );
-
-        if (!matches.length) {
-
-            return (
-                "I don't have your favourite food saved yet."
-            );
-        }
-
-        const latest =
-            matches[
-                matches.length - 1
-            ].text;
-
-        const match =
-            latest.match(
-                /favou?rite\s+food\s+(?:is|=)\s+(.+)/i
-            );
-
-        return match
-            ? `Your favourite food is ${match[1].trim()}.`
-            : latest;
-    }
-
-    return null;
-}
-
-
-/* =========================================================
-   MAIN RESPONSE ENGINE
-========================================================= */
-
-async function getResponse(text) {
-
-    const command =
-        cleanText(text);
-
-    const lower =
-        command.toLowerCase();
-
-    if (!command) {
-
-        return "Please say something.";
-    }
-
-
-    /* MEMORY UNLOCK */
-
-    if (
-        lower === "memory unlock" ||
-        lower === "unlock memory" ||
-        lower === "unlock my memory"
-    ) {
-
-        return unlockMemory();
-    }
-
-
-    /* MEMORY LOCK */
-
-    if (
-        lower === "memory lock" ||
-        lower === "lock memory"
-    ) {
-
-        return lockMemory();
-    }
-
-
-    /* REMEMBER */
-
-    if (
-        lower.startsWith("remember ") ||
-        lower.startsWith("remember that ") ||
-        lower.startsWith("save ") ||
-        lower.startsWith("save that ")
-    ) {
-
-        return rememberInformation(
-            command
-        );
-    }
-
-
-    /* RECALL */
-
-    if (
-        lower === "what do you remember" ||
-        lower === "show my memories" ||
-        lower === "show memories" ||
-        lower === "recall my memories" ||
-        lower === "my memories"
-    ) {
-
-        return recallMemory();
-    }
-
-
-    /* MEMORY SEARCH */
-
-    if (
-        lower.startsWith(
-            "search my memories for "
-        ) ||
-        lower.startsWith(
-            "search memories for "
-        )
-    ) {
-
-        return memorySearchCommand(
-            command
-        );
-    }
-
-
-    /* MEMORY STATUS */
-
-    if (
-        lower === "memory status" ||
-        lower === "memory count" ||
-        lower === "how many memories"
-    ) {
+    function currentDate() {
 
         return (
-            `Memory is online. ` +
-            `I have ${memories.length} saved memor${
-                memories.length === 1
-                    ? "y"
-                    : "ies"
-            }.`
+            "Today is " +
+            new Date().toLocaleDateString(
+                [],
+                {
+                    weekday: "long",
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric"
+                }
+            )
         );
     }
 
 
-    /* FORGET ALL */
+    /* =====================================================
+       RESPONSE ENGINE
+    ===================================================== */
 
-    if (
-        lower === "forget everything" ||
-        lower === "forget all memories" ||
-        lower === "clear memory" ||
-        lower 
+    function getResponse(text) {
+
+        const command =
+            text.trim();
+
+        const lower =
+            command.toLowerCase();
+
+
+        if (!command) {
+
+            return "Please say something.";
+        }
+
+
+        /* MEMORY UNLOCK */
+
+        if (
+            lower === "memory unlock" ||
+            lower === "unlock memory" ||
+            lower === "unlock my memory"
+        ) {
+
+            memoryUnlocked = true;
+
+            localStorage.setItem(
+                "JARVIS_MEMORY_UNLOCKED",
+                "true"
+            );
+
+            updateMemoryStatus();
+
+            return (
+                "Memory system unlocked. I am ready to remember."
+            );
+        }
+
+
+        /* MEMORY LOCK */
+
+        if (
+            lower === "memory lock" ||
+            lower === "lock memory"
+        ) {
+
+            memoryUnlocked = false;
+
+            localStorage.setItem(
+                "JARVIS_MEMORY_UNLOCKED",
+                "false"
+            );
+
+            updateMemoryStatus();
+
+            return "Memory system locked.";
+        }
+
+
+        /* REMEMBER */
+
+        if (
+            lower.startsWith("remember ") ||
+            lower.startsWith("remember that ") ||
+            lower.startsWith("save ") ||
+            lower.startsWith("save that ")
+        ) {
+
+            return remember(command);
+        }
+
+
+        /* RECALL */
+
+        if (
+            lower === "what do you remember" ||
+            lower === "show my memories" ||
+            lower === "show memories" ||
+            lower === "my memories"
+        ) {
+
+            return recall();
+        }
+
+
+        /* FORGET */
+
+        if (
+            lower.startsWith("forget ")
+        ) {
+
+            return forget(command);
+        }
+
+
+        /* CLEAR MEMORY */
+
+        if (
+            lower === "clear memory" ||
+            lower === "forget everything"
+        ) {
+
+            if (!memoryUnlocked) {
+
+                return "Memory is locked.";
+            }
+
+            memories = [];
+
+            save(
+                MEMORY_KEY,
+                memories
+            );
+
+            return "All memories have been cleared.";
+        }
+
+
+        /* MEMORY QUESTION */
+
+        const answer =
+            memoryQuestion(command);
+
+        if (answer) {
+
+            return answer;
+        }
+
+
+        /* TIME */
+
+        if (
+            lower === "time" ||
+            lower === "what time is it" ||
+            lower === "what's the time"
+        ) {
+
+            return currentTime();
+        }
+
+
+        /* DATE */
+
+        if (
+            lower === "date" ||
+            lower === "what is today's date" ||
+            lower === "what's today's date"
+        ) {
+
+            return currentDate();
+        }
+
+
+        /* MEMORY STATUS */
+
+        if (
+            lower === "memory status"
+        ) {
+
+            return (
+                "Memory is " +
+                (
+                    memoryUnlocked
+                        ? "ONLINE."
+                        : "LOCKED."
+                ) +
+                " Saved memories: " +
+                memories.length
+            );
+        }
+
+
+        /* CLEAR CHAT */
+
+        if (
+            lower === "clear chat"
+        ) {
+
+            chatHistory = [];
+
+            save(
+                CHAT_KEY,
+                chatHistory
+            );
+
+            if (chat) {
+                chat.innerHTML = "";
+            }
+
+            return "Chat history cleared.";
+        }
+
+
+        /* HELP */
+
+        if (
+            lower === "help" ||
+            lower === "jarvis help"
+        ) {
+
+            return (
+                "J.A.R.V.I.S. COMMANDS\n\n" +
+                "Memory unlock\n" +
+                "Remember that...\n" +
+                "What do you remember?\n" +
+                "What is my name?\n" +
+                "What is my favourite colour?\n" +
+                "What is my favourite food?\n" +
+                "Memory status\n" +
+                "Forget...\n" +
+                "Clear memory\n" +
+                "Memory lock\n" +
+                "What time is it?\n" +
+                "What is today's date?\n" +
+                "Clear chat"
+            );
+        }
+
+
+        /* GREETING */
+
+        if (
+            lower === "hello" ||
+            lower === "hi" ||
+            lower === "hey" ||
+            lower === "hello jarvis"
+        ) {
+
+            return (
+                "Hello. J.A.R.V.I.S. systems are online."
+            );
+        }
+
+
+        /* IDENTITY */
+
+        if (
+            lower.includes("who are you")
+        ) {
+
+            return (
+                "I am J.A.R.V.I.S., your personal AI assistant."
+            );
+        }
+
+
+        /* DEFAULT */
+
+        return (
+            'I received: "' +
+            command +
+            '"'
+        );
+    }
+
+
+    /* =====================================================
+       SEND MESSAGE
+    ===================================================== */
+
+    async function sendMessage() {
+
+        if (!input) return;
+
+        const text =
+            input.value.trim();
+
+        if (!text) return;
+
+        addMessage(
+            "user",
+            text
+        );
+
+        chatHistory.push({
+            role: "user",
+            text: text
+        });
+
+        save(
+            CHAT_KEY,
+            chatHistory
+        );
+
+        input.value = "";
+
+        const response =
+            getResponse(text);
+
+        addMessage(
+            "jarvis",
+            response
+        );
+
+        chatHistory.push({
+            role: "jarvis",
+            text: response
+        });
+
+        save(
+            CHAT_KEY,
+            chatHistory
+        );
+
+        speak(response);
+    }
+
+
+    /* =====================================================
+       SEND BUTTON
+    ===================================================== */
+
+    if (send) {
+
+        send.addEventListener(
+            "click",
+            sendMessage
+        );
+    }
+
+
+    /* =====================================================
+       ENTER KEY
+    ===================================================== */
+
+    if (input) {
+
+        input.addEventListener(
+            "keydown",
+            event => {
+
+                if (
+                    event.key === "Enter"
+                ) {
+
+                    event.preventDefault();
+
+                    sendMessage();
+                }
+            }
+        );
+    }
+
+
+    /* =====================================================
+       TEXT TO SPEECH
+    ===================================================== */
+
+    function speak(text) {
+
+        if (
+            !window.speechSynthesis
+        ) return;
+
+        try {
+
+            window.speechSynthesis.cancel();
+
+            const utterance =
+                new SpeechSynthesisUtterance(
+                
